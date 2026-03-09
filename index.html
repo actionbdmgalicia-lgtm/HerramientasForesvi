@@ -150,6 +150,27 @@
             font-weight: 600;
         }
 
+        /* MENU TOGGLE (solo móvil) */
+        .menu-toggle {
+            display: none;
+        }
+
+        /* OVERLAY PARA CERRAR SIDEBAR EN MÓVIL */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
         /* MAIN CONTENT */
         .main {
             flex: 1;
@@ -460,10 +481,36 @@
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
+            .menu-toggle {
+                display: block !important;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: white;
+                border: none;
+                width: 44px;
+                height: 44px;
+                border-radius: 6px;
+                cursor: pointer;
+                z-index: 101;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                font-size: 24px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .menu-toggle:active {
+                background: #667eea;
+                color: white;
+            }
+
             .sidebar {
-                width: 0;
+                width: 280px;
                 left: -280px;
-                transition: left 0.3s;
+                transition: left 0.3s ease;
+                z-index: 100;
             }
 
             .sidebar.open {
@@ -473,25 +520,11 @@
             .main {
                 margin-left: 0;
                 padding: 20px;
+                padding-top: 80px;
             }
 
             .tools-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .menu-toggle {
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                background: white;
-                border: none;
-                width: 40px;
-                height: 40px;
-                border-radius: 6px;
-                cursor: pointer;
-                z-index: 99;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                font-size: 20px;
             }
 
             .header h2 {
@@ -519,7 +552,8 @@
     </style>
 </head>
 <body>
-    <button class="menu-toggle" id="menuToggle" style="display: none;">☰</button>
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="container">
         <!-- SIDEBAR -->
@@ -920,7 +954,17 @@
         }
 
         function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function openSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
         }
 
         // MODAL CONFIGURACIÓN
@@ -1111,15 +1155,32 @@
         // RESPONSIVE
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
-                document.getElementById('sidebar').classList.remove('open');
-                document.getElementById('menuToggle').style.display = 'none';
-            } else {
-                document.getElementById('menuToggle').style.display = 'block';
+                closeSidebar();
             }
         });
 
-        document.getElementById('menuToggle')?.addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('open');
+        // Toggle sidebar en móvil
+        document.getElementById('menuToggle')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+
+        // Cerrar sidebar al hacer click en el overlay
+        document.getElementById('sidebarOverlay')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeSidebar();
+        });
+
+        // Cerrar sidebar al hacer click en una herramienta
+        document.addEventListener('click', (e) => {
+            if (e.target.classList?.contains('tool-item') && window.innerWidth <= 768) {
+                closeSidebar();
+            }
         });
 
         // INICIAR
