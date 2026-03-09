@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora ROI · Planes de Marketing para Restaurantes</title>
+  <style>
+    :root {
+      --primary-dark: #1A202C;
+      --primary: #2D3748;
+      --primary-light: #4A5568;
+      --plan-s: #1D4ED8;
+      --plan-s-light: #EFF6FF;
+      --plan-s-mid: #DBEAFE;
+      --plan-m: #7C3AED;
+      --plan-m-light: #F5F3FF;
+      --plan-m-mid: #EDE9FE;
+      --plan-l: #B45309;
+      --plan-l-light: #FFFBEB;
+      --plan-l-mid: #FEF3C7;
+      --green-dark: #14532D;
+      --green: #15803D;
+      --green-light: #F0FDF4;
+      --green-mid: #BBF7D0;
+      --red: #B91C1C;
+      --red-light: #FEF2F2;
+      --red-mid: #FECACA;
+      --amber: #B45309;
+      --amber-light: #FFFBEB;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #EDF2F7;
+      color: var(--gray-800);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    .site-header {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #1E3A5F 100%);
+      color: white;
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .site-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .header-inner { position: relative; max-width: 700px; margin: 0 auto; }
+    .header-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #93C5FD;
+      margin-bottom: 0.85rem;
+      background: rgba(147,197,253,.12);
+      padding: 0.3rem 0.85rem;
+      border-radius: 20px;
+      border: 1px solid rgba(147,197,253,.25);
+    }
+    .site-header h1 {
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.85rem;
+    }
+    .site-header h1 .accent { color: #FCD34D; }
+    .site-header .subtitle {
+      font-size: 1rem;
+      color: #94A3B8;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── MAIN ────────────────────────────────────── */
+    main { max-width: 1240px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+
+    /* ── SECTION TITLE ───────────────────────────── */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-title .icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
+    }
+
+    /* ── INPUTS PANEL ────────────────────────────── */
+    .inputs-panel {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.75rem;
+    }
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.75rem;
+    }
+    .input-group { display: flex; flex-direction: column; gap: 0.6rem; }
+    .input-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-600);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .value-pill {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--gray-100);
+      border-radius: 8px;
+      padding: 0.15rem 0.6rem;
+      min-width: 70px;
+      text-align: right;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: var(--gray-200);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 3px solid white;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25);
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    .range-limits {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--gray-500);
+    }
+    .alert-box {
+      display: none;
+      margin-top: 1.1rem;
+      background: var(--red-light);
+      border: 1px solid var(--red-mid);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: var(--red);
+      font-weight: 500;
+    }
+    .alert-box.visible { display: flex; align-items: flex-start; gap: 0.5rem; }
+
+    /* ── PLANS GRID ──────────────────────────────── */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── PLAN CARD ───────────────────────────────── */
+    .plan-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+      border-top: 5px solid transparent;
+    }
+    .plan-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .plan-card[data-plan="S"] { border-top-color: var(--plan-s); }
+    .plan-card[data-plan="M"] { border-top-color: var(--plan-m); }
+    .plan-card[data-plan="L"] { border-top-color: var(--plan-l); }
+
+    /* Card header */
+    .card-head { padding: 1.4rem 1.5rem 1.2rem; }
+    .plan-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 0.65rem;
+    }
+    .plan-card[data-plan="S"] .plan-badge { background: var(--plan-s-mid); color: var(--plan-s); }
+    .plan-card[data-plan="M"] .plan-badge { background: var(--plan-m-mid); color: var(--plan-m); }
+    .plan-card[data-plan="L"] .plan-badge { background: var(--plan-l-mid); color: var(--plan-l); }
+
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 0.15rem;
+    }
+    .plan-card[data-plan="S"] .plan-name { color: var(--plan-s); }
+    .plan-card[data-plan="M"] .plan-name { color: var(--plan-m); }
+    .plan-card[data-plan="L"] .plan-name { color: var(--plan-l); }
+
+    .plan-tagline {
+      font-size: 0.88rem;
+      font-style: italic;
+      color: var(--gray-500);
+      margin-bottom: 1rem;
+    }
+
+    .invest-box {
+      border-radius: 9px;
+      padding: 0.85rem 1rem;
+    }
+    .plan-card[data-plan="S"] .invest-box { background: var(--plan-s-light); }
+    .plan-card[data-plan="M"] .invest-box { background: var(--plan-m-light); }
+    .plan-card[data-plan="L"] .invest-box { background: var(--plan-l-light); }
+
+    .invest-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 0.2rem;
+    }
+    .invest-amount {
+      font-size: 1.75rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 0.2rem;
+    }
+    .plan-card[data-plan="S"] .invest-amount { color: var(--plan-s); }
+    .plan-card[data-plan="M"] .invest-amount { color: var(--plan-m); }
+    .plan-card[data-plan="L"] .invest-amount { color: var(--plan-l); }
+
+    .invest-breakdown {
+      font-size: 0.78rem;
+      color: var(--gray-600);
+    }
+
+    /* Card criteria */
+    .card-criteria {
+      padding: 0.75rem 1.5rem;
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-100);
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.83rem;
+      color: var(--gray-600);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Metrics */
+    .card-metrics { padding: 1.25rem 1.5rem; flex: 1; }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--gray-100);
+      gap: 0.5rem;
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-label { font-size: 0.83rem; color: var(--gray-600); flex: 1; }
+    .metric-val { font-size: 0.92rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
+    .metric-val.big { font-size: 1.05rem; }
+
+    /* Net benefit highlight */
+    .net-highlight {
+      border-radius: 9px;
+      padding: 0.85rem 1rem;
+      margin: 0.85rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .net-highlight.positive { background: var(--green-light); border: 1px solid var(--green-mid); }
+    .net-highlight.negative { background: var(--red-light); border: 1px solid var(--red-mid); }
+    .net-highlight .net-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .net-highlight.positive .net-label { color: var(--green); }
+    .net-highlight.negative .net-label { color: var(--red); }
+    .net-highlight .net-val { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.02em; }
+    .net-highlight.positive .net-val { color: var(--green-dark); }
+    .net-highlight.negative .net-val { color: var(--red); }
+
+    /* ROI badge */
+    .roi-strip {
+      padding: 1rem 1.5rem;
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .roi-left { font-size: 0.78rem; color: var(--gray-500); }
+    .roi-left strong { display: block; font-size: 0.8rem; color: var(--gray-700); }
+    .roi-pct {
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .roi-pct.great { color: var(--green); }
+    .roi-pct.good { color: var(--amber); }
+    .roi-pct.bad { color: var(--red); }
+    .annual-net {
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+    }
+    .annual-net strong { display: block; font-size: 1rem; font-weight: 800; color: var(--gray-800); }
+
+    /* Services toggle */
+    .services-section { border-top: 1px solid var(--gray-100); }
+    .services-btn {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      transition: background .15s;
+    }
+    .services-btn:hover { background: var(--gray-50); }
+    .services-btn .arrow {
+      font-size: 0.7rem;
+      transition: transform .2s;
+    }
+    .services-body {
+      display: none;
+      padding: 0 1.5rem 1.5rem;
+    }
+    .services-body.open { display: block; }
+    .svc-group { margin-bottom: 1rem; }
+    .svc-group:last-child { margin-bottom: 0; }
+    .svc-group-title {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--gray-200);
+      margin-bottom: 0.4rem;
+    }
+    .svc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--gray-700);
+      padding: 0.2rem 0;
+      line-height: 1.45;
+    }
+    .svc-check { color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
+
+    /* ── COMPARISON SECTION ──────────────────────── */
+    .comparison-section {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.75rem;
+    }
+    .comparison-bars { display: flex; flex-direction: column; gap: 1.1rem; margin-top: 1.25rem; }
+    .cmp-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 130px;
+      align-items: center;
+      gap: 1rem;
+    }
+    .cmp-label { font-size: 0.85rem; font-weight: 700; text-align: right; }
+    .bar-track {
+      background: var(--gray-100);
+      border-radius: 6px;
+      height: 30px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.65rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.9);
+      transition: width .6s cubic-bezier(.4,0,.2,1);
+      min-width: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .cmp-val { font-size: 0.9rem; font-weight: 800; }
+    .cmp-val.pos { color: var(--green); }
+    .cmp-val.neg { color: var(--red); }
+
+    /* ── SUMMARY TABLE ───────────────────────────── */
+    .summary-section {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.75rem;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead th {
+      background: var(--gray-50);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+      border-bottom: 2px solid var(--gray-200);
+    }
+    thead th:first-child { border-radius: 6px 0 0 0; }
+    thead th:last-child { border-radius: 0 6px 0 0; }
+    tbody td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-700);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--gray-50); }
+    td.td-label { font-weight: 600; color: var(--gray-800); }
+    td.td-s { color: var(--plan-s); font-weight: 700; }
+    td.td-m { color: var(--plan-m); font-weight: 700; }
+    td.td-l { color: var(--plan-l); font-weight: 700; }
+    td.td-net { font-weight: 800; }
+    td.td-pos { color: var(--green-dark); }
+    td.td-neg { color: var(--red); }
+
+    /* ── DISCLAIMER ──────────────────────────────── */
+    .disclaimer {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.4rem 1.75rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--gray-300);
+    }
+    .disclaimer p { font-size: 0.8rem; color: var(--gray-500); line-height: 1.7; }
+    .disclaimer p + p { margin-top: 0.4rem; }
+
+    /* ── PLAN COSTS SECTION ──────────────────────── */
+    .plan-costs-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    .plan-costs-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-600);
+      margin-bottom: 1rem;
+    }
+    .plan-costs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .plan-cost-group { display: flex; flex-direction: column; gap: 0.6rem; }
+    .plan-cost-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slider-s::-webkit-slider-thumb { background: var(--plan-s); }
+    .slider-m::-webkit-slider-thumb { background: var(--plan-m); }
+    .slider-l::-webkit-slider-thumb { background: var(--plan-l); }
+    .slider-s::-webkit-slider-runnable-track { background: var(--plan-s-mid); }
+    .slider-m::-webkit-slider-runnable-track { background: var(--plan-m-mid); }
+    .slider-l::-webkit-slider-runnable-track { background: var(--plan-l-mid); }
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 700px) {
+      .plans-grid { grid-template-columns: 1fr; }
+      .cmp-row { grid-template-columns: 70px 1fr 90px; }
+      .header-eyebrow { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-eyebrow">📊 Herramienta de análisis · Inversión en marketing</div>
+    <h1>Calculadora de <span class="accent">Beneficio</span><br>para tu Restaurante</h1>
+    <p class="subtitle">Calcula el retorno real de invertir en marketing según el plan elegido</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- INPUTS -->
+  <div class="inputs-panel">
+    <h2 class="section-title">
+      <span class="icon" style="background:#EFF6FF;color:#1D4ED8">⚙️</span>
+      Configura los parámetros de tu restaurante
+    </h2>
+    <div class="inputs-grid">
+      <div class="input-group">
+        <label>Ticket medio por cliente <span class="value-pill" id="d-ticket">35 €</span></label>
+        <input type="range" id="sl-ticket" min="20" max="120" value="35" step="1">
+        <div class="range-limits"><span>20 €</span><span>120 €</span></div>
+      </div>
+      <div class="input-group">
+        <label>Margen bruto sobre ventas <span class="value-pill" id="d-margin">40 %</span></label>
+        <input type="range" id="sl-margin" min="10" max="70" value="40" step="1">
+        <div class="range-limits"><span>10 %</span><span>70 %</span></div>
+      </div>
+      <div class="input-group">
+        <label>Servicios operativos / mes <span class="value-pill" id="d-services">25</span></label>
+        <input type="range" id="sl-services" min="10" max="62" value="25" step="1">
+        <div class="range-limits"><span>10</span><span>62 (2/día)</span></div>
+      </div>
+    </div>
+    <div class="plan-costs-section">
+      <div class="plan-costs-title">% de coste del plan sobre ingresos generados</div>
+      <div class="plan-costs-grid">
+        <div class="plan-cost-group">
+          <label class="plan-cost-label" style="color:var(--plan-s)">PLAN S <span class="value-pill" id="d-pct-S" style="background:var(--plan-s-mid);color:var(--plan-s)">20 %</span></label>
+          <input type="range" id="sl-pct-S" min="10" max="30" value="20" step="1" class="plan-slider slider-s">
+          <div class="range-limits"><span>10 %</span><span>30 %</span></div>
+        </div>
+        <div class="plan-cost-group">
+          <label class="plan-cost-label" style="color:var(--plan-m)">PLAN M <span class="value-pill" id="d-pct-M" style="background:var(--plan-m-mid);color:var(--plan-m)">20 %</span></label>
+          <input type="range" id="sl-pct-M" min="10" max="30" value="20" step="1" class="plan-slider slider-m">
+          <div class="range-limits"><span>10 %</span><span>30 %</span></div>
+        </div>
+        <div class="plan-cost-group">
+          <label class="plan-cost-label" style="color:var(--plan-l)">PLAN L <span class="value-pill" id="d-pct-L" style="background:var(--plan-l-mid);color:var(--plan-l)">20 %</span></label>
+          <input type="range" id="sl-pct-L" min="10" max="30" value="20" step="1" class="plan-slider slider-l">
+          <div class="range-limits"><span>10 %</span><span>30 %</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="alert-box" id="ticket-alert">
+      ⚠️ <span>El ticket medio recomendado es superior a <strong>35 €</strong> para estos planes. Por debajo de este umbral los resultados pueden no ser representativos.</span>
+    </div>
+  </div>
+
+  <!-- PLAN CARDS -->
+  <div class="plans-grid" id="plans-grid"></div>
+
+  <!-- COMPARISON BAR CHART -->
+  <div class="comparison-section">
+    <h2 class="section-title">
+      <span class="icon" style="background:#F0FDF4;color:#15803D">📈</span>
+      Beneficio neto mensual comparado
+    </h2>
+    <div class="comparison-bars" id="cmp-bars"></div>
+  </div>
+
+  <!-- SUMMARY TABLE -->
+  <div class="summary-section">
+    <h2 class="section-title" style="margin-bottom:0.5rem">
+      <span class="icon" style="background:#F5F3FF;color:#7C3AED">📋</span>
+      Resumen comparativo completo
+    </h2>
+    <table id="summary-table">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>PLAN S · Llenador de Mesas</th>
+          <th>PLAN M · Generador de Lealtad</th>
+          <th>PLAN L · Partner de Expansión</th>
+        </tr>
+      </thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <p><strong>Metodología:</strong> Los nuevos clientes proyectados son Plan S: 286/mes, Plan M: 358/mes, Plan L: 500/mes (base: 25 servicios/mes). Al cambiar el número de servicios, los totales se escalan proporcionalmente. Los ingresos adicionales = clientes × ticket medio. El beneficio bruto aplica el margen indicado. La inversión en marketing = % seleccionado × ingresos adicionales generados. El beneficio neto = beneficio bruto – inversión.</p>
+    <p>* Los Planes M y L incluyen comisiones variables de <strong>Delitbee</strong> (delivery) no reflejadas en este cálculo. Los resultados son estimaciones orientativas; los resultados reales variarán según mercado, estacionalidad y ejecución.</p>
+  </div>
+
+</main>
+
+<script>
+  /* ── DATA ──────────────────────────────────────────────────────── */
+  const BASE_SERVICES = 25;
+
+  const PLANS = [
+    {
+      id: 'S',
+      name: 'PLAN S',
+      tagline: '"Llenador de Mesas"',
+      question: '¿Tienes 10 servicios huecos para llenar? (SEO / Google Ads)',
+      baseMonthlyCustomers: 286,
+      baseWeeklyCustomers: 96,
+      baseDailyCustomers: 11.44,
+      investment: 2000,
+      fee: 1500,
+      ads: 500,
+      hasDelitbee: false,
+      hasRRSS: false,
+      color: '#1D4ED8',
+    },
+    {
+      id: 'M',
+      name: 'PLAN M',
+      tagline: '"Generador de Lealtad"',
+      question: '¿Tienes 15 servicios huecos para llenar? (10 nuevos + 5 que repiten)',
+      baseMonthlyCustomers: 358,
+      baseWeeklyCustomers: 120,
+      baseDailyCustomers: 14.32,
+      investment: 2500,
+      fee: 2000,
+      ads: 500,
+      hasDelitbee: true,
+      hasRRSS: false,
+      color: '#7C3AED',
+    },
+    {
+      id: 'L',
+      name: 'PLAN L',
+      tagline: '"Partner de Expansión"',
+      question: '¿Tienes 20 servicios huecos para llenar? (10 nuevos + 5 repiten + 5 RRSS)',
+      baseMonthlyCustomers: 500,
+      baseWeeklyCustomers: 167,
+      baseDailyCustomers: 20,
+      investment: 3500,
+      fee: 3000,
+      ads: 500,
+      hasDelitbee: true,
+      hasRRSS: true,
+      color: '#B45309',
+    },
+  ];
+
+  const SERVICES_BASE = [
+    { group: 'Estrategia & Coordinación', items: [
+      'Auditoría inicial completa',
+      'Estrategia de marketing y comunicación omnicanal',
+      'Coordinación de proyecto y equipos',
+      'Mediciones e informes semanales y mensuales',
+    ]},
+    { group: 'Ficha Google', items: [
+      'Diseño y configuración SEO',
+      'Redacción y publicación de posts (×4/mes)',
+      'Sistema de captación de reseñas',
+      'Mantenimiento y optimización semanal',
+    ]},
+    { group: 'Web', items: [
+      'Revisión y optimización de la web',
+      'Redacción y publicación de artículos blog (×4/mes)',
+      'Mantenimiento y optimización semanal',
+    ]},
+    { group: 'Google Ads', items: [
+      'Diseño y configuración (conexión APIs)',
+      'Gestión de campañas branding + reservas',
+      'Revisión y optimización diaria de campañas',
+    ]},
+  ];
+
+  const SERVICES_DELITBEE = [
+    { group: 'Delitbee · Club de Fidelización', items: [
+      'Diseño y configuración de Club fidelización',
+      'Reducción comisiones delivery',
+      'Integración Club con web',
+      'Gestión de plataforma y cambios',
+    ]},
+    { group: 'Brevo · Email Marketing', items: [
+      'Apertura de plataforma y sincronización Club',
+      'Diseño y configuración de automatizaciones',
+      'Diseño y configuración de plantillas',
+      'Gestión de newsletter de fidelización',
+      'Gestión de leads y plataforma',
+    ]},
+  ];
+
+  const SERVICES_RRSS = [
+    { group: 'Redes Sociales (IG + TT + YT)', items: [
+      'Apertura y configuración de perfiles',
+      'Estrategia de contenido y calendarización',
+      'Guionización, grabación y edición de contenido',
+      'Subida de vídeos, stories, carruseles, etc.',
+      'Gestión de comentarios y comunidad',
+      'Creación de embudo para aumentar reservas/pedidos',
+    ]},
+  ];
+
+  /* ── HELPERS ───────────────────────────────────────────────────── */
+  const euro = n => new Intl.NumberFormat('es-ES', {
+    style: 'currency', currency: 'EUR', maximumFractionDigits: 0
+  }).format(n);
+
+  const num1 = n => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 }).format(n);
+  const num0 = n => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(n);
+
+  const pct = n => (n >= 0 ? '+' : '') + Math.round(n) + ' %';
+
+  const roiClass = roi =>
+    roi >= 80 ? 'great' : roi >= 0 ? 'good' : 'bad';
+
+  /* ── CALCULATE ─────────────────────────────────────────────────── */
+  function calc(plan, ticket, margin, services, planPct) {
+    const scale      = services / BASE_SERVICES;
+    const monthly    = Math.round(plan.baseMonthlyCustomers * scale);
+    const weekly     = Math.round(plan.baseWeeklyCustomers  * scale);
+    const daily      = +(plan.baseDailyCustomers).toFixed(2);
+    const revenue    = monthly * ticket;
+    const gross      = revenue * (margin / 100);
+    const investment = revenue * (planPct / 100);
+    const net        = gross - investment;
+    const roi        = investment > 0 ? (net / investment) * 100 : 0;
+    return { monthly, weekly, daily, revenue, gross, investment, planPct, net, roi, annualNet: net * 12 };
+  }
+
+  /* ── SERVICES HTML ─────────────────────────────────────────────── */
+  function servicesHTML(plan) {
+    const groups = [
+      ...SERVICES_BASE,
+      ...(plan.hasDelitbee ? SERVICES_DELITBEE : []),
+      ...(plan.hasRRSS ? SERVICES_RRSS : []),
+    ];
+    return groups.map(g => `
+      <div class="svc-group">
+        <div class="svc-group-title">${g.group}</div>
+        ${g.items.map(item =>
+          `<div class="svc-item"><span class="svc-check">✓</span>${item}</div>`
+        ).join('')}
+      </div>
+    `).join('');
+  }
+
+  /* ── RENDER CARD ───────────────────────────────────────────────── */
+  function cardHTML(plan, r) {
+    const netClass = r.net >= 0 ? 'positive' : 'negative';
+    const roiCls   = roiClass(r.roi);
+    const blockCount = 4 + (plan.hasDelitbee ? 2 : 0) + (plan.hasRRSS ? 1 : 0);
+    const srvOpen = openServices.has(plan.id);
+
+    return `
+    <div class="plan-card" data-plan="${plan.id}">
+
+      <div class="card-head">
+        <div class="plan-badge">${plan.name}</div>
+        <div class="plan-name">${plan.name}</div>
+        <div class="plan-tagline">${plan.tagline}</div>
+        <div class="invest-box">
+          <div class="invest-label">Coste del plan sobre ingresos generados</div>
+          <div class="invest-amount" id="invest-pct-${plan.id}">${r.planPct} %</div>
+          <div class="invest-breakdown">
+            = ${euro(r.investment)} / mes${plan.hasDelitbee ? ' + Comisiones Delitbee*' : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-criteria">${plan.question}</div>
+
+      <div class="card-metrics">
+        <div class="metric-row">
+          <span class="metric-label">Nuevos clientes / servicio</span>
+          <span class="metric-val">${num1(r.daily)}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Nuevos clientes / semana</span>
+          <span class="metric-val">${num0(r.weekly)}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Nuevos clientes / mes</span>
+          <span class="metric-val big">${num0(r.monthly)}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Ingresos adicionales / mes</span>
+          <span class="metric-val big">${euro(r.revenue)}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Beneficio bruto adicional / mes</span>
+          <span class="metric-val">${euro(r.gross)}</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Inversión marketing / mes</span>
+          <span class="metric-val" style="color:var(--red)">– ${euro(r.investment)}</span>
+        </div>
+
+        <div class="net-highlight ${netClass}">
+          <div>
+            <div class="net-label">Beneficio neto / mes</div>
+          </div>
+          <div class="net-val">${euro(r.net)}</div>
+        </div>
+
+      </div>
+
+      <div class="roi-strip">
+        <div class="roi-left">
+          <strong>ROI mensual</strong>
+          sobre inversión
+        </div>
+        <div class="roi-pct ${roiCls}">${pct(r.roi)}</div>
+        <div class="annual-net">
+          <strong>${euro(r.annualNet)}</strong>
+          Beneficio neto / año
+        </div>
+      </div>
+
+      <div class="services-section">
+        <button class="services-btn" onclick="toggleSvc('${plan.id}',this)">
+          <span>Ver ${blockCount} bloques de servicios incluidos</span>
+          <span class="arrow" id="arrow-${plan.id}" style="${srvOpen ? 'transform:rotate(180deg)' : ''}">▼</span>
+        </button>
+        <div class="services-body ${srvOpen ? 'open' : ''}" id="svc-${plan.id}">
+          ${servicesHTML(plan)}
+        </div>
+      </div>
+
+    </div>`;
+  }
+
+  /* ── RENDER COMPARISON ─────────────────────────────────────────── */
+  function renderCmp(results) {
+    const maxNet = Math.max(...results.map(r => r.net), 1);
+    return PLANS.map((p, i) => {
+      const r   = results[i];
+      const pct = Math.max(0, (r.net / maxNet) * 100);
+      const posNeg = r.net >= 0 ? 'pos' : 'neg';
+      return `
+        <div class="cmp-row">
+          <div class="cmp-label" style="color:${p.color}">${p.name}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%;background:${p.color}">
+              ${pct > 25 ? p.tagline : ''}
+            </div>
+          </div>
+          <div class="cmp-val ${posNeg}">${euro(r.net)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── RENDER SUMMARY TABLE ──────────────────────────────────────── */
+  function renderTable(results) {
+    const rows = [
+      ['Nuevos clientes / mes',      r => num0(r.monthly),   false],
+      ['Nuevos clientes / semana',   r => num0(r.weekly),    false],
+      ['Ingresos adicionales / mes', r => euro(r.revenue),   false],
+      ['Margen bruto adicional / mes', r => euro(r.gross),   false],
+      ['Inversión mensual',          r => euro(r.investment), false],
+      ['Beneficio neto / mes',       r => euro(r.net),       true],
+      ['ROI sobre inversión',        r => pct(r.roi),        true],
+      ['Beneficio neto / año',       r => euro(r.annualNet), true],
+    ];
+
+    return rows.map(([label, fn, isNet]) => {
+      const cells = PLANS.map((p, i) => {
+        const r = results[i];
+        const v = fn(r, p);
+        const color = isNet
+          ? (r.net >= 0 ? ` td-pos` : ` td-neg`)
+          : ` td-${p.id.toLowerCase()}`;
+        const cls = isNet ? `td-net${color}` : color.trim();
+        return `<td class="${cls}">${v}</td>`;
+      }).join('');
+      return `<tr><td class="td-label">${label}</td>${cells}</tr>`;
+    }).join('');
+  }
+
+  /* ── TOGGLE SERVICES ───────────────────────────────────────────── */
+  const openServices = new Set();
+
+  function toggleSvc(planId) {
+    const body  = document.getElementById('svc-'   + planId);
+    const arrow = document.getElementById('arrow-' + planId);
+    if (!body) return;
+    if (openServices.has(planId)) {
+      openServices.delete(planId);
+      body.classList.remove('open');
+      arrow.style.transform = '';
+    } else {
+      openServices.add(planId);
+      body.classList.add('open');
+      arrow.style.transform = 'rotate(180deg)';
+    }
+  }
+
+  /* ── UPDATE ALL ────────────────────────────────────────────────── */
+  function updateAll() {
+    const ticket   = +document.getElementById('sl-ticket').value;
+    const margin   = +document.getElementById('sl-margin').value;
+    const services = +document.getElementById('sl-services').value;
+    const pctS     = +document.getElementById('sl-pct-S').value;
+    const pctM     = +document.getElementById('sl-pct-M').value;
+    const pctL     = +document.getElementById('sl-pct-L').value;
+    const planPctMap = { S: pctS, M: pctM, L: pctL };
+
+    document.getElementById('d-ticket').textContent   = ticket + ' €';
+    document.getElementById('d-margin').textContent   = margin + ' %';
+    document.getElementById('d-services').textContent = services;
+    document.getElementById('d-pct-S').textContent    = pctS + ' %';
+    document.getElementById('d-pct-M').textContent    = pctM + ' %';
+    document.getElementById('d-pct-L').textContent    = pctL + ' %';
+
+    // Warning for low ticket
+    const alert = document.getElementById('ticket-alert');
+    ticket < 35
+      ? alert.classList.add('visible')
+      : alert.classList.remove('visible');
+
+    const results = PLANS.map(p => calc(p, ticket, margin, services, planPctMap[p.id]));
+
+    document.getElementById('plans-grid').innerHTML =
+      PLANS.map((p, i) => cardHTML(p, results[i])).join('');
+
+    document.getElementById('cmp-bars').innerHTML = renderCmp(results);
+
+    document.getElementById('summary-body').innerHTML = renderTable(results);
+  }
+
+  /* ── INIT ──────────────────────────────────────────────────────── */
+  ['sl-ticket','sl-margin','sl-services','sl-pct-S','sl-pct-M','sl-pct-L'].forEach(id =>
+    document.getElementById(id).addEventListener('input', updateAll)
+  );
+
+  updateAll();
+</script>
+</body>
+</html>

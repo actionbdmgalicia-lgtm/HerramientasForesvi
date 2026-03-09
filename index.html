@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORESVI - Hub de Herramientas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 30px 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0 25px 20px;
+            border-bottom: 2px solid #34495e;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .sidebar-config {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-top: 1px solid #34495e;
+        }
+
+        .config-btn {
+            width: 100%;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .config-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .category {
+            margin-bottom: 10px;
+        }
+
+        .category-title {
+            padding: 12px 25px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .category-title:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #bdc3c7;
+            padding-left: 35px;
+        }
+
+        .category-toggle {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .category-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tools-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .tools-list.expanded {
+            max-height: 500px;
+        }
+
+        .tool-item {
+            padding: 10px 40px;
+            font-size: 14px;
+            color: #bdc3c7;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .tool-item:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: #ecf0f1;
+            padding-left: 50px;
+            border-left-color: #667eea;
+        }
+
+        .tool-item.active {
+            background: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h2 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        /* GRID DE HERRAMIENTAS */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-left: 5px solid #667eea;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+            border-left-color: #764ba2;
+        }
+
+        .tool-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .tool-card p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .tool-card .category-badge {
+            display: inline-block;
+            background: #ecf0f1;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tool-card a, .tool-card button {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .tool-card .btn-open {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tool-card .btn-open:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .tool-card .btn-new-window {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .tool-card .btn-new-window:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* VISTA DETALLE */
+        .detail-view {
+            display: none;
+        }
+
+        .detail-view.active {
+            display: block;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .detail-title {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .detail-title h3 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .detail-title p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .back-button, .open-new-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .back-button {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .open-new-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .open-new-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .detail-view iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* MODAL CONFIGURACIÓN */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .form-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #bdc3c7;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                left: -280px;
+                transition: left 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: white;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 6px;
+                cursor: pointer;
+                z-index: 99;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                font-size: 20px;
+            }
+
+            .header h2 {
+                font-size: 24px;
+            }
+
+            .tool-actions {
+                flex-direction: column;
+            }
+
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .detail-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .back-button, .open-new-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" id="menuToggle" style="display: none;">☰</button>
+
+    <div class="container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>FORESVI</h1>
+                <p>Hub de Herramientas</p>
+            </div>
+
+            <div class="sidebar-config">
+                <button class="config-btn" onclick="openConfigModal()">⚙️ Configuración</button>
+            </div>
+
+            <div id="categoriesContainer"></div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+            <!-- GRID VIEW -->
+            <div id="gridView" class="grid-view">
+                <div class="header">
+                    <h2 id="gridTitle">🛠️ Herramientas FORESVI</h2>
+                    <p id="gridSubtitle">Selecciona una categoría en el menú lateral</p>
+                </div>
+                <div id="toolsGrid" class="tools-grid"></div>
+            </div>
+
+            <!-- DETAIL VIEW -->
+            <div id="detailView" class="detail-view">
+                <div class="detail-header">
+                    <div class="detail-title">
+                        <h3 id="detailTitle"></h3>
+                        <p id="detailDesc"></p>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="back-button" onclick="showGrid()">← Volver</button>
+                        <button class="open-new-btn" id="openNewBtn" onclick="openInNewWindow()">🔗 Nueva ventana</button>
+                    </div>
+                </div>
+                <iframe id="toolFrame" src=""></iframe>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL CONFIGURACIÓN -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Configuración</h2>
+                <button class="modal-close" onclick="closeConfigModal()">✕</button>
+            </div>
+
+            <div id="configTabs">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        <input type="radio" name="configTab" value="add" onchange="switchTab('add')" checked>
+                        ➕ Agregar herramienta
+                    </label>
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        <input type="radio" name="configTab" value="manage" onchange="switchTab('manage')">
+                        🗑️ Gestionar herramientas
+                    </label>
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        <input type="radio" name="configTab" value="raw" onchange="switchTab('raw')">
+                        ⚙️ Editar JSON
+                    </label>
+                </div>
+            </div>
+
+            <!-- TAB: ADD TOOL -->
+            <div id="tabAdd" class="tab-content">
+                <form id="addToolForm" onsubmit="addNewTool(event)">
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="toolCategory" required>
+                            <option value="">-- Selecciona una categoría --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ID (sin espacios, ej: mi-herramienta)</label>
+                        <input type="text" id="toolId" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="toolName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="toolDesc" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="toolType" onchange="updateToolFields()" required>
+                            <option value="html">HTML Local</option>
+                            <option value="url">URL Externa</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="routeLabel">Ruta del archivo HTML (ej: mi-herramienta.html)</label>
+                        <input type="text" id="toolRoute" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">✓ Agregar herramienta</button>
+                        <button type="button" class="btn-secondary" onclick="closeConfigModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB: MANAGE TOOLS -->
+            <div id="tabManage" class="tab-content" style="display: none;">
+                <div id="manageToolsList"></div>
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn-secondary" onclick="closeConfigModal()">Cerrar</button>
+                </div>
+            </div>
+
+            <!-- TAB: RAW JSON -->
+            <div id="tabRaw" class="tab-content" style="display: none;">
+                <form id="jsonForm" onsubmit="saveJsonConfig(event)">
+                    <div class="form-group">
+                        <label>JSON de configuración (config.json)</label>
+                        <textarea id="jsonEditor" style="font-family: 'Courier New', monospace; font-size: 12px;"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">💾 Guardar configuración</button>
+                        <button type="button" class="btn-secondary" onclick="closeConfigModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCategory = null;
+        let config = {
+            "herramientas": {
+                "dinero": [
+                    {"id": "simulador-descuentos", "nombre": "Simulador Descuentos & Aumentos", "descripcion": "Simula el impacto de descuentos y aumentos en tus proyecciones financieras.", "tipo": "html", "ruta": "simulador aumentos y descuentos.html"},
+                    {"id": "simulador-holding", "nombre": "Simulador Holding", "descripcion": "Analiza estructuras de holding y su impacto fiscal y financiero.", "tipo": "html", "ruta": "simulador-holding .html"},
+                    {"id": "simulador-nominas", "nombre": "Simulador Nóminas", "descripcion": "Calcula nóminas, cotizaciones y análisis de costes laborales.", "tipo": "html", "ruta": "simulador_nomina_dividendos .html"}
+                ],
+                "especificos": [
+                    {"id": "comisiones", "nombre": "Comisiones", "descripcion": "Gestiona y calcula estructuras de comisiones complejas.", "tipo": "html", "ruta": "comisiones .html"},
+                    {"id": "calculadora-roi", "nombre": "Calculadora ROI", "descripcion": "Calcula el retorno sobre inversión de tus proyectos.", "tipo": "html", "ruta": "calculadora-roi .html"},
+                    {"id": "comparador-mieles", "nombre": "Comparador Mieles", "descripcion": "Compara productos con análisis detallado de características.", "tipo": "html", "ruta": "comparador-mieles .html"}
+                ],
+                "destino": [], "tiempo": [], "servicio": [], "marketing": [], "ventas": [], "sistema": [], "equipo": [], "sinergia": [], "general": []
+            }
+        };
+        let currentTool = null;
+
+        // CARGAR CONFIGURACIÓN (intenta desde config.json, si falla usa inline)
+        async function loadConfig() {
+            try {
+                const response = await fetch('config.json');
+                if (response.ok) {
+                    config = await response.json();
+                }
+            } catch (error) {
+                console.warn('No se pudo cargar config.json (normal en file://), usando configuración inline');
+            }
+            renderCategories();
+            renderTools();
+            populateCategorySelect();
+        }
+
+        // RENDERIZAR CATEGORÍAS EN SIDEBAR
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            const categoriasNombres = {
+                'destino': '1. Destino',
+                'dinero': '2. Dinero',
+                'tiempo': '3. Tiempo',
+                'servicio': '4. Servicio',
+                'marketing': '5.1 Marketing',
+                'ventas': '5.2 Ventas',
+                'sistema': '6. Sistema',
+                'equipo': '7. Equipo',
+                'sinergia': '8. Sinergia',
+                'general': '9. General',
+                'especificos': '0. Específicos'
+            };
+
+            Object.entries(config.herramientas || {}).forEach(([catKey, herramientas]) => {
+                const div = document.createElement('div');
+                div.className = 'category';
+
+                // Si no hay herramientas, no mostrar la categoría
+                if (herramientas.length === 0) {
+                    return;
+                }
+
+                const isActive = currentCategory === catKey;
+
+                div.innerHTML = `
+                    <div class="category-title ${isActive ? 'active' : ''}" onclick="toggleCategoryAndFilter('${catKey}', this)">
+                        <span>${categoriasNombres[catKey] || catKey} (${herramientas.length})</span>
+                        <span class="category-toggle ${isActive ? 'expanded' : ''}">›</span>
+                    </div>
+                    <div class="tools-list ${isActive ? 'expanded' : ''}">
+                        ${herramientas.map(h => `
+                            <div class="tool-item" onclick="loadTool('${catKey}', '${h.id}')">${h.nombre}</div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // RENDERIZAR GRID DE HERRAMIENTAS (solo de la categoría activa)
+        function renderTools(filterCategory = null) {
+            const grid = document.getElementById('toolsGrid');
+            const titleEl = document.getElementById('gridTitle');
+            const subtitleEl = document.getElementById('gridSubtitle');
+            grid.innerHTML = '';
+
+            // Si filterCategory es nulo y no hay categoría actual, mostrar mensaje
+            if (!filterCategory && !currentCategory) {
+                titleEl.textContent = '🛠️ Herramientas FORESVI';
+                subtitleEl.textContent = 'Selecciona una categoría en el menú lateral';
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #7f8c8d;">
+                        <h3 style="margin-bottom: 15px;">👈 Selecciona una categoría</h3>
+                        <p>Haz clic en una categoría del menú lateral para ver sus herramientas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const categoria = filterCategory || currentCategory;
+            const herramientas = config.herramientas[categoria] || [];
+
+            const categoriasNombres = {
+                'destino': '1. Destino',
+                'dinero': '2. Dinero',
+                'tiempo': '3. Tiempo',
+                'servicio': '4. Servicio',
+                'marketing': '5.1 Marketing',
+                'ventas': '5.2 Ventas',
+                'sistema': '6. Sistema',
+                'equipo': '7. Equipo',
+                'sinergia': '8. Sinergia',
+                'general': '9. General',
+                'especificos': '0. Específicos'
+            };
+
+            // Actualizar título con la categoría seleccionada
+            titleEl.textContent = categoriasNombres[categoria] || categoria;
+            subtitleEl.textContent = `${herramientas.length} herramienta${herramientas.length !== 1 ? 's' : ''}`;
+
+            if (herramientas.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #7f8c8d;">
+                        <p>No hay herramientas en esta categoría</p>
+                    </div>
+                `;
+                return;
+            }
+
+            herramientas.forEach(h => {
+                const card = document.createElement('div');
+                card.className = 'tool-card';
+                card.innerHTML = `
+                    <span class="category-badge">${categoriasNombres[categoria] || categoria}</span>
+                    <h3>${h.nombre}</h3>
+                    <p>${h.descripcion}</p>
+                    <div class="tool-actions">
+                        <button class="btn-open" onclick="loadTool('${categoria}', '${h.id}')">Abrir</button>
+                        <button class="btn-new-window" onclick="openToolNewWindow('${categoria}', '${h.id}')">🔗 Nueva ventana</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // CARGAR HERRAMIENTA
+        function loadTool(category, toolId) {
+            const herramienta = config.herramientas[category]?.find(h => h.id === toolId);
+            if (!herramienta) return;
+
+            currentTool = { category, toolId, herramienta };
+
+            document.getElementById('detailTitle').textContent = herramienta.nombre;
+            document.getElementById('detailDesc').textContent = herramienta.descripcion;
+
+            if (herramienta.tipo === 'html') {
+                document.getElementById('toolFrame').src = herramienta.ruta;
+                document.getElementById('openNewBtn').style.display = 'block';
+                document.getElementById('openNewBtn').textContent = '🔗 Nueva ventana';
+                showDetail();
+            } else if (herramienta.tipo === 'url') {
+                // Para URLs, abre directamente en nueva ventana
+                document.getElementById('openNewBtn').style.display = 'none';
+
+                const url = herramienta.url || herramienta.ruta;
+                let fullUrl = url;
+                if (url && !url.startsWith('http')) {
+                    fullUrl = 'https://' + url;
+                }
+
+                try {
+                    const newWindow = window.open(fullUrl, '_blank', 'width=1200,height=800');
+                    if (!newWindow) {
+                        alert('⚠️ El navegador bloqueó la ventana emergente.\n\nURL: ' + fullUrl + '\n\nIntenta desactivar el bloqueador de pop-ups o usa el botón derecho > Abrir en nueva pestaña');
+                    }
+                } catch (error) {
+                    alert('Error al abrir URL: ' + error.message);
+                }
+            }
+
+            closeSidebar();
+        }
+
+        // ABRIR EN NUEVA VENTANA
+        function openToolNewWindow(category, toolId) {
+            const herramienta = config.herramientas[category]?.find(h => h.id === toolId);
+            if (!herramienta) return;
+
+            const url = herramienta.tipo === 'html' ? herramienta.ruta : herramienta.url || herramienta.ruta;
+
+            if (!url) {
+                alert('Error: No hay ruta/URL configurada para esta herramienta');
+                return;
+            }
+
+            try {
+                // Añadir https:// si no tiene protocolo
+                let fullUrl = url;
+                if (herramienta.tipo === 'url' && !url.startsWith('http')) {
+                    fullUrl = 'https://' + url;
+                }
+
+                const newWindow = window.open(fullUrl, '_blank', 'width=1200,height=800');
+                if (!newWindow) {
+                    alert('El navegador bloqueó la apertura de ventana. Intenta desactivar bloqueador de pop-ups.');
+                }
+            } catch (error) {
+                alert('Error al abrir: ' + error.message);
+            }
+        }
+
+        function openInNewWindow() {
+            if (currentTool) {
+                const url = currentTool.herramienta.tipo === 'html'
+                    ? currentTool.herramienta.ruta
+                    : currentTool.herramienta.url || currentTool.herramienta.ruta;
+
+                if (url) {
+                    try {
+                        const newWindow = window.open(url, '_blank', 'width=1200,height=800');
+                        if (!newWindow) {
+                            alert('El navegador bloqueó la apertura. Intenta desactivar bloqueador de pop-ups.');
+                        }
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                    }
+                }
+            }
+        }
+
+        // MOSTRAR/OCULTAR VISTAS
+        function showGrid() {
+            document.getElementById('gridView').style.display = 'block';
+            document.getElementById('detailView').classList.remove('active');
+        }
+
+        function showDetail() {
+            document.getElementById('gridView').style.display = 'none';
+            document.getElementById('detailView').classList.add('active');
+        }
+
+        function toggleCategoryAndFilter(category, element) {
+            // Si ya está activa, desactivar
+            if (currentCategory === category) {
+                currentCategory = null;
+            } else {
+                // Activar esta categoría
+                currentCategory = category;
+            }
+            renderCategories();
+            renderTools();
+        }
+
+        function toggleCategory(element) {
+            const toggle = element.querySelector('.category-toggle');
+            const list = element.nextElementSibling;
+            toggle.classList.toggle('expanded');
+            list.classList.toggle('expanded');
+            element.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        // MODAL CONFIGURACIÓN
+        function openConfigModal() {
+            document.getElementById('configModal').classList.add('active');
+            // Mostrar la configuración actual (inline o desde localStorage)
+            const currentConfig = localStorage.getItem('foresvi_config') || JSON.stringify(config, null, 2);
+            document.getElementById('jsonEditor').value = currentConfig;
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tabAdd').style.display = tab === 'add' ? 'block' : 'none';
+            document.getElementById('tabManage').style.display = tab === 'manage' ? 'block' : 'none';
+            document.getElementById('tabRaw').style.display = tab === 'raw' ? 'block' : 'none';
+
+            if (tab === 'manage') {
+                renderManageTools();
+            }
+        }
+
+        function renderManageTools() {
+            const container = document.getElementById('manageToolsList');
+            container.innerHTML = '';
+
+            const categoriasNombres = {
+                'destino': '1. Destino',
+                'dinero': '2. Dinero',
+                'tiempo': '3. Tiempo',
+                'servicio': '4. Servicio',
+                'marketing': '5.1 Marketing',
+                'ventas': '5.2 Ventas',
+                'sistema': '6. Sistema',
+                'equipo': '7. Equipo',
+                'sinergia': '8. Sinergia',
+                'general': '9. General',
+                'especificos': '0. Específicos'
+            };
+
+            let totalTools = 0;
+
+            Object.entries(config.herramientas || {}).forEach(([catKey, herramientas]) => {
+                if (herramientas.length === 0) return;
+
+                totalTools += herramientas.length;
+
+                const catDiv = document.createElement('div');
+                catDiv.style.cssText = 'margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #ecf0f1;';
+
+                catDiv.innerHTML = `<h3 style="color: #667eea; margin-bottom: 10px; font-size: 16px;">${categoriasNombres[catKey]} (${herramientas.length})</h3>`;
+
+                herramientas.forEach((h, idx) => {
+                    const toolDiv = document.createElement('div');
+                    toolDiv.style.cssText = 'background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.innerHTML = `
+                        <div style="font-weight: 600; color: #2c3e50;">${h.nombre}</div>
+                        <div style="font-size: 12px; color: #7f8c8d; margin-top: 3px;">
+                            ${h.tipo === 'html' ? '📄' : '🌐'} ${h.tipo === 'html' ? h.ruta : (h.url || h.ruta)}
+                        </div>
+                    `;
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '🗑️ Eliminar';
+                    deleteBtn.style.cssText = 'background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;';
+                    deleteBtn.onclick = () => deleteTool(catKey, h.id);
+
+                    toolDiv.appendChild(infoDiv);
+                    toolDiv.appendChild(deleteBtn);
+                    catDiv.appendChild(toolDiv);
+                });
+
+                container.appendChild(catDiv);
+            });
+
+            if (totalTools === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No hay herramientas configuradas</p>';
+            }
+        }
+
+        function deleteTool(category, toolId) {
+            const herramienta = config.herramientas[category]?.find(h => h.id === toolId);
+            if (!herramienta) return;
+
+            if (confirm('¿Eliminar "' + herramienta.nombre + '"?')) {
+                config.herramientas[category] = config.herramientas[category].filter(h => h.id !== toolId);
+                localStorage.setItem('foresvi_config', JSON.stringify(config));
+
+                renderCategories();
+                renderTools();
+                renderManageTools();
+                alert('✓ Herramienta eliminada correctamente');
+            }
+        }
+
+        function updateToolFields() {
+            const type = document.getElementById('toolType').value;
+            document.getElementById('routeLabel').textContent =
+                type === 'html' ? 'Ruta del archivo HTML' : 'URL de la web';
+        }
+
+        function populateCategorySelect() {
+            const select = document.getElementById('toolCategory');
+            Object.keys(config.herramientas || {}).forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+        }
+
+        function addNewTool(event) {
+            event.preventDefault();
+
+            const category = document.getElementById('toolCategory').value;
+            const id = document.getElementById('toolId').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const nombre = document.getElementById('toolName').value.trim();
+            const descripcion = document.getElementById('toolDesc').value.trim();
+            const tipo = document.getElementById('toolType').value;
+            const ruta = document.getElementById('toolRoute').value.trim();
+
+            // Validaciones
+            if (!category || !id || !nombre || !descripcion || !ruta) {
+                alert('❌ Por favor rellena todos los campos');
+                return;
+            }
+
+            if (tipo === 'url' && !ruta.startsWith('http') && !ruta.includes('gemini.google.com')) {
+                // Alert solo si no es una URL válida o gemini
+                if (!ruta.match(/^[a-zA-Z0-9-]+\./)) {
+                    console.warn('URL sin protocolo, se añadirá https://');
+                }
+            }
+
+            if (!config.herramientas[category]) {
+                config.herramientas[category] = [];
+            }
+
+            // Verificar si ya existe
+            if (config.herramientas[category].some(h => h.id === id)) {
+                alert('❌ Ya existe una herramienta con este ID');
+                return;
+            }
+
+            // Crear herramienta
+            const nuevaHerramienta = {
+                id, nombre, descripcion, tipo
+            };
+
+            if (tipo === 'html') {
+                nuevaHerramienta.ruta = ruta;
+            } else {
+                // Para URLs, guardar en ambos campos para compatibilidad
+                nuevaHerramienta.ruta = ruta;
+                nuevaHerramienta.url = ruta;
+            }
+
+            config.herramientas[category].push(nuevaHerramienta);
+
+            // Guardar en localStorage
+            localStorage.setItem('foresvi_config', JSON.stringify(config));
+
+            renderCategories();
+            renderTools();
+            closeConfigModal();
+            alert('✓ Herramienta agregada correctamente!\n\nID: ' + id + '\nTipo: ' + tipo + '\nRuta: ' + ruta);
+        }
+
+        function saveJsonConfig(event) {
+            event.preventDefault();
+            try {
+                const json = document.getElementById('jsonEditor').value;
+                config = JSON.parse(json);
+                localStorage.setItem('foresvi_config', JSON.stringify(config));
+                renderCategories();
+                renderTools();
+                closeConfigModal();
+                alert('✓ Configuración guardada correctamente!');
+            } catch (error) {
+                alert('Error en JSON: ' + error.message);
+            }
+        }
+
+        // RESPONSIVE
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('menuToggle').style.display = 'none';
+            } else {
+                document.getElementById('menuToggle').style.display = 'block';
+            }
+        });
+
+        document.getElementById('menuToggle')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // INICIAR
+        window.addEventListener('DOMContentLoaded', () => {
+            // Verificar si hay config en localStorage (cambios dinámicos)
+            const savedConfig = localStorage.getItem('foresvi_config');
+            if (savedConfig) {
+                try {
+                    config = JSON.parse(savedConfig);
+                } catch (e) {
+                    console.warn('Error en localStorage, usando configuración por defecto');
+                }
+            }
+
+            // Renderizar con config actual (inline o localStorage)
+            currentCategory = null; // Vacío al cargar
+            renderCategories();
+            renderTools(); // Mostrará mensaje de seleccionar categoría
+            populateCategorySelect();
+
+            if (window.innerWidth <= 768) {
+                document.getElementById('menuToggle').style.display = 'block';
+            }
+        });
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('configModal')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('configModal')) {
+                closeConfigModal();
+            }
+        });
+    </script>
+</body>
+</html>

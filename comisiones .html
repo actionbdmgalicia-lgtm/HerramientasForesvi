@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multibreves · Comisiones</title>
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --accent:  #2563eb;
+      --green:   #059669;
+      --red:     #ef4444;
+      --amber:   #d97706;
+      --bg:      #f1f5f9;
+      --card:    #ffffff;
+      --border:  #e2e8f0;
+      --text:    #1e293b;
+      --muted:   #64748b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #0f2444 0%, #1e3a8a 100%);
+      color: #fff;
+      padding: 1.1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    }
+    header .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -.5px; }
+    header .sub  { font-size: .78rem; opacity: .7; margin-top: 2px; }
+
+    /* ── CONFIG BAR ── */
+    .config-bar {
+      background: #fff; border-bottom: 1px solid var(--border);
+      padding: .65rem 2rem;
+      display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;
+      font-size: .82rem;
+    }
+    .cfg-item { display: flex; align-items: center; gap: .45rem; color: var(--muted); }
+    .cfg-input {
+      width: 68px; padding: .28rem .48rem; border: 1px solid var(--border);
+      border-radius: 7px; font-size: .82rem; text-align: right; outline: none;
+      transition: border-color .2s;
+    }
+    .cfg-input:focus { border-color: var(--accent); }
+
+    /* ── TABS ── */
+    .tabs-bar {
+      background: #fff; border-bottom: 2px solid var(--border);
+      padding: 0 2rem; display: flex; gap: 0;
+    }
+    .tab-btn {
+      padding: .8rem 1.4rem; border: none; background: none;
+      font-size: .88rem; font-weight: 600; cursor: pointer;
+      color: var(--muted); border-bottom: 3px solid transparent;
+      margin-bottom: -2px; transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: var(--accent); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.4rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 1.5rem;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.2rem; flex-wrap: wrap; gap: .75rem;
+    }
+    .card-header h2 {
+      font-size: .95rem; font-weight: 700; color: var(--primary);
+      display: flex; align-items: center; gap: .4rem;
+    }
+
+    /* ── BOTONES ── */
+    .btn {
+      padding: .4rem .95rem; border-radius: 8px; border: none;
+      font-size: .8rem; font-weight: 600; cursor: pointer;
+      transition: opacity .15s, transform .1s; white-space: nowrap;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-green   { background: var(--green);  color: #fff; }
+    .btn-red     { background: var(--red);    color: #fff; }
+    .btn-amber   { background: var(--amber);  color: #fff; }
+    .btn-gray    { background: var(--border); color: var(--text); }
+    .btn-sm { padding: .22rem .5rem; font-size: .7rem; border-radius: 5px; }
+
+    .date-input {
+      padding: .36rem .6rem; border: 1px solid var(--border);
+      border-radius: 8px; font-size: .8rem; outline: none;
+      transition: border-color .2s;
+    }
+    .date-input:focus { border-color: var(--accent); }
+
+    /* ══════════════════════════════════
+       TABLA DE CIERRES (Tab 1)
+    ══════════════════════════════════ */
+    .table-wrap { overflow-x: auto; }
+    table.cierres { border-collapse: collapse; min-width: 100%; font-size: .85rem; }
+
+    table.cierres thead th {
+      background: var(--primary); color: #fff;
+      padding: .58rem .75rem; font-weight: 600; font-size: .77rem;
+      white-space: nowrap; text-align: center;
+    }
+    table.cierres thead th.col-name { text-align:left; min-width:175px; border-radius:8px 0 0 0; }
+    table.cierres thead th.col-total { background:#0f2444; border-radius:0 8px 0 0; }
+    table.cierres thead th.col-day  { min-width:95px; }
+
+    table.cierres tbody tr:hover td { background:#f0f7ff; }
+    table.cierres tbody td {
+      padding:.42rem .6rem; border-bottom:1px solid var(--border); vertical-align:middle;
+    }
+    table.cierres tbody td.td-name {
+      font-weight:600; min-width:175px; display:flex; align-items:center; gap:.45rem;
+    }
+    table.cierres tbody td.td-cierre { text-align:center; padding:.28rem .35rem; }
+    table.cierres tbody td.td-total-row {
+      text-align:center; font-weight:700; color:var(--primary); background:#f8fafc;
+    }
+
+    .cierre-input {
+      width:56px; height:32px; border:1.5px solid var(--border); border-radius:7px;
+      text-align:center; font-size:.9rem; font-weight:600; outline:none;
+      background:#fff; color:var(--text); transition:border-color .2s, box-shadow .2s;
+      -moz-appearance:textfield;
+    }
+    .cierre-input::-webkit-inner-spin-button,
+    .cierre-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+    .cierre-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+    .cierre-input.has-value { border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+
+    .name-input {
+      border:none; background:transparent; font-size:.84rem; font-weight:600;
+      color:var(--text); outline:none; flex:1; min-width:0;
+      padding:.12rem .28rem; border-radius:5px; transition:background .15s;
+    }
+    .name-input:focus { background:#e0e7ff; }
+
+    table.cierres tfoot td {
+      padding:.52rem .6rem; font-weight:700; background:#eff6ff;
+      border-top:2px solid #bfdbfe; text-align:center; color:var(--primary);
+    }
+    table.cierres tfoot td.lbl { text-align:left; font-size:.77rem; color:var(--muted); }
+    table.cierres tfoot td.grand { background:#dbeafe; font-size:1rem; }
+
+    .day-head { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .day-head .ddate { font-size:.77rem; font-weight:700; }
+    .day-head .ddow  { font-size:.64rem; opacity:.7; }
+    .day-head .ddel  {
+      background:rgba(255,255,255,.15); border:none; color:#fff;
+      border-radius:4px; padding:1px 5px; font-size:.62rem; cursor:pointer; margin-top:1px;
+      transition:background .15s;
+    }
+    .day-head .ddel:hover { background:rgba(239,68,68,.65); }
+
+    .add-gestora-row td { background:#f8fafc !important; border-bottom:none !important; }
+    .add-name-input {
+      border:1.5px dashed var(--border); border-radius:8px;
+      padding:.28rem .55rem; font-size:.82rem; color:var(--muted);
+      outline:none; background:transparent; width:100%; transition:border-color .2s;
+    }
+    .add-name-input:focus { border-color:var(--accent); color:var(--text); }
+
+    /* ══════════════════════════════════
+       RESULTADOS COMUNES
+    ══════════════════════════════════ */
+    .bote-banner {
+      background:linear-gradient(135deg,#065f46,#059669);
+      border-radius:12px; color:#fff; padding:.95rem 1.3rem;
+      display:flex; align-items:center; gap:1rem; margin-bottom:1.3rem; flex-wrap:wrap;
+    }
+    .bote-banner .bval { font-size:1.65rem; font-weight:800; }
+    .bote-banner .blbl { font-size:.76rem; opacity:.85; margin-top:2px; }
+
+    .stats-row {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:.7rem; margin-bottom:1.3rem;
+    }
+    @media (max-width:500px) { .stats-row { grid-template-columns:1fr 1fr; } }
+    .stat-box {
+      background:var(--bg); border-radius:11px; padding:.85rem;
+      text-align:center; border:1px solid var(--border);
+    }
+    .stat-box .val { font-size:1.45rem; font-weight:800; color:var(--primary); }
+    .stat-box .lbl { font-size:.7rem; color:var(--muted); margin-top:1px; }
+
+    .result-table { width:100%; border-collapse:collapse; font-size:.83rem; }
+    .result-table th {
+      background:var(--primary); color:#fff; padding:.52rem .75rem;
+      text-align:left; font-weight:600; font-size:.75rem;
+    }
+    .result-table th:first-child { border-radius:7px 0 0 0; }
+    .result-table th:last-child  { border-radius:0 7px 0 0; }
+    .result-table td { padding:.52rem .75rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .result-table tr:last-child td { border-bottom:none; }
+    .result-table tr:hover td { background:#f0f7ff; }
+    .result-table .total-row td { font-weight:700; background:#eff6ff; }
+    .euro  { color:var(--green); font-weight:700; }
+    .empty { text-align:center; color:var(--muted); padding:2rem; font-size:.87rem; }
+    .no-gest-note {
+      margin-top:.9rem; padding:.7rem 1rem; border-radius:9px;
+      background:#fef9c3; border:1px solid #fde68a; font-size:.78rem; color:#78350f;
+    }
+
+    /* ══════════════════════════════════
+       SIMULADOR (Tab 2)
+    ══════════════════════════════════ */
+    .sim-header-row {
+      display:flex; align-items:center; gap:1rem; margin-bottom:1.3rem; flex-wrap:wrap;
+    }
+    .sim-header-row label { font-size:.83rem; color:var(--muted); white-space:nowrap; }
+
+    /* Presets */
+    .presets { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+    .preset-btn {
+      padding:.35rem .8rem; border-radius:20px; border:1.5px solid var(--border);
+      background:#fff; font-size:.78rem; font-weight:600; cursor:pointer;
+      transition:all .15s; color:var(--text);
+    }
+    .preset-btn:hover { border-color:var(--accent); color:var(--accent); background:#eff6ff; }
+    .preset-btn.active { border-color:var(--accent); background:var(--accent); color:#fff; }
+
+    /* Tabla simulación */
+    .sim-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .sim-table th {
+      background:var(--primary); color:#fff;
+      padding:.55rem .8rem; font-weight:600; font-size:.77rem; text-align:left;
+    }
+    .sim-table th:first-child { border-radius:8px 0 0 0; }
+    .sim-table th:last-child  { border-radius:0 8px 0 0; }
+    .sim-table th.center { text-align:center; }
+    .sim-table td { padding:.48rem .8rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    .sim-table tr:hover td { background:#f0f7ff; }
+    .sim-table tr:last-child td { border-bottom:none; }
+    .sim-table .foot-row td { background:#eff6ff; font-weight:700; border-top:2px solid #bfdbfe; }
+
+    .sim-cierre-input {
+      width:70px; height:34px; border:1.5px solid var(--border); border-radius:8px;
+      text-align:center; font-size:.95rem; font-weight:700; outline:none;
+      background:#fff; transition:border-color .2s, box-shadow .2s;
+      -moz-appearance:textfield;
+    }
+    .sim-cierre-input::-webkit-inner-spin-button,
+    .sim-cierre-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+    .sim-cierre-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+    .sim-cierre-input.has-value { border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+
+    /* Slider */
+    .slider-row {
+      display:flex; align-items:center; gap:1rem;
+      background:var(--bg); border:1px solid var(--border);
+      border-radius:12px; padding:1rem 1.2rem; margin-bottom:1.2rem; flex-wrap:wrap;
+    }
+    .slider-row label { font-size:.83rem; color:var(--muted); white-space:nowrap; }
+    input[type=range] {
+      flex:1; min-width:120px; accent-color:var(--accent);
+    }
+    .slider-val {
+      min-width:40px; text-align:center; font-weight:800;
+      font-size:1.1rem; color:var(--accent);
+    }
+
+    /* Escenarios */
+    .escenario-card {
+      border:1.5px solid var(--border); border-radius:12px;
+      padding:.9rem 1.1rem; cursor:pointer; transition:all .15s;
+      background:#fff;
+    }
+    .escenario-card:hover { border-color:var(--accent); background:#eff6ff; }
+    .escenario-card.active { border-color:var(--accent); background:#dbeafe; }
+    .escenario-card .esc-title { font-weight:700; font-size:.85rem; color:var(--primary); }
+    .escenario-card .esc-sub   { font-size:.74rem; color:var(--muted); margin-top:3px; }
+    .escenario-card .esc-total { font-size:1.05rem; font-weight:800; color:var(--green); margin-top:.4rem; }
+
+    .escenarios-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:.75rem;
+      margin-bottom:1.3rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Multibreves</div>
+    <div class="sub">Comisiones · Gestoras</div>
+  </div>
+</header>
+
+<!-- CONFIG BAR -->
+<div class="config-bar">
+  <div class="cfg-item">
+    Comisión gestora/cierre:
+    <input class="cfg-input" type="number" id="cfg-individual" value="100" min="0" /><b>€</b>
+  </div>
+  <div class="cfg-item">
+    Bote común/cierre:
+    <input class="cfg-input" type="number" id="cfg-bote" value="300" min="0" /><b>€</b>
+  </div>
+  <div class="cfg-item">
+    Total personas:
+    <input class="cfg-input" type="number" id="cfg-npersonas" value="10" min="1" />
+  </div>
+  <div class="cfg-item" style="color:#374151;font-size:.75rem">
+    Bote/persona: <b id="bote-pp-label">—</b>
+    &nbsp;·&nbsp; No gestoras: <b id="no-gest-count">—</b>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('registro')">📋 Registro diario</button>
+  <button class="tab-btn" onclick="switchTab('simulador')">🧮 Simulador</button>
+</div>
+
+<main>
+
+  <!-- ══════════════════════════════════════════ TAB 1: REGISTRO ══ -->
+  <div class="tab-panel active" id="tab-registro">
+
+    <div class="card">
+      <div class="card-header">
+        <h2>📋 Cierres por gestora y día</h2>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+          <input type="date" id="new-date" class="date-input" />
+          <button class="btn btn-primary" onclick="addDia()">+ Añadir día</button>
+          <button class="btn btn-gray" onclick="clearDias()">Limpiar días</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="cierres" id="tabla-cierres"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:1.2rem">📊 Resultados del registro</h2>
+      <div id="resultados-registro"></div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════ TAB 2: SIMULADOR ══ -->
+  <div class="tab-panel" id="tab-simulador">
+
+    <div class="card">
+      <div class="card-header">
+        <h2>🧮 Simulador de cantidades</h2>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn btn-gray" onclick="simReset()">Limpiar</button>
+        </div>
+      </div>
+
+      <!-- Slider repartir igual -->
+      <div class="slider-row">
+        <label>Cierres por gestora (igual para todas):</label>
+        <input type="range" id="sim-slider" min="0" max="30" value="0"
+          oninput="simSlider(this.value)" />
+        <span class="slider-val" id="sim-slider-val">0</span>
+        <button class="btn btn-primary btn-sm" onclick="simSlider(document.getElementById('sim-slider').value)">
+          Aplicar a todas
+        </button>
+      </div>
+
+      <!-- Presets rápidos -->
+      <div style="margin-bottom:.6rem;font-size:.78rem;color:var(--muted);font-weight:600">
+        Escenarios rápidos:
+      </div>
+      <div class="presets" id="presets-bar">
+        <button class="preset-btn" onclick="applyPreset(0)">Sin cierres</button>
+        <button class="preset-btn" onclick="applyPreset(1)">1 cierre c/u</button>
+        <button class="preset-btn" onclick="applyPreset(2)">2 cierres c/u</button>
+        <button class="preset-btn" onclick="applyPreset(3)">3 cierres c/u</button>
+        <button class="preset-btn" onclick="applyPreset(5)">5 cierres c/u</button>
+        <button class="preset-btn" onclick="applyPreset(10)">10 cierres c/u</button>
+      </div>
+
+      <!-- Tabla simulación -->
+      <div class="table-wrap">
+        <table class="sim-table" id="tabla-sim"></table>
+      </div>
+    </div>
+
+    <!-- Resultados simulación -->
+    <div class="card">
+      <h2 style="margin-bottom:1.2rem">📊 Resultado simulado</h2>
+      <div id="resultados-sim"></div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════════════
+const S = {
+  gestoras: [
+    { id:1, nombre:"Ana García"      },
+    { id:2, nombre:"María López"     },
+    { id:3, nombre:"Carmen Ruiz"     },
+    { id:4, nombre:"Laura Martínez"  },
+    { id:5, nombre:"Sara Jiménez"    },
+    { id:6, nombre:"Elena Fernández" },
+  ],
+  // Registro diario
+  dias: [],
+  cierres: {},   // cierres[gid][fecha] = n
+  nextId: 7,
+  // Simulación
+  simCierres: {}, // simCierres[gid] = n
+};
+
+function cfg() {
+  return {
+    individual: parseFloat(document.getElementById('cfg-individual').value) || 0,
+    bote:       parseFloat(document.getElementById('cfg-bote').value)       || 0,
+    nPersonas:  parseInt(document.getElementById('cfg-npersonas').value)    || 10,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && tab==='registro') || (i===1 && tab==='simulador'));
+  });
+  document.getElementById('tab-registro').classList.toggle('active', tab==='registro');
+  document.getElementById('tab-simulador').classList.toggle('active', tab==='simulador');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TABLA REGISTRO DIARIO
+// ═══════════════════════════════════════════════════════════════
+const DIAS_SEM = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+function renderTabla() {
+  const tbl = document.getElementById('tabla-cierres');
+
+  let thead = '<thead><tr>';
+  thead += '<th class="col-name">GESTORA</th>';
+  S.dias.forEach(f => {
+    const [y,m,d] = f.split('-');
+    const dow = DIAS_SEM[new Date(f).getDay()];
+    thead += `<th class="col-day">
+      <div class="day-head">
+        <span class="ddate">${d}/${m}</span>
+        <span class="ddow">${dow}</span>
+        <button class="ddel" onclick="removeDia('${f}')">✕ eliminar</button>
+      </div></th>`;
+  });
+  thead += '<th class="col-total">TOTAL</th></tr></thead>';
+
+  let tbody = '<tbody>';
+  S.gestoras.forEach(g => {
+    const rowTotal = S.dias.reduce((s,f) => s+(S.cierres[g.id]?.[f]||0), 0);
+    tbody += `<tr>
+      <td class="td-name">
+        <span style="width:20px;height:20px;border-radius:50%;background:var(--primary);
+          color:#fff;font-size:.64rem;font-weight:700;display:flex;align-items:center;
+          justify-content:center;flex-shrink:0">${g.id}</span>
+        <input class="name-input" value="${escHtml(g.nombre)}"
+          onchange="renameGestora(${g.id},this.value)" />
+        <button class="btn btn-red btn-sm" onclick="removeGestora(${g.id})"
+          style="flex-shrink:0">✕</button>
+      </td>`;
+    S.dias.forEach(f => {
+      const val = S.cierres[g.id]?.[f] || 0;
+      tbody += `<td class="td-cierre">
+        <input class="cierre-input ${val>0?'has-value':''}"
+          type="number" min="0" value="${val}"
+          data-gid="${g.id}" data-fecha="${f}"
+          oninput="onCierreInput(this)" />
+      </td>`;
+    });
+    tbody += `<td class="td-total-row" id="row-total-${g.id}">${rowTotal}</td></tr>`;
+  });
+
+  tbody += `<tr class="add-gestora-row">
+    <td style="padding:.38rem .6rem">
+      <input class="add-name-input" id="add-gestora-input"
+        placeholder="+ Nueva gestora (Enter para añadir)"
+        onkeydown="if(event.key==='Enter')addGestora()" />
+    </td>
+    ${S.dias.map(()=>'<td></td>').join('')}<td></td>
+  </tr></tbody>`;
+
+  let tfoot = '<tfoot><tr><td class="lbl">TOTAL / DÍA</td>';
+  S.dias.forEach(f => {
+    const col = S.gestoras.reduce((s,g)=>s+(S.cierres[g.id]?.[f]||0),0);
+    tfoot += `<td id="col-total-${f}">${col}</td>`;
+  });
+  const grand = S.gestoras.reduce((s,g)=>
+    s+S.dias.reduce((ss,f)=>ss+(S.cierres[g.id]?.[f]||0),0),0);
+  tfoot += `<td class="grand" id="grand-total">${grand}</td></tr></tfoot>`;
+
+  tbl.innerHTML = thead + tbody + tfoot;
+}
+
+function updateTotals() {
+  S.gestoras.forEach(g => {
+    const t = S.dias.reduce((s,f)=>s+(S.cierres[g.id]?.[f]||0),0);
+    const el = document.getElementById(`row-total-${g.id}`);
+    if (el) el.textContent = t;
+  });
+  S.dias.forEach(f => {
+    const t = S.gestoras.reduce((s,g)=>s+(S.cierres[g.id]?.[f]||0),0);
+    const el = document.getElementById(`col-total-${f}`);
+    if (el) el.textContent = t;
+  });
+  const grand = S.gestoras.reduce((s,g)=>
+    s+S.dias.reduce((ss,f)=>ss+(S.cierres[g.id]?.[f]||0),0),0);
+  const ge = document.getElementById('grand-total');
+  if (ge) ge.textContent = grand;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TABLA SIMULADOR
+// ═══════════════════════════════════════════════════════════════
+function renderSimTabla() {
+  const tbl = document.getElementById('tabla-sim');
+  const c = cfg();
+  const botePorP = c.nPersonas > 0
+    ? (S.gestoras.reduce((s,g)=>s+(S.simCierres[g.id]||0),0) * c.bote) / c.nPersonas
+    : 0;
+
+  let thead = `<thead><tr>
+    <th>GESTORA</th>
+    <th class="center">Cierres</th>
+    <th>Comisión individual</th>
+    <th>Parte del bote</th>
+    <th>TOTAL</th>
+  </tr></thead>`;
+
+  let tbody = '<tbody>';
+  let sumCierres=0, sumComision=0, sumTotal=0;
+  S.gestoras.forEach(g => {
+    const nc  = S.simCierres[g.id] || 0;
+    const com = nc * c.individual;
+    const tot = com + botePorP;
+    sumCierres  += nc;
+    sumComision += com;
+    sumTotal    += tot;
+    tbody += `<tr>
+      <td><b>${escHtml(g.nombre)}</b></td>
+      <td style="text-align:center;padding:.3rem .5rem">
+        <input class="sim-cierre-input ${nc>0?'has-value':''}"
+          type="number" min="0" value="${nc}"
+          data-gid="${g.id}" oninput="onSimInput(this)" />
+      </td>
+      <td class="euro">${fmt(com)}</td>
+      <td class="euro">${fmt(botePorP)}</td>
+      <td class="euro" style="font-size:.9rem">${fmt(tot)}</td>
+    </tr>`;
+  });
+  tbody += '</tbody>';
+
+  const boteTotal = sumCierres * c.bote;
+  const foot = `<tfoot><tr class="foot-row">
+    <td><b>TOTAL</b></td>
+    <td style="text-align:center"><b>${sumCierres}</b></td>
+    <td class="euro"><b>${fmt(sumComision)}</b></td>
+    <td class="euro"><b>${fmt(S.gestoras.length * botePorP)}</b></td>
+    <td class="euro" style="font-size:.95rem"><b>${fmt(sumTotal)}</b></td>
+  </tr></tfoot>`;
+
+  tbl.innerHTML = thead + tbody + foot;
+}
+
+function renderSimResultados() {
+  const c = cfg();
+  const container = document.getElementById('resultados-sim');
+  const totGest = S.gestoras.map(g => ({
+    g, cierres: S.simCierres[g.id] || 0
+  }));
+  const totalCierres = totGest.reduce((s,x)=>s+x.cierres,0);
+
+  if (totalCierres === 0) {
+    container.innerHTML = '<div class="empty">Introduce cierres en la tabla para ver la simulación</div>';
+    return;
+  }
+
+  const boteTotal  = totalCierres * c.bote;
+  const botePorP   = boteTotal / c.nPersonas;
+  const noGest     = c.nPersonas - S.gestoras.length;
+  const totalPag   = totGest.reduce((s,x)=>s+x.cierres*c.individual+botePorP,0)
+                     + Math.max(0,noGest)*botePorP;
+
+  let html = `<div class="bote-banner">
+    <div style="font-size:1.9rem">💰</div>
+    <div>
+      <div class="bval">${fmt(boteTotal)}</div>
+      <div class="blbl">${totalCierres} cierre${totalCierres!==1?'s':''} × ${fmt(c.bote)}
+        ÷ ${c.nPersonas} personas = <b>${fmt(botePorP)} por persona</b></div>
+    </div>
+  </div>`;
+
+  html += `<div class="stats-row">
+    <div class="stat-box"><div class="val">${totalCierres}</div><div class="lbl">Cierres totales</div></div>
+    <div class="stat-box"><div class="val">${fmt(boteTotal)}</div><div class="lbl">Bote común</div></div>
+    <div class="stat-box"><div class="val">${fmt(totalPag)}</div><div class="lbl">Total a pagar</div></div>
+  </div>`;
+
+  html += `<div style="overflow-x:auto"><table class="result-table">
+    <thead><tr>
+      <th>Gestora</th>
+      <th style="text-align:center">Cierres</th>
+      <th>Comisión</th>
+      <th>Bote</th>
+      <th>TOTAL</th>
+    </tr></thead><tbody>`;
+
+  totGest.forEach(({g,cierres}) => {
+    const com = cierres * c.individual;
+    const tot = com + botePorP;
+    html += `<tr>
+      <td><b>${escHtml(g.nombre)}</b></td>
+      <td style="text-align:center;font-weight:700">${cierres}</td>
+      <td class="euro">${fmt(com)}</td>
+      <td class="euro">${fmt(botePorP)}</td>
+      <td class="euro" style="font-size:.92rem">${fmt(tot)}</td>
+    </tr>`;
+  });
+
+  const sC=totGest.reduce((s,x)=>s+x.cierres,0);
+  const sI=totGest.reduce((s,x)=>s+x.cierres*c.individual,0);
+  html += `</tbody><tfoot><tr class="total-row">
+    <td><b>TOTAL GESTORAS</b></td>
+    <td style="text-align:center"><b>${sC}</b></td>
+    <td class="euro"><b>${fmt(sI)}</b></td>
+    <td class="euro"><b>${fmt(S.gestoras.length*botePorP)}</b></td>
+    <td class="euro"><b>${fmt(sI+S.gestoras.length*botePorP)}</b></td>
+  </tr></tfoot></table></div>`;
+
+  if (noGest > 0) {
+    html += `<div class="no-gest-note">
+      ℹ️ <b>${noGest} persona${noGest!==1?'s':''} no gestora${noGest!==1?'s':''}</b>
+      cobran solo bote: ${noGest} × ${fmt(botePorP)} = <b>${fmt(noGest*botePorP)}</b>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HANDLERS REGISTRO
+// ═══════════════════════════════════════════════════════════════
+function onCierreInput(input) {
+  const gid   = parseInt(input.dataset.gid);
+  const fecha = input.dataset.fecha;
+  const val   = Math.max(0, parseInt(input.value)||0);
+  input.value = val;
+  if (!S.cierres[gid]) S.cierres[gid] = {};
+  S.cierres[gid][fecha] = val;
+  input.classList.toggle('has-value', val>0);
+  updateTotals();
+  renderResultadosRegistro();
+}
+
+function addDia() {
+  const fecha = document.getElementById('new-date').value || formatDate(new Date());
+  if (S.dias.includes(fecha)) { alert('Ese día ya existe.'); return; }
+  S.dias.push(fecha); S.dias.sort();
+  renderTabla(); renderResultadosRegistro();
+}
+function removeDia(fecha) {
+  S.dias = S.dias.filter(f=>f!==fecha);
+  renderTabla(); renderResultadosRegistro();
+}
+function clearDias() {
+  if (!confirm('¿Borrar todos los días?')) return;
+  S.dias=[]; S.cierres={};
+  renderTabla(); renderResultadosRegistro();
+}
+function addGestora() {
+  const input = document.getElementById('add-gestora-input');
+  const nombre = input.value.trim(); if (!nombre) return;
+  const ng = { id:S.nextId++, nombre };
+  S.gestoras.push(ng);
+  S.simCierres[ng.id] = 0;
+  renderTabla(); renderSimTabla(); renderResultadosRegistro(); renderSimResultados();
+  document.getElementById('add-gestora-input')?.focus();
+  updateConfigLabel();
+}
+function removeGestora(id) {
+  if (S.gestoras.length<=1) { alert('Debe quedar al menos una gestora.'); return; }
+  S.gestoras = S.gestoras.filter(g=>g.id!==id);
+  delete S.cierres[id]; delete S.simCierres[id];
+  renderTabla(); renderSimTabla(); renderResultadosRegistro(); renderSimResultados();
+  updateConfigLabel();
+}
+function renameGestora(id, nombre) {
+  const g = S.gestoras.find(x=>x.id===id);
+  if (g) { g.nombre=nombre; renderResultadosRegistro(); renderSimTabla(); renderSimResultados(); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HANDLERS SIMULADOR
+// ═══════════════════════════════════════════════════════════════
+function onSimInput(input) {
+  const gid = parseInt(input.dataset.gid);
+  const val = Math.max(0, parseInt(input.value)||0);
+  input.value = val;
+  S.simCierres[gid] = val;
+  input.classList.toggle('has-value', val>0);
+  renderSimTabla();
+  renderSimResultados();
+}
+
+function simSlider(v) {
+  v = parseInt(v)||0;
+  document.getElementById('sim-slider').value = v;
+  document.getElementById('sim-slider-val').textContent = v;
+  S.gestoras.forEach(g => { S.simCierres[g.id] = v; });
+  renderSimTabla();
+  renderSimResultados();
+}
+
+function applyPreset(n) {
+  simSlider(n);
+  document.getElementById('sim-slider').value = n;
+  document.getElementById('sim-slider-val').textContent = n;
+}
+
+function simReset() {
+  S.gestoras.forEach(g => { S.simCierres[g.id] = 0; });
+  document.getElementById('sim-slider').value = 0;
+  document.getElementById('sim-slider-val').textContent = 0;
+  renderSimTabla();
+  renderSimResultados();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESULTADOS REGISTRO
+// ═══════════════════════════════════════════════════════════════
+function renderResultadosRegistro() {
+  const c = cfg();
+  const container = document.getElementById('resultados-registro');
+  const totGest = S.gestoras.map(g => ({
+    g, cierres: S.dias.reduce((s,f)=>s+(S.cierres[g.id]?.[f]||0),0)
+  }));
+  const totalCierres = totGest.reduce((s,x)=>s+x.cierres,0);
+
+  if (totalCierres===0 && S.dias.length===0) {
+    container.innerHTML='<div class="empty">Añade días y cierres para ver los resultados</div>';
+    updateConfigLabel(); return;
+  }
+
+  const boteTotal = totalCierres * c.bote;
+  const botePorP  = boteTotal / c.nPersonas;
+  const noGest    = c.nPersonas - S.gestoras.length;
+  const totalPag  = totGest.reduce((s,x)=>s+x.cierres*c.individual+botePorP,0)
+                    + Math.max(0,noGest)*botePorP;
+
+  let html = `<div class="bote-banner">
+    <div style="font-size:1.9rem">💰</div>
+    <div>
+      <div class="bval">${fmt(boteTotal)}</div>
+      <div class="blbl">${totalCierres} cierre${totalCierres!==1?'s':''} × ${fmt(c.bote)}
+        ÷ ${c.nPersonas} personas = <b>${fmt(botePorP)} por persona</b></div>
+    </div>
+  </div>`;
+
+  html += `<div class="stats-row">
+    <div class="stat-box"><div class="val">${totalCierres}</div><div class="lbl">Total cierres</div></div>
+    <div class="stat-box"><div class="val">${fmt(boteTotal)}</div><div class="lbl">Bote común</div></div>
+    <div class="stat-box"><div class="val">${fmt(totalPag)}</div><div class="lbl">Total a pagar</div></div>
+  </div>`;
+
+  html += `<div style="overflow-x:auto"><table class="result-table">
+    <thead><tr>
+      <th>Gestora</th><th style="text-align:center">Cierres</th>
+      <th>Comisión</th><th>Bote</th><th>TOTAL</th>
+    </tr></thead><tbody>`;
+
+  totGest.forEach(({g,cierres})=>{
+    const com=cierres*c.individual, tot=com+botePorP;
+    html+=`<tr>
+      <td><b>${escHtml(g.nombre)}</b></td>
+      <td style="text-align:center;font-weight:700">${cierres}</td>
+      <td class="euro">${fmt(com)}</td>
+      <td class="euro">${fmt(botePorP)}</td>
+      <td class="euro" style="font-size:.92rem">${fmt(tot)}</td>
+    </tr>`;
+  });
+
+  const sC=totGest.reduce((s,x)=>s+x.cierres,0);
+  const sI=totGest.reduce((s,x)=>s+x.cierres*c.individual,0);
+  html+=`</tbody><tfoot><tr class="total-row">
+    <td><b>TOTAL</b></td>
+    <td style="text-align:center"><b>${sC}</b></td>
+    <td class="euro"><b>${fmt(sI)}</b></td>
+    <td class="euro"><b>${fmt(S.gestoras.length*botePorP)}</b></td>
+    <td class="euro"><b>${fmt(sI+S.gestoras.length*botePorP)}</b></td>
+  </tr></tfoot></table></div>`;
+
+  if (noGest>0) {
+    html+=`<div class="no-gest-note">
+      ℹ️ <b>${noGest} persona${noGest!==1?'s':''} no gestora${noGest!==1?'s':''}</b>
+      cobran solo bote: ${noGest} × ${fmt(botePorP)} = <b>${fmt(noGest*botePorP)}</b>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+  updateConfigLabel();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONFIG LABEL
+// ═══════════════════════════════════════════════════════════════
+function updateConfigLabel() {
+  const c = cfg();
+  // bote por persona se calcula por cierre
+  document.getElementById('bote-pp-label').textContent = fmt(c.bote/c.nPersonas) + '/cierre';
+  document.getElementById('no-gest-count').textContent = Math.max(0, c.nPersonas-S.gestoras.length);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function fmt(n) {
+  return n.toLocaleString('es-ES',{style:'currency',currency:'EUR',minimumFractionDigits:2});
+}
+function formatDate(d) { return d.toISOString().slice(0,10); }
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('new-date').value = formatDate(new Date());
+
+['cfg-individual','cfg-bote','cfg-npersonas'].forEach(id=>
+  document.getElementById(id).addEventListener('input', ()=>{
+    renderResultadosRegistro();
+    renderSimTabla();
+    renderSimResultados();
+    updateConfigLabel();
+  })
+);
+
+// Init simCierres
+S.gestoras.forEach(g => { S.simCierres[g.id] = 0; });
+
+// Demo datos registro
+S.dias = ['2026-03-01','2026-03-02','2026-03-03'];
+S.cierres = {
+  1:{'2026-03-01':3,'2026-03-02':1,'2026-03-03':2},
+  2:{'2026-03-01':2,'2026-03-02':3,'2026-03-03':1},
+  3:{'2026-03-01':1,'2026-03-02':0,'2026-03-03':2},
+  4:{'2026-03-01':0,'2026-03-02':2,'2026-03-03':1},
+  5:{'2026-03-01':2,'2026-03-02':1,'2026-03-03':0},
+  6:{'2026-03-01':1,'2026-03-02':0,'2026-03-03':3},
+};
+
+renderTabla();
+renderResultadosRegistro();
+renderSimTabla();
+renderSimResultados();
+updateConfigLabel();
+</script>
+</body>
+</html>

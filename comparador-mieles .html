@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador de Mieles | FORESVI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --azul: #003349;
+      --rojo: #E25454;
+      --blanco: #FFFFFF;
+      --gris-m: #717B8D;
+      --gris-c: #BEC4D6;
+      --gris-bg: #F4F6F9;
+      --azul-light: #EEF4F7;
+      --green: #2E7D32;
+      --amber: #F59E0B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--gris-bg);
+      color: #1A1A2E;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--azul);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 14px; }
+    .logo-svg { height: 48px; }
+    .header-center { text-align: center; }
+    .header-title {
+      font-size: 1.15rem; font-weight: 800; color: #fff;
+      letter-spacing: .04em; text-transform: uppercase;
+    }
+    .header-sub { font-size: .72rem; color: var(--gris-c); font-weight: 400; margin-top: 2px; }
+    .header-actions { display: flex; gap: 10px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 6px; border: none;
+      font-family: inherit; font-size: .82rem; font-weight: 700;
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .btn-primary   { background: var(--rojo); color: #fff; }
+    .btn-primary:hover   { background: #c94040; }
+    .btn-outline   { background: rgba(255,255,255,.12); color: #fff; border: 1.5px solid rgba(255,255,255,.3); }
+    .btn-outline:hover   { background: rgba(255,255,255,.22); }
+    .btn-success   { background: var(--green); color: #fff; }
+    .btn-success:hover   { background: #1b5e20; }
+    .btn-ghost     { background: white; color: var(--azul); border: 2px solid var(--azul); }
+    .btn-ghost:hover     { background: var(--azul); color: white; }
+    .btn-sm { padding: 5px 11px; font-size: .78rem; }
+
+    /* ── MAIN ── */
+    .main { max-width: 1420px; margin: 0 auto; padding: 24px 28px; }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: white; border-radius: 10px;
+      padding: 16px 20px; box-shadow: 0 2px 6px rgba(0,51,73,.07);
+      border-left: 4px solid var(--azul);
+    }
+    .stat-card.red   { border-left-color: var(--rojo); }
+    .stat-card.green { border-left-color: var(--green); }
+    .stat-card.amber { border-left-color: var(--amber); }
+    .stat-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--gris-m); margin-bottom: 4px;
+    }
+    .stat-value { font-size: 1.65rem; font-weight: 800; color: var(--azul); line-height: 1; }
+    .stat-sub   { font-size: .72rem; color: var(--gris-m); margin-top: 4px; }
+
+    /* ── FILTERS ── */
+    .filters-card {
+      background: white; border-radius: 10px;
+      padding: 18px 22px; margin-bottom: 18px;
+      box-shadow: 0 2px 6px rgba(0,51,73,.07);
+    }
+    .filters-head {
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gris-m); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    /* Multi-chip filter rows */
+    .fblock { margin-bottom: 10px; }
+    .flabel {
+      display: block; font-size: .78rem; font-weight: 700;
+      color: var(--azul); margin-bottom: 6px; text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .chips-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .fchip {
+      padding: 4px 13px; border-radius: 20px; border: 1.5px solid var(--gris-c);
+      background: white; font-family: inherit; font-size: .78rem; font-weight: 600;
+      color: var(--gris-m); cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .fchip:hover { border-color: var(--azul); color: var(--azul); }
+    .fchip.on { border-color: var(--azul); background: var(--azul); color: white; }
+    .fchip.all { border-color: var(--gris-m); }
+    .fchip.all.on { border-color: var(--gris-m); background: var(--gris-m); color: white; }
+    /* Bottom filter row */
+    .filters-row-bottom {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1.6fr auto;
+      gap: 14px; align-items: end; margin-top: 12px;
+      padding-top: 12px; border-top: 1px solid var(--gris-bg);
+    }
+    .fg label {
+      display: block; font-size: .78rem; font-weight: 600;
+      color: var(--azul); margin-bottom: 5px;
+    }
+    .fg select, .fg input {
+      width: 100%; padding: 8px 11px;
+      border: 2px solid var(--gris-c); border-radius: 6px;
+      font-family: inherit; font-size: .88rem; color: var(--azul);
+      background: white; outline: none; transition: border-color .2s;
+    }
+    .fg select:focus, .fg input:focus { border-color: var(--azul); }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 16px;
+    }
+    .tabs { display: flex; }
+    .tab {
+      padding: 9px 18px; border: 2px solid var(--gris-c);
+      background: white; font-family: inherit; font-size: .82rem;
+      font-weight: 600; color: var(--gris-m); cursor: pointer;
+      transition: all .18s;
+    }
+    .tab:first-child { border-radius: 8px 0 0 8px; }
+    .tab:last-child  { border-radius: 0 8px 8px 0; }
+    .tab.active { background: var(--azul); color: white; border-color: var(--azul); }
+    .toolbar-right { display: flex; gap: 8px; align-items: center; }
+
+    /* ── PANELS ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── TABLE ── */
+    .table-card {
+      background: white; border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,51,73,.07); overflow: hidden;
+    }
+    .table-hdr {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 14px 18px;
+      border-bottom: 2px solid var(--gris-bg);
+    }
+    .table-hdr-title { font-weight: 700; font-size: .95rem; color: var(--azul); }
+    .table-hdr-count { font-size: .78rem; color: var(--gris-m); }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead th {
+      background: var(--azul); color: white; padding: 11px 14px;
+      text-align: left; font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em;
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    thead th:hover { background: #004d6e; }
+    thead th .si { margin-left: 3px; opacity: .5; }
+    thead th.sorted .si { opacity: 1; }
+    tbody tr { border-bottom: 1px solid #F0F2F5; transition: background .12s; }
+    tbody tr:hover { background: #F8FAFC; }
+    tbody tr.custom { background: #FFFBF0; }
+    tbody tr.custom:hover { background: #FFF5D6; }
+    tbody td { padding: 10px 14px; }
+    .marca-txt {
+      font-weight: 700; font-size: .78rem; color: var(--azul);
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 12px;
+      font-size: .72rem; font-weight: 600;
+    }
+    .b-azahar   { background: #FFF3E0; color: #E65100; }
+    .b-milflores{ background: #F3E5F5; color: #7B1FA2; }
+    .b-polen    { background: #E8F5E9; color: #2E7D32; }
+    .b-eucalipto{ background: #E0F2F1; color: #00695C; }
+    .b-lavanda  { background: #EDE7F6; color: #512DA8; }
+    .b-encina   { background: #FBE9E7; color: #BF360C; }
+    .b-romero   { background: #F1F8E9; color: #33691E; }
+    .b-tomillo  { background: #F9FBE7; color: #558B2F; }
+    .b-bosque   { background: #EFEBE9; color: #4E342E; }
+    .b-otro     { background: #E3F2FD; color: #0D47A1; }
+    .precio-cell { font-weight: 700; font-size: .92rem; }
+    .eur-cell    { font-weight: 700; color: var(--azul); }
+    .bar-wrap    { display: flex; align-items: center; gap: 8px; min-width: 140px; }
+    .bar-bg      { flex: 1; height: 8px; border-radius: 4px; background: var(--gris-c); overflow: hidden; }
+    .bar-fill    { height: 100%; border-radius: 4px; background: var(--azul); transition: width .3s; }
+    .bar-fill.best  { background: var(--green); }
+    .bar-fill.worst { background: var(--rojo); }
+    .bar-val     { font-size: .75rem; font-weight: 700; min-width: 52px; text-align: right; }
+    .bar-val.best  { color: var(--green); }
+    .bar-val.worst { color: var(--rojo); }
+    .del-btn {
+      padding: 3px 7px; border: 1px solid #ddd; border-radius: 4px;
+      background: none; cursor: pointer; font-size: .72rem; color: var(--gris-m);
+      transition: all .18s;
+    }
+    .del-btn:hover { background: #ffebee; border-color: var(--rojo); color: var(--rojo); }
+
+    /* ── CHART PANELS ── */
+    .chart-card {
+      background: white; border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,51,73,.07); padding: 20px;
+    }
+    .chart-controls {
+      display: flex; gap: 10px; margin-bottom: 16px;
+      align-items: center; flex-wrap: wrap;
+    }
+    .chart-controls span.label {
+      font-weight: 700; font-size: .92rem; color: var(--azul);
+    }
+    .chip {
+      padding: 5px 13px; border-radius: 20px;
+      border: 2px solid var(--gris-c); background: white;
+      font-size: .78rem; font-weight: 600; color: var(--gris-m);
+      cursor: pointer; transition: all .18s;
+    }
+    .chip.active { border-color: var(--azul); color: var(--azul); background: var(--azul-light); }
+    .chart-wrap { height: 420px; position: relative; }
+
+    /* ── MODAL ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,51,73,.65); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: 14px; padding: 28px;
+      width: 520px; max-width: 96vw; max-height: 92vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,.35);
+    }
+    .modal-title {
+      font-size: 1.1rem; font-weight: 800; color: var(--azul);
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 2px solid var(--gris-bg);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .fgrp { display: flex; flex-direction: column; }
+    .fgrp.full { grid-column: 1 / -1; }
+    .fgrp label { font-size: .78rem; font-weight: 600; color: var(--azul); margin-bottom: 5px; }
+    .fgrp input, .fgrp select {
+      padding: 8px 11px; border: 2px solid var(--gris-c); border-radius: 6px;
+      font-family: inherit; font-size: .9rem; outline: none; transition: border-color .2s;
+    }
+    .fgrp input:focus, .fgrp select:focus { border-color: var(--azul); }
+    .fgrp input[readonly] { background: #f8f8f8; color: var(--gris-m); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-cancel {
+      padding: 8px 16px; border: 2px solid var(--gris-c); border-radius: 6px;
+      background: white; color: var(--gris-m); font-family: inherit;
+      font-weight: 600; cursor: pointer; font-size: .82rem;
+    }
+    .btn-cancel:hover { border-color: var(--gris-m); }
+
+    /* Import drop area */
+    .drop-area {
+      border: 2px dashed var(--gris-c); border-radius: 8px;
+      padding: 30px 20px; text-align: center; cursor: pointer;
+      color: var(--gris-m); font-size: .875rem; transition: all .2s;
+    }
+    .drop-area:hover { border-color: var(--azul); color: var(--azul); background: var(--azul-light); }
+    .drop-area .icon { font-size: 2.2rem; margin-bottom: 8px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 22px; right: 22px;
+      background: var(--azul); color: white; padding: 11px 18px;
+      border-radius: 8px; font-size: .82rem; font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,.3); z-index: 999;
+      transform: translateY(80px); opacity: 0; transition: all .28s;
+    }
+    .toast.show  { transform: translateY(0); opacity: 1; }
+    .toast.ok    { background: var(--green); }
+    .toast.error { background: var(--rojo); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .filters-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      header { padding: 0 14px; }
+      .header-actions { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .filters-row { grid-template-columns: 1fr; }
+      .main { padding: 14px 12px; }
+    }
+    .empty { text-align: center; padding: 48px 20px; color: var(--gris-m); }
+    .empty .ei { font-size: 3rem; margin-bottom: 12px; }
+    .nuevo-tag {
+      display: inline-block; background: var(--amber); color: white;
+      font-size: .62rem; font-weight: 700; padding: 1px 5px;
+      border-radius: 3px; vertical-align: middle; margin-left: 4px;
+      text-transform: uppercase;
+    }
+    /* Gramos comparison matrix */
+    .gramos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .gramos-cell {
+      background: white; border-radius: 10px; padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,51,73,.07);
+    }
+    .gramos-size {
+      font-size: .78rem; font-weight: 700; color: var(--gris-m);
+      text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+    }
+    .gramos-row {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 5px 0;
+      border-bottom: 1px solid var(--gris-bg); font-size: .83rem;
+    }
+    .gramos-row:last-child { border: none; }
+    .gramos-marca { font-weight: 600; color: var(--azul); font-size: .78rem; }
+    .gramos-eur { font-weight: 700; }
+    .gramos-eur.best  { color: var(--green); }
+    .gramos-eur.worst { color: var(--rojo); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+<header>
+  <div class="logo-wrap">
+    <!-- FORESVI Logo SVG (isotipo: planta + barras, según imagen adjunta) -->
+    <svg class="logo-svg" viewBox="0 0 215 56" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(2,2)">
+        <!-- 3 barras de gráfico (crecimiento) -->
+        <rect x="1"  y="38" width="8" height="14" rx="2" fill="#E25454"/>
+        <rect x="12" y="28" width="8" height="24" rx="2" fill="#E25454"/>
+        <rect x="23" y="15" width="8" height="37" rx="2" fill="#E25454"/>
+        <!-- Hoja izquierda (grande) -->
+        <path d="M25,15 Q22,1 38,-1 Q52,4 51,19 Q50,31 40,38 Q33,42 25,40 Q23,30 25,15Z" fill="#E25454"/>
+        <!-- Hueco interior hoja izquierda -->
+        <path d="M31,37 Q30,17 38,6 Q45,9 44,21 Q43,31 36,39Z" fill="white"/>
+        <!-- Hoja derecha (más pequeña) -->
+        <path d="M41,36 Q50,20 63,13 Q68,23 63,36 Q59,46 47,49 Q41,46 41,36Z" fill="#E25454"/>
+        <!-- Hueco interior hoja derecha -->
+        <path d="M47,45 Q51,29 61,19 Q64,27 61,38 Q57,46 49,49Z" fill="white"/>
+        <!-- Símbolo ® -->
+        <circle cx="68" cy="49" r="4.5" fill="none" stroke="#E25454" stroke-width="1.4"/>
+        <text x="68" y="51.5" font-size="5" fill="#E25454" font-family="Arial,sans-serif" text-anchor="middle" font-weight="700">R</text>
+      </g>
+      <!-- Wordmark FORESVI -->
+      <text x="82" y="32"
+        font-family="Inter, Arial, sans-serif"
+        font-weight="800" font-size="22"
+        fill="#FFFFFF" letter-spacing="2.5">FORESVI</text>
+      <!-- Claim -->
+      <text x="82" y="46"
+        font-family="Inter, Arial, sans-serif"
+        font-weight="400" font-size="8"
+        fill="#BEC4D6" letter-spacing=".6">Foco. Resultados. Vida.</text>
+    </svg>
+  </div>
+
+  <div class="header-center">
+    <div class="header-title">🍯 Comparador de Mieles</div>
+    <div class="header-sub">Estudio de mercado · Análisis de precios por tipo y formato</div>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="openImport()">⬆ Importar Excel</button>
+    <button class="btn btn-outline" onclick="exportExcel()">⬇ Exportar Excel</button>
+    <button class="btn btn-primary" onclick="openAdd()">+ Añadir producto</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsRow"></div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <div class="filters-head">🔍 Filtros y ordenación</div>
+
+    <!-- Tipo de miel: multi-chip -->
+    <div class="fblock">
+      <span class="flabel">Tipo de miel</span>
+      <div class="chips-wrap" id="tipoChips"></div>
+    </div>
+
+    <!-- Marca: multi-chip -->
+    <div class="fblock">
+      <span class="flabel">Marca</span>
+      <div class="chips-wrap" id="marcaChips"></div>
+    </div>
+
+    <!-- Fila inferior: Tamaño, €/kg, Ordenar, Reset -->
+    <div class="filters-row-bottom">
+      <div class="fg">
+        <label>Tamaño del bote</label>
+        <select id="fGramos" onchange="render()">
+          <option value="">Todos los tamaños</option>
+          <option value="0-249">Pequeño (hasta 249g)</option>
+          <option value="250-499">Mediano (250–499g)</option>
+          <option value="500-999">Grande (500–999g)</option>
+          <option value="1000-99999">Extra grande (≥1kg)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>€/kg máximo</label>
+        <input type="number" id="fMaxKg" placeholder="Sin límite" onchange="render()" min="0" step="1">
+      </div>
+      <div class="fg">
+        <label>Ordenar por</label>
+        <select id="fSort" onchange="onSortDropdown()">
+          <option value="eur_kg_asc">€/kg (menor primero)</option>
+          <option value="eur_kg_desc">€/kg (mayor primero)</option>
+          <option value="precio_asc">Precio bote ↑</option>
+          <option value="precio_desc">Precio bote ↓</option>
+          <option value="marca_asc">Marca (A–Z)</option>
+          <option value="gramos_asc">Gramos ↑</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>&nbsp;</label>
+        <button class="btn btn-ghost" onclick="resetFilters()">↺ Resetear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('tabla',this)">📋 Tabla comparativa</button>
+      <button class="tab" onclick="switchTab('grafico',this)">📊 Gráfico €/kg</button>
+      <button class="tab" onclick="switchTab('botes',this)">🫙 Por tamaño de bote</button>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-success btn-sm" onclick="exportExcel()">⬇ Exportar Excel</button>
+      <button class="btn btn-outline btn-sm" style="background:white;color:var(--azul);border-color:var(--azul);" onclick="openImport()">⬆ Importar</button>
+      <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Añadir</button>
+    </div>
+  </div>
+
+  <!-- ── TAB: TABLA ── -->
+  <div id="p-tabla" class="panel active">
+    <div class="table-card">
+      <div class="table-hdr">
+        <span class="table-hdr-title">Comparativa de precios</span>
+        <span class="table-hdr-count" id="tCount"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="setSortCol('marca')">MARCA <span class="si">↕</span></th>
+              <th onclick="setSortCol('tipo')">TIPO DE MIEL <span class="si">↕</span></th>
+              <th onclick="setSortCol('gramos')">BOTE <span class="si">↕</span></th>
+              <th onclick="setSortCol('precio')">PRECIO <span class="si">↕</span></th>
+              <th onclick="setSortCol('eur_kg')">€/KG <span class="si">↕</span></th>
+              <th>COMPARATIVA €/KG</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="emptyTable" class="empty" style="display:none">
+          <div class="ei">🍯</div>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Sin resultados</div>
+          <div style="font-size:.85rem;">Prueba a cambiar los filtros o añade nuevos productos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: GRÁFICO ── -->
+  <div id="p-grafico" class="panel">
+    <div class="chart-card">
+      <div class="chart-controls">
+        <span class="label">Comparativa €/kg por marca</span>
+        <button class="chip active" onclick="setMetric('eur_kg',this)">€/kg</button>
+        <button class="chip" onclick="setMetric('precio',this)">Precio bote</button>
+        <span style="color:var(--gris-m);font-size:.78rem;">(promedio por marca según filtros activos)</span>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── TAB: POR BOTE ── -->
+  <div id="p-botes" class="panel">
+    <div class="chart-card" style="margin-bottom:16px;">
+      <div class="chart-controls">
+        <span class="label">Comparativa por tamaño de bote</span>
+        <span style="color:var(--gris-m);font-size:.78rem;">
+          Precio más barato <span style="color:var(--green);font-weight:700;">verde</span> · más caro <span style="color:var(--rojo);font-weight:700;">rojo</span>
+        </span>
+      </div>
+      <div id="botesGrid" class="gramos-grid"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══════════════════════════════ ADD MODAL ═══════════════════════════════ -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <div class="modal-title">➕ Añadir nuevo producto</div>
+    <div class="form-grid">
+      <div class="fgrp full">
+        <label>Marca *</label>
+        <input type="text" id="nMarca" placeholder="Nombre de la marca" list="marcasDL">
+        <datalist id="marcasDL"></datalist>
+      </div>
+      <div class="fgrp">
+        <label>Tipo de miel *</label>
+        <select id="nTipo">
+          <option value="">Seleccionar tipo...</option>
+          <option>Miel de Azahar</option>
+          <option>Miel de Mil Flores</option>
+          <option>Polen</option>
+          <option>Miel de Eucalipto</option>
+          <option>Miel de Lavanda</option>
+          <option>Miel de Encina</option>
+          <option>Miel de Romero</option>
+          <option>Miel de Tomillo</option>
+          <option>Miel de Bosque</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="fgrp">
+        <label>Gramos del bote *</label>
+        <input type="number" id="nGramos" placeholder="ej: 500" min="1" oninput="calcEurKg()">
+      </div>
+      <div class="fgrp">
+        <label>Precio del bote (€) *</label>
+        <input type="number" id="nPrecio" placeholder="ej: 5.99" step="0.01" min="0" oninput="calcEurKg()">
+      </div>
+      <div class="fgrp">
+        <label>€/kg (calculado)</label>
+        <input type="number" id="nEurKg" readonly placeholder="Automático" step="0.01">
+      </div>
+      <div class="fgrp">
+        <label>Fuente / Nota</label>
+        <input type="text" id="nNota" placeholder="URL, tienda, fecha…">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAdd()">Cancelar</button>
+      <button class="btn btn-primary" onclick="addProduct()">✓ Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ IMPORT MODAL ═══════════════════════════════ -->
+<div class="overlay" id="importOverlay">
+  <div class="modal">
+    <div class="modal-title">⬆ Importar datos desde Excel</div>
+    <p style="font-size:.85rem;color:var(--gris-m);margin-bottom:16px;">
+      Importa un fichero .xlsx exportado desde esta aplicación. Los datos se reemplazarán por los del fichero.
+    </p>
+    <div class="drop-area" onclick="document.getElementById('importFile').click()">
+      <div class="icon">📂</div>
+      <strong>Haz clic para seleccionar el fichero</strong>
+      <div style="font-size:.78rem;margin-top:4px;">Formatos: .xlsx, .xls</div>
+    </div>
+    <input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this)">
+    <div id="importStatus" style="margin-top:12px;font-size:.85rem;min-height:20px;"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="closeImport()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- SheetJS + Chart.js -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════
+const SEED = [
+  {"marca":"MELS SOLDADO","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":5.32,"eur_kg":10.64,"custom":false,"nota":""},
+  {"marca":"MELS SOLDADO","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":9.5,"eur_kg":9.5,"custom":false,"nota":""},
+  {"marca":"MELS SOLDADO","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":4.75,"eur_kg":9.5,"custom":false,"nota":""},
+  {"marca":"MELS SOLDADO","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":8.08,"eur_kg":8.08,"custom":false,"nota":""},
+  {"marca":"MELS SOLDADO","tipo":"Polen","gramos_label":"500gr","gramos":500,"precio":11.0,"eur_kg":22.0,"custom":false,"nota":""},
+  {"marca":"MELS SOLDADO","tipo":"Polen","gramos_label":"1kg","gramos":1000,"precio":18.0,"eur_kg":18.0,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Miel de Azahar","gramos_label":"250gr","gramos":250,"precio":3.95,"eur_kg":15.8,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":5.95,"eur_kg":11.9,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Miel de Azahar","gramos_label":"980gr","gramos":980,"precio":9.95,"eur_kg":10.15,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Miel de Mil Flores","gramos_label":"250gr","gramos":250,"precio":3.2,"eur_kg":12.8,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":5.25,"eur_kg":10.5,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Miel de Mil Flores","gramos_label":"980gr","gramos":980,"precio":8.95,"eur_kg":9.13,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Polen","gramos_label":"230gr","gramos":230,"precio":7.95,"eur_kg":34.57,"custom":false,"nota":""},
+  {"marca":"LA CASA DE LA MIEL","tipo":"Polen","gramos_label":"450gr","gramos":450,"precio":13.95,"eur_kg":31.0,"custom":false,"nota":""},
+  {"marca":"PLANETA HUERTA","tipo":"Miel de Mil Flores","gramos_label":"250gr","gramos":250,"precio":12.95,"eur_kg":51.8,"custom":false,"nota":""},
+  {"marca":"PLANETA HUERTA","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":10.95,"eur_kg":21.9,"custom":false,"nota":""},
+  {"marca":"PLANETA HUERTA","tipo":"Miel de Mil Flores","gramos_label":"800gr","gramos":800,"precio":15.7,"eur_kg":19.63,"custom":false,"nota":""},
+  {"marca":"PLANETA HUERTA","tipo":"Polen","gramos_label":"250gr","gramos":250,"precio":12.61,"eur_kg":50.44,"custom":false,"nota":""},
+  {"marca":"PLANETA HUERTA","tipo":"Polen","gramos_label":"500gr","gramos":500,"precio":20.5,"eur_kg":41.0,"custom":false,"nota":""},
+  {"marca":"PLANETA HUERTA","tipo":"Polen","gramos_label":"800gr","gramos":800,"precio":40.29,"eur_kg":50.36,"custom":false,"nota":""},
+  {"marca":"MIELEKO","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":5.5,"eur_kg":11.0,"custom":false,"nota":""},
+  {"marca":"MIELEKO","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":9.0,"eur_kg":9.0,"custom":false,"nota":""},
+  {"marca":"MIELEKO","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":5.5,"eur_kg":11.0,"custom":false,"nota":""},
+  {"marca":"MIELEKO","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":9.0,"eur_kg":9.0,"custom":false,"nota":""},
+  {"marca":"MIELEKO","tipo":"Polen","gramos_label":"250gr","gramos":250,"precio":8.2,"eur_kg":32.8,"custom":false,"nota":""},
+  {"marca":"MIELEKO","tipo":"Polen","gramos_label":"500gr","gramos":500,"precio":15.0,"eur_kg":30.0,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Azahar","gramos_label":"250gr","gramos":250,"precio":2.7,"eur_kg":10.8,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":4.3,"eur_kg":8.6,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":8.2,"eur_kg":8.2,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Azahar","gramos_label":"2kg","gramos":2000,"precio":15.98,"eur_kg":7.99,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Mil Flores","gramos_label":"250gr","gramos":250,"precio":2.3,"eur_kg":9.2,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":3.4,"eur_kg":6.8,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":6.7,"eur_kg":6.7,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Miel de Mil Flores","gramos_label":"2kg","gramos":2000,"precio":12.9,"eur_kg":6.45,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Polen","gramos_label":"220gr","gramos":220,"precio":7.45,"eur_kg":33.86,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Polen","gramos_label":"450gr","gramos":450,"precio":12.9,"eur_kg":28.67,"custom":false,"nota":""},
+  {"marca":"LA MIELERIA","tipo":"Polen","gramos_label":"900gr","gramos":900,"precio":23.5,"eur_kg":26.11,"custom":false,"nota":""},
+  {"marca":"LA MODERNA APICULTURA","tipo":"Miel de Azahar","gramos_label":"300gr","gramos":300,"precio":6.95,"eur_kg":23.17,"custom":false,"nota":""},
+  {"marca":"LA MODERNA APICULTURA","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":8.0,"eur_kg":16.0,"custom":false,"nota":""},
+  {"marca":"LA MODERNA APICULTURA","tipo":"Miel de Azahar","gramos_label":"970gr","gramos":970,"precio":13.0,"eur_kg":13.4,"custom":false,"nota":""},
+  {"marca":"LA MODERNA APICULTURA","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":8.0,"eur_kg":16.0,"custom":false,"nota":""},
+  {"marca":"LA MODERNA APICULTURA","tipo":"Miel de Mil Flores","gramos_label":"970gr","gramos":970,"precio":12.0,"eur_kg":12.37,"custom":false,"nota":""},
+  {"marca":"LA MODERNA APICULTURA","tipo":"Polen","gramos_label":"430gr","gramos":430,"precio":17.5,"eur_kg":40.7,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Miel de Azahar","gramos_label":"175gr","gramos":175,"precio":3.0,"eur_kg":17.14,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":5.0,"eur_kg":10.0,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":7.0,"eur_kg":7.0,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Miel de Mil Flores","gramos_label":"175gr","gramos":175,"precio":3.0,"eur_kg":17.14,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":5.0,"eur_kg":10.0,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":7.0,"eur_kg":7.0,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Polen","gramos_label":"90gr","gramos":90,"precio":3.0,"eur_kg":33.33,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Polen","gramos_label":"250gr","gramos":250,"precio":6.0,"eur_kg":24.0,"custom":false,"nota":""},
+  {"marca":"LOS JUANES","tipo":"Polen","gramos_label":"500gr","gramos":500,"precio":10.99,"eur_kg":21.98,"custom":false,"nota":""},
+  {"marca":"MADRID MIEL","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":6.3,"eur_kg":12.6,"custom":false,"nota":""},
+  {"marca":"MADRID MIEL","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":11.6,"eur_kg":11.6,"custom":false,"nota":""},
+  {"marca":"MADRID MIEL","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":5.8,"eur_kg":11.6,"custom":false,"nota":""},
+  {"marca":"MADRID MIEL","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":10.5,"eur_kg":10.5,"custom":false,"nota":""},
+  {"marca":"MADRID MIEL","tipo":"Polen","gramos_label":"230gr","gramos":230,"precio":7.66,"eur_kg":33.3,"custom":false,"nota":""},
+  {"marca":"MADRID MIEL","tipo":"Polen","gramos_label":"440gr","gramos":440,"precio":14.9,"eur_kg":33.86,"custom":false,"nota":""},
+  {"marca":"MIELABEJARANA","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":9.9,"eur_kg":9.9,"custom":false,"nota":""},
+  {"marca":"MIELABEJARANA","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":9.9,"eur_kg":9.9,"custom":false,"nota":""},
+  {"marca":"MIELABEJARANA","tipo":"Polen","gramos_label":"250gr","gramos":250,"precio":7.1,"eur_kg":28.4,"custom":false,"nota":""},
+  {"marca":"MIELABEJARANA","tipo":"Polen","gramos_label":"480gr","gramos":480,"precio":13.9,"eur_kg":28.96,"custom":false,"nota":""},
+  {"marca":"MIELABEJARANA","tipo":"Polen","gramos_label":"1kg","gramos":1000,"precio":22.8,"eur_kg":22.8,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Miel de Azahar","gramos_label":"250gr","gramos":250,"precio":5.3,"eur_kg":21.2,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":8.85,"eur_kg":17.7,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":16.55,"eur_kg":16.55,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Miel de Mil Flores","gramos_label":"250gr","gramos":250,"precio":4.35,"eur_kg":17.4,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":7.2,"eur_kg":14.4,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":13.2,"eur_kg":13.2,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Polen","gramos_label":"215gr","gramos":215,"precio":11.4,"eur_kg":53.02,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Polen","gramos_label":"450gr","gramos":450,"precio":20.5,"eur_kg":45.56,"custom":false,"nota":""},
+  {"marca":"MIELMURIA","tipo":"Polen","gramos_label":"1kg","gramos":1000,"precio":41.05,"eur_kg":41.05,"custom":false,"nota":""},
+  {"marca":"SIERRAS ANDALUZAS","tipo":"Miel de Azahar","gramos_label":"500gr","gramos":500,"precio":5.75,"eur_kg":11.5,"custom":false,"nota":""},
+  {"marca":"SIERRAS ANDALUZAS","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":10.25,"eur_kg":10.25,"custom":false,"nota":""},
+  {"marca":"SIERRAS ANDALUZAS","tipo":"Miel de Mil Flores","gramos_label":"500gr","gramos":500,"precio":5.2,"eur_kg":10.4,"custom":false,"nota":""},
+  {"marca":"SIERRAS ANDALUZAS","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":9.7,"eur_kg":9.7,"custom":false,"nota":""},
+  {"marca":"SIERRAS ANDALUZAS","tipo":"Polen","gramos_label":"230gr","gramos":230,"precio":6.0,"eur_kg":26.09,"custom":false,"nota":""},
+  {"marca":"MIELESPAÑA","tipo":"Miel de Azahar","gramos_label":"1kg","gramos":1000,"precio":12.9,"eur_kg":12.9,"custom":false,"nota":""},
+  {"marca":"MIELESPAÑA","tipo":"Miel de Mil Flores","gramos_label":"1kg","gramos":1000,"precio":12.9,"eur_kg":12.9,"custom":false,"nota":""},
+  {"marca":"MIELESPAÑA","tipo":"Polen","gramos_label":"150gr","gramos":150,"precio":8.2,"eur_kg":54.67,"custom":false,"nota":""}
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+let DB = load();
+let chartMetric = 'eur_kg';
+let sortCol = 'eur_kg', sortDir = 'asc';
+let mainChartInst = null, gramosChartInst = null;
+// Multi-select state: empty Set = ALL selected
+let selectedTipos  = new Set();
+let selectedMarcas = new Set();
+
+function load() {
+  try {
+    const s = localStorage.getItem('foresvi_mieles');
+    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED));
+  } catch(e) { return JSON.parse(JSON.stringify(SEED)); }
+}
+function save() { localStorage.setItem('foresvi_mieles', JSON.stringify(DB)); }
+
+// ═══════════════════════════════════════════════════════════════════════
+// FILTER & SORT  (único mecanismo unificado)
+// ═══════════════════════════════════════════════════════════════════════
+function filtered() {
+  const gramos = document.getElementById('fGramos').value;
+  const maxKg  = parseFloat(document.getElementById('fMaxKg').value) || Infinity;
+
+  let rows = DB.filter(r => {
+    // Multi-select tipo
+    if (selectedTipos.size  > 0 && !selectedTipos.has(r.tipo))   return false;
+    // Multi-select marca
+    if (selectedMarcas.size > 0 && !selectedMarcas.has(r.marca)) return false;
+    // Tamaño bote
+    if (gramos) {
+      const [lo, hi] = gramos.split('-').map(Number);
+      if (r.gramos < lo || r.gramos > hi) return false;
+    }
+    // €/kg máximo
+    if (r.eur_kg > maxKg) return false;
+    return true;
+  });
+
+  // Único sort: sortCol + sortDir (controlado desde dropdown Y cabeceras de tabla)
+  const d = sortDir === 'asc' ? 1 : -1;
+  rows.sort((a, b) => {
+    if (typeof a[sortCol] === 'string') return d * a[sortCol].localeCompare(b[sortCol]);
+    return d * (a[sortCol] - b[sortCol]);
+  });
+
+  return rows;
+}
+
+// filterForTab es alias de filtered() — ya no hay doble sort
+function filterForTab() { return filtered(); }
+
+// Dropdown "Ordenar por" → actualiza sortCol/sortDir y re-renderiza
+function onSortDropdown() {
+  const val = document.getElementById('fSort').value;
+  const map = {
+    'eur_kg_asc':  ['eur_kg',  'asc'],
+    'eur_kg_desc': ['eur_kg',  'desc'],
+    'precio_asc':  ['precio',  'asc'],
+    'precio_desc': ['precio',  'desc'],
+    'marca_asc':   ['marca',   'asc'],
+    'gramos_asc':  ['gramos',  'asc'],
+  };
+  [sortCol, sortDir] = map[val] || ['eur_kg', 'asc'];
+  render();
+}
+
+// Cabecera de tabla → actualiza sortCol/sortDir y sincroniza dropdown
+function setSortCol(col) {
+  if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortCol = col; sortDir = 'asc'; }
+  // Sincronizar dropdown si la combinación existe
+  const dropVal = `${col}_${sortDir}`;
+  const sel = document.getElementById('fSort');
+  if ([...sel.options].some(o => o.value === dropVal)) sel.value = dropVal;
+  render();
+}
+
+// Toggle chip tipo
+function toggleTipo(tipo) {
+  if (tipo === '') { selectedTipos.clear(); }
+  else {
+    if (selectedTipos.has(tipo)) selectedTipos.delete(tipo);
+    else selectedTipos.add(tipo);
+  }
+  renderTipoChips();
+  render();
+}
+
+// Toggle chip marca
+function toggleMarca(marca) {
+  if (marca === '') { selectedMarcas.clear(); }
+  else {
+    if (selectedMarcas.has(marca)) selectedMarcas.delete(marca);
+    else selectedMarcas.add(marca);
+  }
+  renderMarcaChips();
+  render();
+}
+
+function resetFilters() {
+  selectedTipos.clear();
+  selectedMarcas.clear();
+  document.getElementById('fGramos').value = '';
+  document.getElementById('fMaxKg').value = '';
+  sortCol = 'eur_kg'; sortDir = 'asc';
+  document.getElementById('fSort').value = 'eur_kg_asc';
+  renderTipoChips();
+  renderMarcaChips();
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BADGE HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function tipoBadge(tipo) {
+  const map = {
+    'Miel de Azahar':'b-azahar','Miel de Mil Flores':'b-milflores',
+    'Polen':'b-polen','Miel de Eucalipto':'b-eucalipto',
+    'Miel de Lavanda':'b-lavanda','Miel de Encina':'b-encina',
+    'Miel de Romero':'b-romero','Miel de Tomillo':'b-tomillo',
+    'Miel de Bosque':'b-bosque'
+  };
+  const cls = map[tipo] || 'b-otro';
+  return `<span class="badge ${cls}">${tipo}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER STATS
+// ═══════════════════════════════════════════════════════════════════════
+function renderStats(rows) {
+  const eur = rows.map(r => r.eur_kg).filter(x => x > 0);
+  const minE = eur.length ? Math.min(...eur) : 0;
+  const maxE = eur.length ? Math.max(...eur) : 0;
+  const avgE = eur.length ? (eur.reduce((a,b)=>a+b,0)/eur.length) : 0;
+  const marcas = new Set(rows.map(r => r.marca)).size;
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card green">
+      <div class="stat-label">€/kg más barato</div>
+      <div class="stat-value">${minE.toFixed(2)}</div>
+      <div class="stat-sub">€ por kilogramo (mín.)</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">€/kg más caro</div>
+      <div class="stat-value">${maxE.toFixed(2)}</div>
+      <div class="stat-sub">€ por kilogramo (máx.)</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">€/kg promedio</div>
+      <div class="stat-value">${avgE.toFixed(2)}</div>
+      <div class="stat-sub">Sobre ${rows.length} productos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Marcas comparadas</div>
+      <div class="stat-value">${marcas}</div>
+      <div class="stat-sub">${rows.length} productos en total</div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER TABLE
+// ═══════════════════════════════════════════════════════════════════════
+function renderTable(rows) {
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('emptyTable');
+  document.getElementById('tCount').textContent = `${rows.length} producto${rows.length!==1?'s':''}`;
+
+  // Column sort icons
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const maxEurKg = Math.max(...rows.map(r => r.eur_kg));
+  const minEurKg = Math.min(...rows.map(r => r.eur_kg));
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const isBest  = r.eur_kg === minEurKg;
+    const isWorst = r.eur_kg === maxEurKg;
+    const pct = maxEurKg > 0 ? (r.eur_kg / maxEurKg * 100).toFixed(1) : 0;
+    const fillCls = isBest ? 'best' : isWorst ? 'worst' : '';
+    const valCls  = isBest ? 'best' : isWorst ? 'worst' : '';
+    const rowCls  = r.custom ? 'custom' : '';
+
+    return `<tr class="${rowCls}">
+      <td><span class="marca-txt">${r.marca}${r.custom?'<span class="nuevo-tag">Nuevo</span>':''}</span></td>
+      <td>${tipoBadge(r.tipo)}</td>
+      <td style="font-weight:600;">${r.gramos_label || r.gramos+'gr'}</td>
+      <td class="precio-cell">${r.precio.toFixed(2)} €</td>
+      <td class="eur-cell">${r.eur_kg.toFixed(2)} €</td>
+      <td>
+        <div class="bar-wrap">
+          <div class="bar-bg"><div class="bar-fill ${fillCls}" style="width:${pct}%"></div></div>
+          <span class="bar-val ${valCls}">${r.eur_kg.toFixed(2)}€</span>
+        </div>
+      </td>
+      <td>
+        ${r.custom ? `<button class="del-btn" onclick="deleteProduct(${i}, '${r.marca.replace(/'/g,"\\'")}', '${r.tipo}', ${r.gramos})">✕ Eliminar</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER CHART
+// ═══════════════════════════════════════════════════════════════════════
+function renderChart(rows) {
+  // Group by marca → average of chartMetric
+  const byMarca = {};
+  rows.forEach(r => {
+    if (!byMarca[r.marca]) byMarca[r.marca] = [];
+    byMarca[r.marca].push(r[chartMetric]);
+  });
+
+  // Build combined and SORT by value ascending (menor €/kg arriba)
+  let combined = Object.keys(byMarca).map(m => {
+    const arr = byMarca[m];
+    return { label: m, value: +(arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2) };
+  });
+  combined.sort((a, b) => a.value - b.value);
+
+  const labels = combined.map(c => c.label);
+  const values = combined.map(c => c.value);
+
+  // Colors: best=green, worst=red, rest=azul
+  const minV = values[0], maxV = values[values.length - 1];
+  const colors = values.map(v =>
+    v === minV ? '#2E7D32' : v === maxV ? '#E25454' : '#003349'
+  );
+
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  if (mainChartInst) mainChartInst.destroy();
+  mainChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: chartMetric === 'eur_kg' ? '€/kg (promedio)' : 'Precio bote promedio (€)',
+        data: values,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 0,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.x.toFixed(2)} ${chartMetric==='eur_kg'?'€/kg':'€'}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: '#F0F2F5' },
+          ticks: { font: { family: 'Inter', size: 11 } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { family: 'Inter', size: 11, weight: '600' } }
+        }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER BOTES (by jar size)
+// ═══════════════════════════════════════════════════════════════════════
+function renderBotes(rows) {
+  const bySize = {};
+  rows.forEach(r => {
+    const key = r.gramos;
+    if (!bySize[key]) bySize[key] = { label: r.gramos_label || r.gramos+'gr', items: [] };
+    bySize[key].items.push(r);
+  });
+
+  const sizes = Object.keys(bySize).map(Number).sort((a,b)=>a-b);
+  const grid = document.getElementById('botesGrid');
+  if (!sizes.length) {
+    grid.innerHTML = '<div class="empty"><div class="ei">🫙</div><div>Sin datos para los filtros seleccionados</div></div>';
+    return;
+  }
+
+  grid.innerHTML = sizes.map(sz => {
+    const {label, items} = bySize[sz];
+    const sorted = [...items].sort((a,b)=>a.eur_kg-b.eur_kg);
+    const minE = sorted[0]?.eur_kg, maxE = sorted[sorted.length-1]?.eur_kg;
+    return `
+      <div class="gramos-cell">
+        <div class="gramos-size">🫙 ${label} (${sz}g)</div>
+        ${sorted.map(r => {
+          const cls = r.eur_kg === minE ? 'best' : r.eur_kg === maxE ? 'worst' : '';
+          return `<div class="gramos-row">
+            <span class="gramos-marca">${r.marca}</span>
+            <span class="gramos-eur ${cls}">${r.eur_kg.toFixed(2)} €/kg<br>
+              <span style="font-size:.72rem;font-weight:400;color:var(--gris-m);">${r.precio.toFixed(2)}€ bote</span>
+            </span>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════════════════════════════════
+function render() {
+  const rows = filterForTab();
+  renderStats(rows);
+  renderTable(rows);
+  const active = document.querySelector('.panel.active');
+  if (active && active.id === 'p-grafico') renderChart(rows);
+  if (active && active.id === 'p-botes')  renderBotes(rows);
+}
+
+function renderTipoChips() {
+  const tipos = [...new Set(DB.map(r => r.tipo))].sort();
+  const wrap = document.getElementById('tipoChips');
+  const allOn = selectedTipos.size === 0;
+  wrap.innerHTML =
+    `<button class="fchip all ${allOn?'on':''}" onclick="toggleTipo('')">Todos</button>` +
+    tipos.map(t =>
+      `<button class="fchip ${selectedTipos.has(t)?'on':''}" onclick="toggleTipo('${t.replace(/'/g,"\\'")}')">
+        ${t}${selectedTipos.has(t)?' ✓':''}
+      </button>`
+    ).join('');
+}
+
+function renderMarcaChips() {
+  const marcas = [...new Set(DB.map(r => r.marca))].sort();
+  const wrap = document.getElementById('marcaChips');
+  const allOn = selectedMarcas.size === 0;
+  wrap.innerHTML =
+    `<button class="fchip all ${allOn?'on':''}" onclick="toggleMarca('')">Todas</button>` +
+    marcas.map(m =>
+      `<button class="fchip ${selectedMarcas.has(m)?'on':''}" onclick="toggleMarca('${m.replace(/'/g,"\\'")}')">
+        ${m}${selectedMarcas.has(m)?' ✓':''}
+      </button>`
+    ).join('');
+}
+
+function populateFilters() {
+  renderTipoChips();
+  renderMarcaChips();
+  // Datalist for add form
+  const marcas = [...new Set(DB.map(r => r.marca))].sort();
+  document.getElementById('marcasDL').innerHTML =
+    marcas.map(m => `<option value="${m}">`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAB SWITCH
+// ═══════════════════════════════════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  btn.classList.add('active');
+  const rows = filterForTab();
+  if (id === 'grafico') renderChart(rows);
+  if (id === 'botes')   renderBotes(rows);
+}
+
+function setMetric(m, btn) {
+  chartMetric = m;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart(filterForTab());
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ADD PRODUCT
+// ═══════════════════════════════════════════════════════════════════════
+function openAdd() { document.getElementById('addOverlay').classList.add('open'); }
+function closeAdd(){
+  document.getElementById('addOverlay').classList.remove('open');
+  ['nMarca','nTipo','nGramos','nPrecio','nEurKg','nNota'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+function calcEurKg() {
+  const g = parseFloat(document.getElementById('nGramos').value);
+  const p = parseFloat(document.getElementById('nPrecio').value);
+  if (g > 0 && p > 0) {
+    document.getElementById('nEurKg').value = (p / g * 1000).toFixed(2);
+  } else {
+    document.getElementById('nEurKg').value = '';
+  }
+}
+
+function addProduct() {
+  const marca  = document.getElementById('nMarca').value.trim().toUpperCase();
+  const tipo   = document.getElementById('nTipo').value;
+  const gramos = parseFloat(document.getElementById('nGramos').value);
+  const precio = parseFloat(document.getElementById('nPrecio').value);
+  const nota   = document.getElementById('nNota').value.trim();
+
+  if (!marca || !tipo || !gramos || !precio) {
+    toast('Rellena los campos obligatorios (*)', 'error'); return;
+  }
+
+  const eur_kg = +(precio / gramos * 1000).toFixed(2);
+  const label = gramos >= 1000 ? (gramos/1000).toFixed(gramos%1000?1:0)+'kg' : gramos+'gr';
+
+  DB.push({
+    marca, tipo,
+    gramos_label: label, gramos,
+    precio: +precio.toFixed(2), eur_kg,
+    custom: true, nota
+  });
+  save();
+  closeAdd();
+  populateFilters();
+  render();
+  toast('✓ Producto añadido correctamente', 'ok');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════════════════════════════════
+function deleteProduct(idx, marca, tipo, gramos) {
+  if (!confirm(`¿Eliminar "${marca} - ${tipo} ${gramos}g"?`)) return;
+  // Find in DB by matching and custom=true
+  const rows = filterForTab();
+  const target = rows[idx];
+  const dbIdx = DB.findIndex(r =>
+    r.custom && r.marca === target.marca && r.tipo === target.tipo &&
+    r.gramos === target.gramos && r.precio === target.precio
+  );
+  if (dbIdx !== -1) { DB.splice(dbIdx, 1); save(); render(); toast('Producto eliminado', 'ok'); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXPORT EXCEL
+// ═══════════════════════════════════════════════════════════════════════
+function exportExcel() {
+  if (typeof XLSX === 'undefined') { toast('Cargando librería, intenta de nuevo...', 'error'); return; }
+
+  const rows = filterForTab();
+  const wsData = [
+    ['Marca','Tipo de Miel','Gramos (label)','Gramos (g)','Precio Bote (€)','€/kg','Personalizado','Nota/Fuente']
+  ];
+  rows.forEach(r => wsData.push([
+    r.marca, r.tipo, r.gramos_label, r.gramos,
+    r.precio, r.eur_kg, r.custom ? 'Sí' : 'No', r.nota || ''
+  ]));
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols'] = [
+    {wch:22},{wch:20},{wch:14},{wch:10},{wch:16},{wch:10},{wch:14},{wch:30}
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Comparador Mieles');
+
+  // Summary sheet
+  const eur = rows.map(r=>r.eur_kg);
+  const sum = [
+    ['Resumen del Comparador de Mieles - FORESVI',''],
+    ['Fecha exportación', new Date().toLocaleDateString('es-ES')],
+    ['Total productos', rows.length],
+    ['Marcas', new Set(rows.map(r=>r.marca)).size],
+    ['€/kg mínimo', eur.length ? Math.min(...eur) : '-'],
+    ['€/kg máximo', eur.length ? Math.max(...eur) : '-'],
+    ['€/kg promedio', eur.length ? +(eur.reduce((a,b)=>a+b,0)/eur.length).toFixed(2) : '-'],
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(sum);
+  ws2['!cols'] = [{wch:28},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumen');
+
+  const date = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `FORESVI_Comparador_Mieles_${date}.xlsx`);
+  toast('✓ Fichero Excel descargado', 'ok');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// IMPORT EXCEL
+// ═══════════════════════════════════════════════════════════════════════
+function openImport()  { document.getElementById('importOverlay').classList.add('open'); }
+function closeImport() { document.getElementById('importOverlay').classList.remove('open'); document.getElementById('importFile').value=''; document.getElementById('importStatus').textContent=''; }
+
+function importExcel(input) {
+  const file = input.files[0]; if (!file) return;
+  const status = document.getElementById('importStatus');
+  status.textContent = 'Procesando fichero...';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {header:1});
+
+      if (!data || data.length < 2) throw new Error('El fichero no contiene datos.');
+
+      const header = data[0].map(h => String(h||'').toLowerCase());
+      // Expected: Marca, Tipo de Miel, Gramos (label), Gramos (g), Precio Bote, €/kg, Personalizado, Nota
+      const iMarca  = header.findIndex(h => h.includes('marca'));
+      const iTipo   = header.findIndex(h => h.includes('tipo'));
+      const iGLabel = header.findIndex(h => h.includes('label') || h.includes('gramos (l'));
+      const iGrams  = header.findIndex(h => (h.includes('gramos') && h.includes('g)')) || h === 'gramos (g)');
+      const iPrecio = header.findIndex(h => h.includes('precio'));
+      const iEurKg  = header.findIndex(h => h.includes('€/kg') || h.includes('eur'));
+      const iCustom = header.findIndex(h => h.includes('personaliz'));
+      const iNota   = header.findIndex(h => h.includes('nota'));
+
+      if (iMarca === -1 || iTipo === -1 || iPrecio === -1) throw new Error('Columnas requeridas no encontradas (Marca, Tipo, Precio).');
+
+      const imported = [];
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        if (!row || !row[iMarca]) continue;
+        const gramos = iGrams !== -1 ? +row[iGrams] : 0;
+        const precio = +row[iPrecio] || 0;
+        const eur_kg = iEurKg !== -1 ? +row[iEurKg] : (gramos > 0 ? +(precio/gramos*1000).toFixed(2) : 0);
+        const isCustom = iCustom !== -1 ? String(row[iCustom]||'').toLowerCase().includes('s') : true;
+
+        imported.push({
+          marca: String(row[iMarca]||'').toUpperCase().trim(),
+          tipo:  String(row[iTipo]||'').trim(),
+          gramos_label: iGLabel !== -1 ? String(row[iGLabel]||gramos+'gr') : gramos+'gr',
+          gramos, precio: +precio.toFixed(2), eur_kg,
+          custom: isCustom,
+          nota: iNota !== -1 ? String(row[iNota]||'') : ''
+        });
+      }
+
+      if (!imported.length) throw new Error('No se han encontrado filas válidas.');
+
+      // Replace entire DB with imported data (keeping SEED for non-custom, adding imported custom ones)
+      DB = imported;
+      selectedTipos.clear(); selectedMarcas.clear();
+      save(); populateFilters(); render(); closeImport();
+      toast(`✓ ${imported.length} productos importados`, 'ok');
+
+    } catch(err) {
+      status.innerHTML = `<span style="color:var(--rojo);">❌ Error: ${err.message}</span>`;
+    }
+  };
+  reader.onerror = () => { status.innerHTML = '<span style="color:var(--rojo);">❌ Error al leer el fichero.</span>'; };
+  reader.readAsArrayBuffer(file);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3200);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CLOSE MODALS ON OVERLAY CLICK
+// ═══════════════════════════════════════════════════════════════════════
+document.getElementById('addOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeAdd();
+});
+document.getElementById('importOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeImport();
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+populateFilters();
+render();
+</script>
+</body>
+</html>

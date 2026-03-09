@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORESVI - Debug Console</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #4ec9b0; margin-bottom: 20px; }
+        h2 { color: #569cd6; margin-top: 30px; margin-bottom: 15px; }
+        .section {
+            background: #252526;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: inherit;
+        }
+        button:hover { background: #764ba2; }
+        .error { color: #f48771; }
+        .success { color: #6a9955; }
+        .warning { color: #dcdcaa; }
+        .info { color: #9cdcfe; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 FORESVI - Debug Console</h1>
+        <p style="margin-bottom: 20px;">Herramienta para diagnosticar problemas con la configuración</p>
+
+        <div class="section">
+            <h2>📋 Configuración en LocalStorage</h2>
+            <button onclick="showLocalStorage()">Ver localStorage</button>
+            <button onclick="clearLocalStorage()">🗑️ Limpiar localStorage</button>
+            <pre id="storageOutput">Haz click en "Ver localStorage"...</pre>
+        </div>
+
+        <div class="section">
+            <h2>🔗 Prueba de URLs</h2>
+            <label>URL a probar:
+                <input type="text" id="testUrl" value="https://gemini.google.com/share/6be8c6128af1" style="width: 70%; padding: 5px;">
+            </label><br><br>
+            <button onclick="testUrl()">Probar URL (nueva ventana)</button>
+            <button onclick="testUrlDirect()">Probar URL (navegación directa)</button>
+            <pre id="urlOutput"></pre>
+        </div>
+
+        <div class="section">
+            <h2>📊 Información del Navegador</h2>
+            <pre id="browserInfo"></pre>
+        </div>
+
+        <div class="section">
+            <h2>📁 Herramientas Detectadas</h2>
+            <button onclick="showTools()">Listar herramientas</button>
+            <pre id="toolsOutput">Haz click en "Listar herramientas"...</pre>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Acciones</h2>
+            <button onclick="reloadParent()">Recargar index.html</button>
+            <button onclick="goHome()">Volver a index.html</button>
+            <button onclick="testPopup()">Probar pop-up</button>
+        </div>
+    </div>
+
+    <script>
+        function showLocalStorage() {
+            const storage = localStorage.getItem('foresvi_config');
+            const output = document.getElementById('storageOutput');
+
+            if (!storage) {
+                output.innerHTML = '<span class="error">❌ No hay datos en localStorage</span>';
+                return;
+            }
+
+            try {
+                const config = JSON.parse(storage);
+                output.innerHTML = '<span class="success">✓ Datos encontrados:</span>\n\n' + JSON.stringify(config, null, 2);
+            } catch (e) {
+                output.innerHTML = '<span class="error">❌ Error al parsear JSON:\n' + e.message + '</span>';
+            }
+        }
+
+        function clearLocalStorage() {
+            if (confirm('¿Seguro que quieres limpiar localStorage?')) {
+                localStorage.removeItem('foresvi_config');
+                alert('✓ localStorage limpiado');
+                showLocalStorage();
+            }
+        }
+
+        function testUrl() {
+            const url = document.getElementById('testUrl').value;
+            const output = document.getElementById('urlOutput');
+
+            if (!url) {
+                output.textContent = 'Ingresa una URL primero';
+                return;
+            }
+
+            let fullUrl = url;
+            if (!url.startsWith('http')) {
+                fullUrl = 'https://' + url;
+            }
+
+            output.innerHTML = '<span class="info">Intentando abrir: ' + fullUrl + '</span>\n';
+
+            try {
+                const newWindow = window.open(fullUrl, '_blank', 'width=1200,height=800');
+                if (!newWindow) {
+                    output.innerHTML += '\n<span class="warning">⚠️ Bloqueador de pop-ups detectado</span>\n' +
+                        'El navegador bloqueó la ventana. Intenta:\n' +
+                        '1. Desactivar extensiones de bloqueador\n' +
+                        '2. Permitir pop-ups para este sitio\n' +
+                        '3. Usar botón derecho > Abrir en nueva pestaña';
+                } else {
+                    output.innerHTML += '<span class="success">✓ Ventana abierta correctamente</span>';
+                }
+            } catch (e) {
+                output.innerHTML += '<span class="error">Error: ' + e.message + '</span>';
+            }
+        }
+
+        function testUrlDirect() {
+            const url = document.getElementById('testUrl').value;
+            const output = document.getElementById('urlOutput');
+
+            if (!url) {
+                output.textContent = 'Ingresa una URL primero';
+                return;
+            }
+
+            let fullUrl = url;
+            if (!url.startsWith('http')) {
+                fullUrl = 'https://' + url;
+            }
+
+            output.innerHTML = '<span class="info">Navegando a: ' + fullUrl + '</span>';
+            window.location.href = fullUrl;
+        }
+
+        function showTools() {
+            const storage = localStorage.getItem('foresvi_config');
+            const output = document.getElementById('toolsOutput');
+
+            if (!storage) {
+                output.innerHTML = '<span class="warning">No hay datos en localStorage, usando inline config...</span>';
+                return;
+            }
+
+            try {
+                const config = JSON.parse(storage);
+                let toolsList = '';
+
+                Object.entries(config.herramientas || {}).forEach(([cat, tools]) => {
+                    if (tools.length > 0) {
+                        toolsList += '\n<span class="info">' + cat.toUpperCase() + ' (' + tools.length + ')</span>\n';
+                        tools.forEach(tool => {
+                            const ruta = tool.tipo === 'url' ? (tool.url || tool.ruta) : tool.ruta;
+                            toolsList += '  ✓ ' + tool.nombre + '\n';
+                            toolsList += '    ID: ' + tool.id + '\n';
+                            toolsList += '    Tipo: ' + tool.tipo + '\n';
+                            toolsList += '    Ruta: ' + ruta + '\n';
+                        });
+                    }
+                });
+
+                output.textContent = toolsList || 'No hay herramientas configuradas';
+            } catch (e) {
+                output.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
+            }
+        }
+
+        function reloadParent() {
+            if (confirm('¿Recargar index.html?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        function testPopup() {
+            const popup = window.open('', '_blank', 'width=800,height=600');
+            if (popup) {
+                popup.document.write('<h1>Test Pop-up</h1><p>Este es un pop-up de prueba</p>');
+                popup.document.close();
+            } else {
+                alert('Pop-ups están bloqueados en este navegador');
+            }
+        }
+
+        // Mostrar info del navegador
+        window.addEventListener('load', () => {
+            const browserInfo = document.getElementById('browserInfo');
+            browserInfo.innerHTML =
+                'User Agent: ' + navigator.userAgent + '\n\n' +
+                'Plataforma: ' + navigator.platform + '\n\n' +
+                'Idioma: ' + navigator.language + '\n\n' +
+                'Cookies habilitadas: ' + navigator.cookieEnabled + '\n\n' +
+                'localStorage disponible: ' + (typeof(Storage) !== 'undefined' ? 'Sí ✓' : 'No ✗');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Fiscal · Holding vs SL Aislada</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0F172A;
+      --surf:     #1E293B;
+      --surf2:    #263347;
+      --surf3:    #2D3E55;
+      --bord:     #334155;
+      --bordl:    #475569;
+      --txt:      #F1F5F9;
+      --txtm:     #CBD5E1;
+      --txtd:     #94A3B8;
+      --txtdim:   #64748B;
+      --blue:     #3B82F6;
+      --bluel:    #60A5FA;
+      --bluebg:   rgba(59,130,246,.13);
+      --bluebg2:  rgba(59,130,246,.22);
+      --ora:      #F97316;
+      --oral:     #FB923C;
+      --orabg:    rgba(249,115,22,.12);
+      --grn:      #10B981;
+      --grnl:     #34D399;
+      --grnbg:    rgba(16,185,129,.12);
+      --vio:      #A78BFA;
+      --viobg:    rgba(167,139,250,.12);
+      --amb:      #F59E0B;
+      --ambbg:    rgba(245,158,11,.12);
+      --red:      #EF4444;
+      --redbg:    rgba(239,68,68,.12);
+      --r:        12px;
+      --rs:       8px;
+    }
+
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; font-size:14px; line-height:1.6; }
+
+    /* HEADER */
+    .hdr { background:linear-gradient(135deg,#0a0f1e 0%,#0F172A 40%,#1a2744 100%); border-bottom:1px solid var(--bord); padding:2rem 1.5rem 1.75rem; position:relative; overflow:hidden; }
+    .hdr::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); }
+    .hdr-in { position:relative; max-width:960px; margin:0 auto; }
+    .eyebrow { display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#93C5FD; background:rgba(147,197,253,.1); border:1px solid rgba(147,197,253,.2); padding:.25rem .7rem; border-radius:99px; margin-bottom:.85rem; }
+    .hdr h1 { font-size:1.65rem; font-weight:800; color:#fff; line-height:1.2; }
+    .hdr h1 span { color:var(--bluel); }
+    .hdr p { color:var(--txtd); font-size:.875rem; margin-top:.5rem; max-width:680px; }
+
+    /* LAYOUT */
+    .app { max-width:1380px; margin:0 auto; padding:1.5rem; display:grid; grid-template-columns:370px 1fr; gap:1.5rem; align-items:start; }
+    @media(max-width:960px){ .app{grid-template-columns:1fr;} }
+
+    /* CARDS */
+    .card { background:var(--surf); border:1px solid var(--bord); border-radius:var(--r); padding:1.25rem; }
+    .card+.card { margin-top:1rem; }
+    .card-title { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--txtd); margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+
+    /* COMPANY */
+    .co { background:var(--surf2); border:1px solid var(--bord); border-radius:var(--rs); padding:1rem; margin-bottom:.75rem; }
+    .co-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:.85rem; }
+    .co-name { background:transparent; border:none; outline:none; color:var(--txt); font-size:.95rem; font-weight:600; flex:1; min-width:0; }
+    .co-name::placeholder { color:var(--txtdim); }
+    .btn-rm { background:var(--redbg); border:1px solid rgba(239,68,68,.3); color:var(--red); border-radius:6px; padding:.2rem .45rem; cursor:pointer; font-size:.72rem; display:flex; align-items:center; gap:.25rem; transition:.15s; }
+    .btn-rm:hover { background:rgba(239,68,68,.25); }
+    .field { margin-bottom:.65rem; }
+    .field label { display:block; font-size:.7rem; color:var(--txtd); font-weight:600; margin-bottom:.3rem; text-transform:uppercase; letter-spacing:.05em; }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+    input[type="number"], select { width:100%; background:var(--surf); border:1px solid var(--bord); color:var(--txt); border-radius:6px; padding:.45rem .6rem; font-size:.875rem; outline:none; appearance:none; -webkit-appearance:none; transition:.15s; }
+    input[type="number"]:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 2px rgba(59,130,246,.15); }
+    input[type="number"]::placeholder { color:var(--txtdim); }
+    select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2394A3B8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .5rem center; padding-right:1.75rem; }
+    select option { background:#1E293B; }
+    .btn-add { width:100%; background:var(--bluebg); border:1px dashed rgba(59,130,246,.4); color:var(--bluel); border-radius:var(--rs); padding:.65rem; cursor:pointer; font-size:.85rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:.4rem; transition:.15s; }
+    .btn-add:hover { background:var(--bluebg2); border-style:solid; }
+
+    /* SLIDER */
+    input[type="range"] { width:100%; height:6px; -webkit-appearance:none; background:linear-gradient(to right, var(--blue) 0%, var(--blue) var(--pct,50%), var(--surf3) var(--pct,50%), var(--surf3) 100%); border-radius:99px; outline:none; cursor:pointer; margin-top:.35rem; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; background:var(--blue); border-radius:50%; border:2px solid #fff; box-shadow:0 1px 6px rgba(59,130,246,.5); }
+    .sl-val { text-align:right; font-size:.8rem; font-weight:700; color:var(--bluel); margin-top:.25rem; }
+
+    /* TOGGLE */
+    .tog-wrap { display:flex; align-items:center; gap:.75rem; }
+    .tog { position:relative; width:40px; height:22px; flex-shrink:0; }
+    .tog input { opacity:0; width:0; height:0; }
+    .tog-track { position:absolute; inset:0; background:var(--surf3); border-radius:99px; border:1px solid var(--bordl); cursor:pointer; transition:.2s; }
+    .tog input:checked+.tog-track { background:var(--blue); border-color:var(--blue); }
+    .tog-track::after { content:''; position:absolute; left:2px; top:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:.2s; }
+    .tog input:checked+.tog-track::after { transform:translateX(18px); }
+    .tog-lbl { font-size:.83rem; color:var(--txtm); line-height:1.3; cursor:pointer; }
+    .tog-lbl strong { color:var(--txt); display:block; }
+
+    /* SCENARIO CARDS TOP */
+    .sc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.25rem; }
+    @media(max-width:750px){ .sc-grid{grid-template-columns:1fr;} }
+    .sc-card { background:var(--surf); border:2px solid var(--bord); border-radius:var(--r); padding:1.1rem; position:relative; overflow:hidden; transition:.15s; }
+    .sc-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+    .sc-card.a { border-color:#3B82F6; } .sc-card.a::before { background:var(--blue); }
+    .sc-card.b { border-color:#10B981; } .sc-card.b::before { background:var(--grn); }
+    .sc-card.c { border-color:#A78BFA; } .sc-card.c::before { background:var(--vio); }
+    .sc-lbl { font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.35rem; }
+    .sc-lbl.a{color:var(--bluel);} .sc-lbl.b{color:var(--grnl);} .sc-lbl.c{color:var(--vio);}
+    .sc-ttl { font-size:.9rem; font-weight:700; color:var(--txt); margin-bottom:.65rem; }
+    .sc-row { margin-bottom:.3rem; }
+    .sc-rl { font-size:.7rem; color:var(--txtd); }
+    .sc-rv { font-size:1.05rem; font-weight:700; }
+    .sc-sep { margin-top:.75rem; padding-top:.75rem; border-top:1px solid var(--bord); }
+    .sc-tl { font-size:.7rem; color:var(--txtd); text-transform:uppercase; letter-spacing:.05em; }
+    .sc-tv { font-size:1.3rem; font-weight:800; }
+    .sc-rate { display:inline-block; font-size:.72rem; font-weight:700; padding:.15rem .5rem; border-radius:99px; margin-top:.35rem; }
+    .sc-note { font-size:.72rem; color:var(--txtdim); margin-top:.5rem; line-height:1.4; font-style:italic; }
+
+    /* DETAIL */
+    .dtabs { display:flex; gap:.4rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .dtab { padding:.4rem .85rem; border-radius:var(--rs); border:1px solid var(--bord); background:transparent; color:var(--txtd); cursor:pointer; font-size:.8rem; font-weight:600; transition:.15s; }
+    .dtab.a{background:var(--bluebg);color:var(--bluel);border-color:rgba(59,130,246,.4);}
+    .dtab.b{background:var(--grnbg);color:var(--grnl);border-color:rgba(16,185,129,.4);}
+    .dtab.c{background:var(--viobg);color:var(--vio);border-color:rgba(167,139,250,.4);}
+
+    /* TABLE */
+    .tw { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    th { background:var(--surf2); color:var(--txtd); font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.07em; padding:.6rem .85rem; text-align:left; border-bottom:1px solid var(--bord); white-space:nowrap; }
+    td { padding:.58rem .85rem; border-bottom:1px solid var(--bord); color:var(--txtm); vertical-align:middle; }
+    tr:last-child td{border-bottom:none;}
+    tr.tr-tot td{font-weight:700;color:var(--txt);background:var(--surf2);}
+    tr.tr-per td{background:rgba(249,115,22,.04);}
+    tr.tr-hld td{background:rgba(16,185,129,.04);}
+    .nr{text-align:right;font-variant-numeric:tabular-nums;}
+    .tag{display:inline-block;font-size:.63rem;font-weight:700;padding:.1rem .38rem;border-radius:4px;margin-left:.3rem;vertical-align:middle;}
+    .t-is{background:var(--bluebg);color:var(--bluel);}
+    .t-irpf{background:var(--orabg);color:var(--oral);}
+    .t-ret{background:var(--grnbg);color:var(--grnl);}
+    .t-art{background:var(--viobg);color:var(--vio);}
+    .t-amb{background:var(--ambbg);color:var(--amb);}
+
+    /* CHART */
+    .chart-box { background:var(--surf); border:1px solid var(--bord); border-radius:var(--r); padding:1.25rem; }
+    .chart-ttl { font-size:.78rem; font-weight:700; color:var(--txtd); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.85rem; }
+
+    /* INSIGHTS */
+    .ins-box { background:var(--surf); border:1px solid var(--bord); border-radius:var(--r); padding:1.1rem; }
+    .ins-ttl { font-size:.78rem; font-weight:700; color:var(--txtd); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.75rem; }
+    .ins-item { display:flex; gap:.75rem; align-items:flex-start; margin-bottom:.65rem; padding-bottom:.65rem; border-bottom:1px solid var(--bord); }
+    .ins-item:last-child{margin-bottom:0;border-bottom:none;padding-bottom:0;}
+    .ins-ico { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem; }
+    .ins-txt { font-size:.82rem; color:var(--txtm); line-height:1.45; }
+    .ins-txt strong{color:var(--txt);}
+
+    /* FLOW */
+    .flow { display:flex; flex-direction:column; gap:.3rem; margin:.6rem 0; }
+    .fs { display:flex; align-items:center; gap:.6rem; padding:.5rem .7rem; border-radius:7px; font-size:.8rem; }
+    .fl { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; opacity:.8; min-width:90px; flex-shrink:0; }
+    .fs-is{background:var(--bluebg);border:1px solid rgba(59,130,246,.2);color:var(--txtm);}
+    .fs-art{background:var(--viobg);border:1px solid rgba(167,139,250,.2);color:var(--txtm);}
+    .fs-irpf{background:var(--orabg);border:1px solid rgba(249,115,22,.2);color:var(--txtm);}
+    .fs-ret{background:var(--grnbg);border:1px solid rgba(16,185,129,.2);color:var(--txtm);}
+    .f-arr{color:var(--txtdim);font-size:.85rem;padding-left:1.4rem;}
+
+    /* PLUSVALIA */
+    .pv-box { background:var(--surf); border:1px solid var(--bord); border-radius:var(--r); padding:1.25rem; }
+    .pv-ttl { font-size:.78rem; font-weight:700; color:var(--txtd); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.35rem; }
+    .pv-sub { font-size:.8rem; color:var(--txtdim); margin-bottom:1rem; }
+    .pv-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:1rem; }
+    @media(max-width:600px){.pv-grid{grid-template-columns:1fr;}}
+    .pv-result { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+    @media(max-width:600px){.pv-result{grid-template-columns:1fr;}}
+    .pv-col { border-radius:var(--rs); padding:1rem; }
+    .pv-col.direct { background:var(--orabg); border:1px solid rgba(249,115,22,.2); }
+    .pv-col.holding { background:var(--grnbg); border:1px solid rgba(16,185,129,.2); }
+    .pv-col-ttl { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.5rem; }
+    .pv-col.direct .pv-col-ttl{color:var(--oral);}
+    .pv-col.holding .pv-col-ttl{color:var(--grnl);}
+    .pv-num { font-size:1.35rem; font-weight:800; }
+    .pv-row { display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:.25rem; }
+    .pv-row span:first-child{color:var(--txtd);}
+    .pv-savings { background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(16,185,129,.1)); border:1px solid rgba(167,139,250,.25); border-radius:var(--rs); padding:.85rem 1rem; margin-top:.75rem; text-align:center; }
+    .pv-sav-val { font-size:1.6rem; font-weight:800; color:var(--vio); }
+    .pv-sav-lbl { font-size:.78rem; color:var(--txtd); margin-top:.25rem; }
+
+    /* REINV */
+    .reinv { background:linear-gradient(135deg,rgba(16,185,129,.07),rgba(167,139,250,.07)); border:1px solid rgba(16,185,129,.2); border-radius:var(--r); padding:1.1rem; }
+    .reinv-ttl { font-size:.78rem; font-weight:700; color:var(--grnl); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.5rem; }
+    .reinv-g { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; }
+    @media(max-width:600px){.reinv-g{grid-template-columns:1fr;}}
+    .reinv-it { text-align:center; }
+    .reinv-v { font-size:1.2rem; font-weight:800; color:var(--grnl); }
+    .reinv-l { font-size:.72rem; color:var(--txtd); }
+
+    /* MISC */
+    .note { font-size:.75rem; color:var(--txtdim); margin-top:.5rem; line-height:1.5; }
+    .div { border:none; border-top:1px solid var(--bord); margin:1rem 0; }
+    .rc>*+* { margin-top:1rem; }
+    .c-is{color:var(--bluel);} .c-irpf{color:var(--oral);} .c-ret{color:var(--grnl);} .c-vio{color:var(--vio);}
+    .fw8{font-weight:800;} .fw7{font-weight:700;} .nr{text-align:right;}
+    .tp { font-size:.82rem; display:flex; gap:.3rem; flex-wrap:wrap; margin-top:.5rem; }
+    .tp span { display:inline-flex; align-items:center; gap:.25rem; background:var(--orabg); color:var(--oral); border:1px solid rgba(249,115,22,.3); border-radius:6px; padding:.12rem .45rem; font-size:.7rem; font-weight:600; }
+    .sum-bar { padding:1rem; background:var(--surf2); border-radius:var(--rs); display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:1rem; }
+    .sum-bar-it .l{font-size:.7rem;color:var(--txtd);} .sum-bar-it .v{font-size:1.05rem;font-weight:800;}
+    .empty { text-align:center; padding:2.5rem 1rem; color:var(--txtd); }
+    .empty-ico { font-size:2.5rem; margin-bottom:.75rem; opacity:.5; }
+    .pill { display:inline-flex; align-items:center; font-size:.68rem; font-weight:700; padding:.15rem .45rem; border-radius:99px; gap:.2rem; }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="eyebrow">⟁ Planificación Fiscal Empresarial · España 2024–2025</div>
+    <h1>Simulador <span>Holding & IS</span></h1>
+    <p>Compara tres estructuras: SL aislada, holding con exención art. 21 LIS y consolidación fiscal. Incluye simulación de plusvalía en venta de sociedad, el escenario donde el holding genera el mayor ahorro fiscal.</p>
+  </div>
+</header>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ─── TAX UTILS ─────────────────────────────── */
+const IS = { general:0.25, micropyme:0.23, nueva:0.15 };
+const IRPF = [
+  {max:6000,   rate:.19},
+  {max:50000,  rate:.21},
+  {max:200000, rate:.23},
+  {max:300000, rate:.27},
+  {max:Infinity,rate:.28},
+];
+
+function irpf(amount) {
+  let tax=0, rem=Math.max(0,amount), prev=0;
+  for(const {max,rate} of IRPF){ if(rem<=0)break; const s=Math.min(rem,max-prev); tax+=s*rate; rem-=s; prev=max; }
+  return tax;
+}
+function irpfDetail(amount) {
+  const t=[]; let rem=Math.max(0,amount), prev=0;
+  for(const {max,rate} of IRPF){ if(rem<=0)break; const s=Math.min(rem,max-prev); if(s>0)t.push({from:prev,to:Math.min(max,amount),rate,base:s,tax:s*rate}); rem-=s; prev=max; }
+  return t;
+}
+const isRate = t => IS[t]??0.25;
+const fmt = (n,d=0) => isNaN(n)||n===null?'—': new Intl.NumberFormat('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d}).format(n)+' €';
+const fmtPct = (n,d=1) => isNaN(n)?'—':(n*100).toFixed(d)+' %';
+
+/* ─── SCENARIOS ─────────────────────────────── */
+function calcA(cos, wr) { // SL aislada
+  const rs = cos.map(c=>{
+    const bai=c.profit, bu=Math.min(Math.max(0,c.bins),Math.max(0,bai)),
+          bi=Math.max(0,bai-bu), is=bi*isRate(c.isType), bdi=bai-is;
+    return{...c,bai,binsUsed:bu,bi,is,bdi};
+  });
+  const totalIS=rs.reduce((s,r)=>s+r.is,0), totalBDI=rs.reduce((s,r)=>s+r.bdi,0);
+  const w=Math.max(0,totalBDI)*wr, tax=irpf(w), ret=Math.max(0,totalBDI)-w;
+  const gp=rs.reduce((s,r)=>s+Math.max(0,r.bai),0);
+  return{cos:rs,totalIS,totalBDI,w,irpf:tax,ret,totalTax:totalIS+tax,er:gp>0?(totalIS+tax)/gp:0,gp,irpfD:irpfDetail(w)};
+}
+
+function calcB(cos, wr, art21) { // Holding
+  const rs = cos.map(c=>{
+    const bai=c.profit, bu=Math.min(Math.max(0,c.bins),Math.max(0,bai)),
+          bi=Math.max(0,bai-bu), is=bi*isRate(c.isType), bdi=bai-is;
+    return{...c,bai,binsUsed:bu,bi,is,bdi};
+  });
+  const totalISop=rs.reduce((s,r)=>s+r.is,0), totalBDIop=rs.reduce((s,r)=>s+r.bdi,0);
+  const divH=Math.max(0,totalBDIop);
+  const exPct=art21?0.95:0, hBase=divH*(1-exPct), hIS=hBase*0.25, hNet=divH-hIS;
+  const hEfRate=divH>0?hIS/divH:0;
+  const w=hNet*wr, tax=irpf(w), ret=hNet-w;
+  const gp=rs.reduce((s,r)=>s+Math.max(0,r.bai),0);
+  const tt=totalISop+hIS+tax;
+  return{cos:rs,totalISop,totalBDIop,divH,hBase,hIS,hNet,hEfRate,w,irpf:tax,ret,totalTax:tt,er:gp>0?tt/gp:0,gp,irpfD:irpfDetail(w),art21sav:art21?divH*.95*.25:0};
+}
+
+function calcC(cos, wr) { // Consolidación
+  const rs = cos.map(c=>{
+    const bai=c.profit, bu=Math.min(Math.max(0,c.bins),Math.max(0,bai)), bi=bai-bu;
+    return{...c,bai,binsUsed:bu,bi};
+  });
+  const gBase=rs.reduce((s,r)=>s+r.bi,0), gIS=Math.max(0,gBase)*0.25;
+  const totalP=rs.reduce((s,r)=>s+r.bai,0), totalBDI=totalP-gIS;
+  const w=Math.max(0,totalBDI)*wr, tax=irpf(w), ret=Math.max(0,totalBDI)-w;
+  const gp=rs.reduce((s,r)=>s+Math.max(0,r.bai),0);
+  const loff=rs.reduce((s,r)=>s+(r.bi<0?Math.abs(r.bi):0),0);
+  return{cos:rs,gBase,gIS,totalBDI,w,irpf:tax,ret,totalTax:gIS+tax,er:gp>0?(gIS+tax)/gp:0,gp,irpfD:irpfDetail(w),loff};
+}
+
+/* ─── CAPITAL GAINS CALC ────────────────────── */
+function calcPlusv(salePrice, costBase, art21) {
+  const gain = Math.max(0, salePrice - costBase);
+  // Person sells directly: IRPF on gain
+  const taxDirect = irpf(gain);
+  const netDirect = gain - taxDirect;
+  // Holding sells: art. 21 → 95% exempt, IS on 5%
+  const holdingBase = art21 ? gain * 0.05 : gain;
+  const holdingIS = holdingBase * 0.25;
+  const netHolding = gain - holdingIS;
+  const savings = taxDirect - holdingIS;
+  return { gain, taxDirect, netDirect, holdingBase, holdingIS, netHolding, savings, detailD: irpfDetail(gain) };
+}
+
+/* ─── CHART ─────────────────────────────────── */
+function Chart3({ rA, rB, rC }) {
+  const ref = useRef(null); const chartRef = useRef(null);
+  useEffect(()=>{
+    if(!ref.current) return;
+    if(chartRef.current) chartRef.current.destroy();
+    const isA=rA.totalIS, isB=rB.totalISop+rB.hIS, isC=rC.gIS;
+    chartRef.current = new Chart(ref.current,{
+      type:'bar',
+      data:{
+        labels:['SL Aislada','Holding (art. 21)','Consolidación'],
+        datasets:[
+          {label:'IS pagado',data:[isA,isB,isC],backgroundColor:'rgba(59,130,246,.7)',borderColor:'#3B82F6',borderWidth:1.5,borderRadius:4},
+          {label:'IRPF socio',data:[rA.irpf,rB.irpf,rC.irpf],backgroundColor:'rgba(249,115,22,.7)',borderColor:'#F97316',borderWidth:1.5,borderRadius:4},
+          {label:'Retenido sociedad',data:[rA.ret,rB.ret,rC.ret],backgroundColor:'rgba(16,185,129,.55)',borderColor:'#10B981',borderWidth:1.5,borderRadius:4},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#94A3B8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${new Intl.NumberFormat('es-ES').format(Math.round(ctx.raw))} €`}}},scales:{x:{stacked:true,ticks:{color:'#94A3B8'},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#94A3B8',callback:v=>new Intl.NumberFormat('es-ES',{notation:'compact'}).format(v)+' €'},grid:{color:'rgba(255,255,255,.04)'}}}}
+    });
+    return()=>{if(chartRef.current)chartRef.current.destroy();};
+  },[rA,rB,rC]);
+  return <canvas ref={ref} height={200}/>;
+}
+
+/* ─── FLOW DIAGRAM ───────────────────────────── */
+function Flow({type, art21, wr}) {
+  const p=(wr*100).toFixed(0), q=(100-wr*100).toFixed(0);
+  if(type==='a') return(
+    <div className="flow">
+      <div className="fs fs-is"><span className="fl">Operativa</span>Beneficio → IS al tipo correspondiente (25%/23%/15%)</div>
+      <div className="f-arr">↓ BDI disponible</div>
+      <div className="fs fs-irpf"><span className="fl">Socio ({p}%)</span>Dividendo → IRPF base del ahorro 19–28%</div>
+      <div className="fs fs-ret"><span className="fl">Retenido ({q}%)</span>Queda en la SL, sin tributación adicional hasta nueva distribución</div>
+    </div>
+  );
+  if(type==='b') return(
+    <div className="flow">
+      <div className="fs fs-is"><span className="fl">Operativas</span>Beneficio → IS al tipo correspondiente</div>
+      <div className="f-arr">↓ BDI sube a holding como dividendo</div>
+      <div className="fs fs-art"><span className="fl">Holding</span>{art21?'Art. 21 LIS: 95% exento → IS efectivo ~1,25% sobre dividendo intragrupo':'Sin exención: IS 25% íntegro sobre dividendo'}</div>
+      <div className="f-arr">↓ distribuye al socio</div>
+      <div className="fs fs-irpf"><span className="fl">Socio ({p}%)</span>Dividendo desde holding → IRPF 19–28%</div>
+      <div className="fs fs-ret"><span className="fl">Holding ({q}%)</span>Fondos libres para reinversión en filiales, inmuebles, activos financieros</div>
+    </div>
+  );
+  return(
+    <div className="flow">
+      <div className="fs fs-is"><span className="fl">Grupo fiscal</span>Bases individuales se compensan → IS 25% sobre base neta consolidada</div>
+      <div className="f-arr">↓ BDI del grupo</div>
+      <div className="fs fs-irpf"><span className="fl">Socio ({p}%)</span>Dividendo → IRPF 19–28%</div>
+      <div className="fs fs-ret"><span className="fl">Grupo ({q}%)</span>BDI neto queda repartido entre las sociedades del grupo</div>
+    </div>
+  );
+}
+
+/* ─── DETAIL A ───────────────────────────────── */
+function DetailA({r}) {
+  return(
+    <div>
+      <div className="tw"><table>
+        <thead><tr><th>Sociedad</th><th className="nr">BAI</th><th className="nr">BINs usadas</th><th className="nr">Base imponible</th><th className="nr">Tipo IS</th><th className="nr">IS pagado</th><th className="nr">BDI neto</th></tr></thead>
+        <tbody>
+          {r.cos.map((c,i)=>(
+            <tr key={i}>
+              <td><strong>{c.name}</strong><br/><span style={{fontSize:'.7rem',color:'var(--txtdim)'}}>{c.isType==='general'?'Gral 25%':c.isType==='micropyme'?'Micropyme 23%':'Nueva 15%'}</span></td>
+              <td className="nr" style={{color:c.bai<0?'var(--red)':'var(--txt)'}}>{fmt(c.bai)}</td>
+              <td className="nr" style={{color:'var(--amb)'}}>{c.binsUsed>0?fmt(c.binsUsed):'—'}</td>
+              <td className="nr">{fmt(c.bi)}</td>
+              <td className="nr">{fmtPct(isRate(c.isType))}</td>
+              <td className="nr c-is">{fmt(c.is)}</td>
+              <td className="nr" style={{color:c.bdi<0?'var(--red)':'var(--grnl)'}}>{fmt(c.bdi)}</td>
+            </tr>
+          ))}
+          <tr className="tr-tot"><td><strong>Total</strong></td><td className="nr">{fmt(r.cos.reduce((s,x)=>s+x.bai,0))}</td><td className="nr">{fmt(r.cos.reduce((s,x)=>s+x.binsUsed,0))}</td><td className="nr">{fmt(r.cos.reduce((s,x)=>s+x.bi,0))}</td><td></td><td className="nr c-is">{fmt(r.totalIS)}</td><td className="nr c-ret">{fmt(r.totalBDI)}</td></tr>
+        </tbody>
+      </table></div>
+      <div style={{marginTop:'1rem'}}><div className="tw"><table>
+        <thead><tr><th>Nivel socio</th><th className="nr">Dividendo extraído</th><th className="nr">IRPF estimado</th><th className="nr">Neto personal</th><th className="nr">Retenido en SLs</th></tr></thead>
+        <tbody><tr className="tr-per">
+          <td>Distribución socio ({(r.w/Math.max(r.w+r.ret,1)*100).toFixed(0)}% BDI)</td>
+          <td className="nr">{fmt(r.w)}</td>
+          <td className="nr c-irpf">{fmt(r.irpf)}</td>
+          <td className="nr">{fmt(r.w-r.irpf)}</td>
+          <td className="nr c-ret">{fmt(r.ret)}</td>
+        </tr></tbody>
+      </table></div></div>
+      {r.irpfD.length>0&&<div className="tp">{r.irpfD.map((t,i)=><span key={i}>Hasta {t.to>=300000?'∞':fmt(t.to,0)} → {fmtPct(t.rate)} = {fmt(t.tax)}</span>)}</div>}
+      <div className="sum-bar">
+        {[['IS total',fmt(r.totalIS),'c-is'],['IRPF socio',fmt(r.irpf),'c-irpf'],['Carga total',fmt(r.totalTax),''],['Tipo efectivo',fmtPct(r.er),'']].map(([l,v,cls])=>(
+          <div key={l} className="sum-bar-it"><div className="l">{l}</div><div className={`v fw8 ${cls}`}>{v}</div></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── DETAIL B ───────────────────────────────── */
+function DetailB({r,art21}) {
+  return(
+    <div>
+      <div className="tw"><table>
+        <thead><tr><th>Operativa</th><th className="nr">BAI</th><th className="nr">BINs usadas</th><th className="nr">Base imponible</th><th className="nr">IS pagado</th><th className="nr">BDI → Holding</th></tr></thead>
+        <tbody>
+          {r.cos.map((c,i)=>(
+            <tr key={i}><td><strong>{c.name}</strong></td><td className="nr" style={{color:c.bai<0?'var(--red)':'var(--txt)'}}>{fmt(c.bai)}</td><td className="nr" style={{color:'var(--amb)'}}>{c.binsUsed>0?fmt(c.binsUsed):'—'}</td><td className="nr">{fmt(c.bi)}</td><td className="nr c-is">{fmt(c.is)}</td><td className="nr c-ret">{fmt(c.bdi)}</td></tr>
+          ))}
+          <tr className="tr-tot"><td><strong>Total operativas</strong></td><td className="nr">{fmt(r.cos.reduce((s,x)=>s+x.bai,0))}</td><td></td><td></td><td className="nr c-is">{fmt(r.totalISop)}</td><td className="nr c-ret">{fmt(r.totalBDIop)}</td></tr>
+        </tbody>
+      </table></div>
+
+      <div style={{marginTop:'1rem',fontSize:'.78rem',fontWeight:'700',color:'var(--txtd)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'.5rem'}}>Nivel holding {art21?<span className="tag t-art">Art. 21 LIS</span>:<span className="tag t-is">Sin exención</span>}</div>
+      <div className="tw"><table><tbody>
+        <tr className="tr-hld"><td>Dividendos recibidos de operativas</td><td className="nr fw7">{fmt(r.divH)}</td><td></td></tr>
+        {art21&&<tr className="tr-hld"><td>Exención 95% (art. 21 LIS)</td><td className="nr" style={{color:'var(--vio)'}}>−{fmt(r.divH*.95)}</td><td><span className="tag t-art">Exento</span></td></tr>}
+        <tr className="tr-hld"><td>Base imponible holding ({art21?'5%':'100%'})</td><td className="nr">{fmt(r.hBase)}</td><td></td></tr>
+        <tr className="tr-hld"><td>IS holding (25% × base)</td><td className="nr c-is">{fmt(r.hIS)}</td><td><span className="tag t-is">IS</span></td></tr>
+        <tr className="tr-tot"><td><strong>Neto en holding</strong></td><td className="nr">{fmt(r.hNet)}</td><td>Tipo ef. intragrupo: <strong style={{color:art21?'var(--grnl)':'var(--oral)'}}>{fmtPct(r.hEfRate,2)}</strong></td></tr>
+      </tbody></table></div>
+      {art21&&<div style={{marginTop:'.65rem',padding:'.7rem .85rem',background:'var(--viobg)',border:'1px solid rgba(167,139,250,.25)',borderRadius:'8px',fontSize:'.8rem',color:'var(--txtm)'}}>
+        <strong style={{color:'var(--vio)'}}>Art. 21 LIS:</strong> De {fmt(r.divH)} en dividendos intragrupo, solo el 5% ({fmt(r.hBase)}) tributa. IS efectivo en holding: <strong style={{color:'var(--grnl)'}}>~1,25%</strong> vs 25% estándar. IS ahorrado en holding: <strong style={{color:'var(--vio)'}}>{fmt(r.art21sav)}</strong>
+      </div>}
+
+      <div style={{marginTop:'1rem',fontSize:'.78rem',fontWeight:'700',color:'var(--txtd)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'.5rem'}}>Nivel socio</div>
+      <div className="tw"><table><tbody>
+        <tr className="tr-per"><td>Extracción de holding</td><td className="nr">{fmt(r.w)}</td><td></td></tr>
+        <tr className="tr-per"><td>IRPF sobre dividendo</td><td className="nr c-irpf">{fmt(r.irpf)}</td><td><span className="tag t-irpf">IRPF</span></td></tr>
+        <tr className="tr-tot"><td><strong>Retenido en holding</strong></td><td className="nr c-ret">{fmt(r.ret)}</td><td><span className="tag t-ret">Disponible reinversión</span></td></tr>
+      </tbody></table></div>
+      {r.irpfD.length>0&&<div className="tp">{r.irpfD.map((t,i)=><span key={i}>Hasta {t.to>=300000?'∞':fmt(t.to,0)} → {fmtPct(t.rate)} = {fmt(t.tax)}</span>)}</div>}
+      <div className="sum-bar">
+        {[['IS operativas',fmt(r.totalISop),'c-is'],['IS holding',fmt(r.hIS),art21?'c-ret':'c-is'],['IRPF socio',fmt(r.irpf),'c-irpf'],['Carga total',fmt(r.totalTax),''],['Tipo efectivo',fmtPct(r.er),'']].map(([l,v,cls])=>(
+          <div key={l} className="sum-bar-it"><div className="l">{l}</div><div className={`v fw8 ${cls}`}>{v}</div></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── DETAIL C ───────────────────────────────── */
+function DetailC({r}) {
+  return(
+    <div>
+      <div className="tw"><table>
+        <thead><tr><th>Sociedad</th><th className="nr">BAI</th><th className="nr">BINs usadas</th><th className="nr">Base individual</th><th className="nr">Efecto consolidación</th></tr></thead>
+        <tbody>
+          {r.cos.map((c,i)=>(
+            <tr key={i}><td><strong>{c.name}</strong></td>
+              <td className="nr" style={{color:c.bai<0?'var(--red)':'var(--txt)'}}>{fmt(c.bai)}</td>
+              <td className="nr" style={{color:'var(--amb)'}}>{c.binsUsed>0?fmt(c.binsUsed):'—'}</td>
+              <td className="nr" style={{color:c.bi<0?'var(--red)':'var(--txtm)'}}>{fmt(c.bi)}</td>
+              <td className="nr">{c.bi<0?<span style={{color:'var(--grnl)'}}>Compensa {fmt(Math.abs(c.bi))}</span>:<span style={{color:'var(--txtd)'}}>{fmt(c.bi)}</span>}</td>
+            </tr>
+          ))}
+          <tr className="tr-tot"><td><strong>Base consolidada</strong></td><td className="nr">{fmt(r.cos.reduce((s,x)=>s+x.bai,0))}</td><td></td><td className="nr" style={{color:r.gBase<0?'var(--red)':'var(--txt)'}}>{fmt(r.gBase)}</td><td></td></tr>
+        </tbody>
+      </table></div>
+      {r.loff>0&&<div style={{marginTop:'.65rem',padding:'.7rem .85rem',background:'var(--grnbg)',border:'1px solid rgba(16,185,129,.25)',borderRadius:'8px',fontSize:'.8rem',color:'var(--txtm)'}}>
+        <strong style={{color:'var(--grnl)'}}>Compensación de pérdidas:</strong> El grupo consolida {fmt(r.loff)} de bases negativas con las positivas, tributando solo sobre la base neta.
+      </div>}
+      <div className="sum-bar" style={{marginTop:'.75rem'}}>
+        {[['Base consolidada',fmt(Math.max(0,r.gBase)),''],['IS del grupo (25%)',fmt(r.gIS),'c-is'],['BDI total grupo',fmt(r.totalBDI),'c-ret'],['Dividendo socio',fmt(r.w),''],['IRPF socio',fmt(r.irpf),'c-irpf'],['Carga total',fmt(r.totalTax),''],['Tipo efectivo',fmtPct(r.er),'']].map(([l,v,cls])=>(
+          <div key={l} className="sum-bar-it"><div className="l">{l}</div><div className={`v fw8 ${cls}`}>{v}</div></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── CAPITAL GAINS PANEL ────────────────────── */
+function PlusvPanel({art21}) {
+  const [sp,setSp]=useState(2000000);
+  const [cb,setCb]=useState(300000);
+  const r=calcPlusv(sp,cb,art21);
+
+  return(
+    <div className="pv-box">
+      <div className="pv-ttl">🏷 Simulación de plusvalía: venta de sociedad</div>
+      <div className="pv-sub">El mayor ahorro del holding aparece al vender participaciones de una filial. Art. 21 LIS: la plusvalía tributa al ~1,25% en la holding vs 19–28% de IRPF si el socio vende directamente.</div>
+
+      <div className="pv-grid">
+        <div className="field">
+          <label>Precio de venta de la sociedad</label>
+          <input type="number" value={sp} step="50000" min="0" onChange={e=>setSp(parseFloat(e.target.value)||0)}/>
+        </div>
+        <div className="field">
+          <label>Coste fiscal de adquisición (valor de las participaciones)</label>
+          <input type="number" value={cb} step="10000" min="0" onChange={e=>setCb(parseFloat(e.target.value)||0)}/>
+        </div>
+      </div>
+
+      <div style={{padding:'.7rem .85rem',background:'var(--surf2)',borderRadius:'var(--rs)',fontSize:'.82rem',marginBottom:'1rem',display:'flex',gap:'1rem',flexWrap:'wrap'}}>
+        <div><span style={{color:'var(--txtd)'}}>Plusvalía generada: </span><strong style={{color:'var(--txt)'}}>{fmt(r.gain)}</strong></div>
+        {!art21&&<div style={{color:'var(--amb)',fontSize:'.78rem'}}>⚠ Art. 21 desactivado — holding tributará al 25% igual que persona física</div>}
+      </div>
+
+      <div className="pv-result">
+        <div className="pv-col direct">
+          <div className="pv-col-ttl">👤 Venta directa por el socio (SL aislada)</div>
+          <div className="pv-row"><span>Plusvalía</span><span>{fmt(r.gain)}</span></div>
+          <div className="pv-row"><span>IRPF (escala ahorro)</span><span className="c-irpf fw7">{fmt(r.taxDirect)}</span></div>
+          <hr style={{border:'none',borderTop:'1px solid rgba(249,115,22,.2)',margin:'.5rem 0'}}/>
+          <div className="pv-row"><span style={{fontWeight:700,color:'var(--txt)'}}>Neto recibido</span><span className="fw8" style={{color:'var(--oral)'}}>{fmt(r.netDirect)}</span></div>
+          <div className="pv-row"><span style={{color:'var(--txtdim)'}}>Tipo ef. IRPF</span><span style={{color:'var(--oral)'}}>{fmtPct(r.gain>0?r.taxDirect/r.gain:0,1)}</span></div>
+          <div className="tp" style={{marginTop:'.5rem'}}>{r.detailD.map((t,i)=><span key={i}>{fmtPct(t.rate)} sobre {fmt(t.base,0)}</span>)}</div>
+        </div>
+
+        <div className="pv-col holding">
+          <div className="pv-col-ttl">🏢 Venta por la holding (art. 21 LIS)</div>
+          <div className="pv-row"><span>Plusvalía</span><span>{fmt(r.gain)}</span></div>
+          {art21&&<div className="pv-row"><span>Exención 95%</span><span className="c-vio fw7">−{fmt(r.gain*.95)}</span></div>}
+          <div className="pv-row"><span>Base imponible IS ({art21?'5%':'100%'})</span><span>{fmt(r.holdingBase)}</span></div>
+          <div className="pv-row"><span>IS holding (25% × base)</span><span className="c-is fw7">{fmt(r.holdingIS)}</span></div>
+          <hr style={{border:'none',borderTop:'1px solid rgba(16,185,129,.2)',margin:'.5rem 0'}}/>
+          <div className="pv-row"><span style={{fontWeight:700,color:'var(--txt)'}}>Neto en holding</span><span className="fw8 c-ret">{fmt(r.netHolding)}</span></div>
+          <div className="pv-row"><span style={{color:'var(--txtdim)'}}>Tipo ef. IS</span><span className="c-ret">{fmtPct(r.gain>0?r.holdingIS/r.gain:0,2)}</span></div>
+          <div style={{marginTop:'.5rem',fontSize:'.73rem',color:'var(--txtdim)'}}>IRPF al extraer al socio se paga cuando se distribuya el dividendo de la holding.</div>
+        </div>
+      </div>
+
+      {r.savings>0&&<div className="pv-savings">
+        <div className="pv-sav-val">{fmt(r.savings)}</div>
+        <div className="pv-sav-lbl">ahorrados vs venta directa · {fmtPct(r.savings/Math.max(r.gain,1),1)} de la plusvalía neta de IS</div>
+        <div style={{fontSize:'.75rem',color:'var(--txtdim)',marginTop:'.35rem'}}>Este capital queda en la holding disponible para reinvertir en otras filiales o activos sin tributar en IRPF hasta distribución.</div>
+      </div>}
+    </div>
+  );
+}
+
+/* ─── INSIGHTS ───────────────────────────────── */
+function Insights({rA,rB,rC,wr,art21}) {
+  const diffH=rA.totalTax-rB.totalTax; // negative = holding costs more annually
+  const diffC=rA.totalTax-rC.totalTax;
+  const retDiff=rB.ret-rA.ret;
+  const ins=[];
+
+  // Annual comparison context
+  if(diffH<0 && art21) {
+    ins.push({ico:'ℹ️',bg:'var(--ambbg)',txt:<>
+      <strong>En el ciclo anual ordinario, el holding añade un coste pequeño.</strong> La holding paga IS adicional (~1,25%) sobre los dividendos que recibe de las operativas, incluso con art. 21. Con los datos actuales, esto supone {fmt(Math.abs(diffH))} más al año vs tener las SLs directamente. <strong>El gran ahorro del holding está en la venta de participaciones</strong> (ver simulación abajo) y en la flexibilidad de reinversión cruzada.
+    </>});
+  } else if(diffH>0 && art21) {
+    ins.push({ico:'✅',bg:'var(--grnbg)',txt:<>
+      <strong>El holding ahorra {fmt(diffH)} este año.</strong> Gracias al art. 21 LIS, la holding paga solo ~1,25% efectivo sobre los dividendos recibidos. Esto supera el coste adicional del nivel holding y resulta en menor carga total.
+    </>});
+  }
+
+  if(!art21) {
+    ins.push({ico:'⚠️',bg:'var(--ambbg)',txt:<>
+      <strong>Art. 21 LIS desactivado.</strong> Sin la exención, la holding tributa al 25% sobre todos los dividendos recibidos, sumando una capa adicional de IS innecesaria. Activa la exención si la holding cumple: participación ≥5%, período ≥1 año y la filial no es principalmente patrimonial sin actividad económica real.
+    </>});
+  }
+
+  // Capital gains key message
+  ins.push({ico:'💰',bg:'var(--viobg)',txt:<>
+    <strong>La ventaja fiscal real del holding: venta de participaciones.</strong> Cuando la holding (no el socio directamente) vende una filial con art. 21, la plusvalía tributa al ~1,25% efectivo. Si la venta directa por el socio supusiera una plusvalía de 1.000.000 €, el IRPF sería ~230.000 €. La holding pagaría solo ~12.500 €. Ahorro: ~217.500 €. Usa el simulador de plusvalía para calcular tu escenario concreto.
+  </>});
+
+  // Cross-investment flexibility
+  if(rB.ret>50000) {
+    ins.push({ico:'🔄',bg:'var(--bluebg)',txt:<>
+      <strong>Flexibilidad de reinversión cruzada.</strong> Los {fmt(rB.ret)} retenidos en holding pueden invertirse en nuevas filiales, comprar inmuebles o activos financieros <em>sin pasar por caja de IRPF personal</em>. La misma cantidad extraída y reinvertida por el socio habría pagado {fmt(irpf(rB.ret))} de IRPF antes de llegar a su destino.
+    </>});
+  }
+
+  // Consolidation benefit
+  if(diffC>100 && rC.loff>0) {
+    ins.push({ico:'⚖️',bg:'var(--bluebg)',txt:<>
+      <strong>Consolidación fiscal: ahorra {fmt(diffC)} al compensar {fmt(rC.loff)} de pérdidas.</strong> Las bases imponibles negativas de unas entidades del grupo compensan las positivas de otras, reduciendo la carga IS global. Útil cuando tienes nuevas sociedades en fase de pérdidas o proyectos con inversión inicial fuerte.
+    </>});
+  } else if(rC.loff===0) {
+    ins.push({ico:'📊',bg:'var(--surf2)',txt:<>
+      <strong>Consolidación fiscal: sin beneficio apreciable con todas las sociedades en beneficio.</strong> El ahorro de la consolidación surge cuando hay pérdidas que compensar entre entidades. Con el escenario actual (todas en beneficio y sin BINs relevantes), el régimen de consolidación genera IS similar al de SL aislada más el coste de la complejidad administrativa.
+    </>});
+  }
+
+  if(wr>0.9) {
+    ins.push({ico:'💡',bg:'var(--ambbg)',txt:<>
+      <strong>Extrayendo casi todo al socio ({(wr*100).toFixed(0)}%)</strong>, la ventaja de cualquier estructura corporativa se minimiza. El mayor beneficio aparece cuando una parte relevante de los beneficios <em>se queda en la estructura</em> para diferir IRPF y reinvertir con más capital disponible.
+    </>});
+  }
+
+  return(
+    <div className="ins-box">
+      <div className="ins-ttl">📊 Análisis comparativo</div>
+      {ins.map((x,i)=>(
+        <div key={i} className="ins-item">
+          <div className="ins-ico" style={{background:x.bg}}>{x.ico}</div>
+          <div className="ins-txt">{x.txt}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── REINV PANEL ────────────────────────────── */
+function ReinvPanel({rA,rB}) {
+  const extra=rB.ret-rA.ret;
+  if(extra<=1000) return null;
+  const r=0.06;
+  const grow=y=>extra*Math.pow(1+r,y);
+  return(
+    <div className="reinv">
+      <div className="reinv-ttl">💹 Capital adicional en holding para reinvertir (base 6% anual)</div>
+      <p style={{fontSize:'.78rem',color:'var(--txtd)',marginBottom:'.85rem'}}>Con holding, quedan {fmt(extra)} más en la estructura corporativa (pagaron ~1,25% IS vs lo que pagarían como IRPF personal). Proyección del capital adicional disponible compuesto:</p>
+      <div className="reinv-g">
+        {[1,5,10].map(y=><div key={y} className="reinv-it"><div className="reinv-v">{fmt(grow(y))}</div><div className="reinv-l">en {y} año{y>1?'s':''}</div><div style={{fontSize:'.68rem',color:'var(--txtdim)'}}>al {(r*100).toFixed(0)}% anual</div></div>)}
+      </div>
+      <p className="note" style={{marginTop:'.75rem'}}>Hipótesis ilustrativa. El IRPF diferido se pagará al distribuir al socio, pero el capital crece libre de IRPF adicional mientras permanece en la holding.</p>
+    </div>
+  );
+}
+
+/* ─── INMUEBLE PANEL ────────────────────────── */
+function InmueblePanel({ art21 }) {
+  const [precio, setPrecio]     = useState(400000);
+  const [tipoOp, setTipoOp]     = useState('segunda');
+  const [itpPct, setItpPct]     = useState(8);
+  const [ajdPct, setAjdPct]     = useState(1.5);
+  const [sueloPct, setSueloPct] = useState(25);
+  const [alqMes, setAlqMes]     = useState(1200);
+  const [gastos, setGastos]     = useState(2400);
+  const [intHip, setIntHip]     = useState(0);
+  const [redPct, setRedPct]     = useState(50);
+  const [margPct, setMargPct]   = useState(37);
+  const [isInmT, setIsInmT]     = useState('general');
+  const [wrInm, setWrInm]       = useState(50);
+  const [anios, setAnios]       = useState(10);
+  const [aprecPct, setAprecPct] = useState(3);
+  const [usufYears, setUsufY]   = useState(20);
+  const [usufTit, setUsufTit]   = useState('particular');
+
+  const IS_r    = isInmT==='micropyme' ? 0.23 : 0.25;
+  const rentaA  = alqMes * 12;
+  const constV  = precio * (1 - sueloPct/100);
+
+  // Acquisition
+  const notReg  = precio * 0.008;
+  const impComp = tipoOp==='segunda' ? precio*itpPct/100 : precio*(10+ajdPct)/100;
+  const totalInvProp = precio + impComp + notReg;
+
+  // Usufruct (temporal: 2%/year, capped 70%)
+  const pctUsuf     = Math.min(0.70, usufYears*0.02);
+  const valorUsuf   = precio * pctUsuf;
+  const valorNuda   = precio * (1-pctUsuf);
+  const impUsuf     = tipoOp==='segunda' ? valorUsuf*itpPct/100 : valorUsuf*(10+ajdPct)/100;
+  const notUsuf     = (valorUsuf/precio)*notReg;
+  const totalInvUsuf = valorUsuf + impUsuf + notUsuf;
+
+  // Amortization
+  const amortP  = constV * 0.03;           // individual 3%
+  const amortH  = constV * 0.02;           // holding 2%
+  const amortU  = totalInvUsuf / usufYears; // usufruct: cost/years (LIRPF art.23)
+
+  // ── Scenario A: Particular (plena propiedad) ──────
+  const gDedP   = gastos + amortP + intHip;
+  const rnBrP   = rentaA - gDedP;
+  const biP     = Math.max(0, rnBrP) * (1-redPct/100);
+  const taxP    = biP * margPct/100;
+  const cashP   = rentaA - gastos - intHip - taxP;
+  const yldNetP = totalInvProp>0 ? cashP/totalInvProp*100 : 0;
+  const yldGrP  = totalInvProp>0 ? rentaA/totalInvProp*100 : 0;
+
+  const valorF  = precio * Math.pow(1+aprecPct/100, anios);
+  const baseP   = totalInvProp - Math.max(0, amortP*anios);
+  const pvPBr   = Math.max(0, valorF-baseP);
+  const pvPTax  = irpf(pvPBr);
+  const pvPNet  = pvPBr - pvPTax;
+  const acumP   = cashP * anios;
+  const retP    = acumP + pvPNet;
+  const roiP    = totalInvProp>0 ? retP/totalInvProp*100 : 0;
+
+  // ── Scenario B: Holding (plena propiedad) ─────────
+  const gDedH   = gastos + amortH + intHip;
+  const rnH     = rentaA - gDedH;
+  const isH     = Math.max(0, rnH) * IS_r;
+  const netoH   = Math.max(0, rnH) - isH;
+  const cashH   = rentaA - gastos - intHip - isH;
+  const distH   = netoH * wrInm/100;
+  const irpfH   = irpf(distH);
+  const retHold = netoH - distH;
+  const yldNetH = totalInvProp>0 ? cashH/totalInvProp*100 : 0;
+  const yldGrH  = totalInvProp>0 ? rentaA/totalInvProp*100 : 0;
+
+  const baseH   = totalInvProp - Math.max(0, amortH*anios);
+  const pvHBr   = Math.max(0, valorF-baseH);
+  const pvHIS   = pvHBr * IS_r;
+  const pvHNet  = pvHBr - pvHIS;
+  const acumH   = cashH * anios;
+  const retH    = acumH + pvHNet;
+  const roiH    = totalInvProp>0 ? retH/totalInvProp*100 : 0;
+  const pvHDist = pvHNet * wrInm/100;
+  const pvHIrpf = irpf(pvHDist);
+
+  // ── Scenario C: Usufructo temporal ────────────────
+  const isUsufH = usufTit==='holding';
+  const gDedU   = gastos + amortU + intHip;
+  const rnU     = rentaA - gDedU;
+  let biU, taxU, cashU;
+  if (!isUsufH) {
+    biU   = Math.max(0, rnU) * (1-redPct/100);
+    taxU  = biU * margPct/100;
+    cashU = rentaA - gastos - intHip - taxU;
+  } else {
+    biU   = Math.max(0, rnU);
+    taxU  = biU * IS_r;
+    cashU = rentaA - gastos - intHip - taxU;
+  }
+  const yldNetU  = totalInvUsuf>0 ? cashU/totalInvUsuf*100 : 0;
+  const yldGrU   = totalInvUsuf>0 ? rentaA/totalInvUsuf*100 : 0;
+  const yearsRent = Math.min(anios, usufYears);
+  const acumU    = cashU * yearsRent;
+  const retU     = acumU; // no residual value at usufruct expiration
+  const roiU     = totalInvUsuf>0 ? retU/totalInvUsuf*100 : 0;
+  const usufExpBefore = usufYears < anios;
+
+  const SH = ({t}) => <div style={{fontSize:'.74rem',fontWeight:'700',color:'var(--txtd)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'.5rem'}}>{t}</div>;
+
+  return (
+    <div style={{background:'var(--surf)',border:'1px solid var(--bord)',borderRadius:'var(--r)',padding:'1.25rem'}}>
+      <div style={{fontSize:'.78rem',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.08em',color:'var(--txtd)',marginBottom:'.35rem'}}>🏠 Simulación: compra de inmueble y alquiler a tercero</div>
+      <div style={{fontSize:'.8rem',color:'var(--txtdim)',marginBottom:'1.25rem',lineHeight:1.5}}>
+        Compara la adquisición de un inmueble residencial para alquiler bajo tres titularidades: <strong style={{color:'var(--oral)'}}>👤 Particular</strong> (plena propiedad directa), <strong style={{color:'var(--grnl)'}}>🏢 Holding</strong> (plena propiedad societaria) y <strong style={{color:'var(--vio)'}}>🏛 Usufructo temporal</strong> (solo el derecho de uso y percepción de rentas). Alquiler residencial, IVA exento en los tres casos.
+      </div>
+
+      {/* INPUTS */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem',padding:'1rem',background:'var(--surf2)',borderRadius:'8px',marginBottom:'1.25rem'}}>
+
+        <div>
+          <div style={{fontSize:'.7rem',fontWeight:'700',color:'var(--bluel)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'.6rem',paddingBottom:'.3rem',borderBottom:'1px solid var(--bord)'}}>📋 Inmueble</div>
+          <div className="field"><label>Precio de compra</label><input type="number" value={precio} step="10000" min="0" onChange={e=>setPrecio(parseFloat(e.target.value)||0)}/></div>
+          <div className="field">
+            <label>Tipo operación</label>
+            <select value={tipoOp} onChange={e=>setTipoOp(e.target.value)}>
+              <option value="segunda">Segunda mano → ITP</option>
+              <option value="nueva">Obra nueva → IVA 10% + AJD</option>
+            </select>
+          </div>
+          {tipoOp==='segunda'
+            ? <div className="field"><label>ITP % (CCAA, típico 6–10%)</label><input type="number" value={itpPct} step="0.5" min="0" max="20" onChange={e=>setItpPct(parseFloat(e.target.value)||0)}/></div>
+            : <div className="field"><label>AJD % (CCAA, típico 0.5–2%)</label><input type="number" value={ajdPct} step="0.1" min="0" max="5" onChange={e=>setAjdPct(parseFloat(e.target.value)||0)}/></div>}
+          <div className="field"><label>% suelo (no amortizable, típico 20–35%)</label><input type="number" value={sueloPct} step="5" min="0" max="80" onChange={e=>setSueloPct(parseFloat(e.target.value)||0)}/></div>
+        </div>
+
+        <div>
+          <div style={{fontSize:'.7rem',fontWeight:'700',color:'var(--grnl)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'.6rem',paddingBottom:'.3rem',borderBottom:'1px solid var(--bord)'}}>🔑 Alquiler</div>
+          <div className="field"><label>Alquiler mensual</label><input type="number" value={alqMes} step="50" min="0" onChange={e=>setAlqMes(parseFloat(e.target.value)||0)}/></div>
+          <div className="field"><label>Gastos anuales (IBI + comunidad + seguro)</label><input type="number" value={gastos} step="100" min="0" onChange={e=>setGastos(parseFloat(e.target.value)||0)}/></div>
+          <div className="field"><label>Intereses hipoteca anuales (0 = al contado)</label><input type="number" value={intHip} step="200" min="0" onChange={e=>setIntHip(parseFloat(e.target.value)||0)}/></div>
+        </div>
+
+        <div>
+          <div style={{fontSize:'.7rem',fontWeight:'700',color:'var(--oral)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'.6rem',paddingBottom:'.3rem',borderBottom:'1px solid var(--bord)'}}>🧾 Fiscal</div>
+          <div className="field">
+            <label>Reducción IRPF (art. 23 LIRPF)</label>
+            <select value={redPct} onChange={e=>setRedPct(parseFloat(e.target.value))}>
+              <option value={50}>50% — general (Ley Vivienda 2023)</option>
+              <option value={60}>60% — rehabilitado últimos 3 años</option>
+              <option value={70}>70% — zona tensionada, arrendatario nuevo</option>
+              <option value={90}>90% — zona tensionada, rebaja &gt;5%</option>
+              <option value={0}>0% — local o no vivienda habitual</option>
+            </select>
+          </div>
+          <div className="field">
+            <label>Tipo marginal IRPF particular (base general)</label>
+            <select value={margPct} onChange={e=>setMargPct(parseFloat(e.target.value))}>
+              <option value={19}>19%</option><option value={24}>24%</option>
+              <option value={30}>30%</option><option value={37}>37%</option>
+              <option value={45}>45%</option><option value={47}>47%</option>
+            </select>
+          </div>
+          <div className="field">
+            <label>IS holding (alquiler)</label>
+            <select value={isInmT} onChange={e=>setIsInmT(e.target.value)}>
+              <option value="general">General — 25%</option>
+              <option value="micropyme">Micropyme — 23%</option>
+            </select>
+          </div>
+          <div className="field"><label>% que el socio extrae del holding</label><input type="number" value={wrInm} step="10" min="0" max="100" onChange={e=>setWrInm(Math.min(100,Math.max(0,parseFloat(e.target.value)||0)))}/></div>
+        </div>
+
+        <div>
+          <div style={{fontSize:'.7rem',fontWeight:'700',color:'var(--vio)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:'.6rem',paddingBottom:'.3rem',borderBottom:'1px solid var(--bord)'}}>🏛 Usufructo + Proyección</div>
+          <div className="field">
+            <label>Duración usufructo temporal (años)</label>
+            <input type="number" value={usufYears} step="5" min="1" max="50" onChange={e=>setUsufY(parseInt(e.target.value)||1)}/>
+            <div style={{fontSize:'.7rem',color:'var(--vio)',marginTop:'.25rem',lineHeight:1.4}}>Valoración: {(pctUsuf*100).toFixed(0)}% → Usufructo {fmt(valorUsuf)} · Nuda propiedad {fmt(valorNuda)}</div>
+          </div>
+          <div className="field">
+            <label>Titular del usufructo</label>
+            <select value={usufTit} onChange={e=>setUsufTit(e.target.value)}>
+              <option value="particular">Particular (IRPF sobre rentas)</option>
+              <option value="holding">Holding (IS sobre rentas)</option>
+            </select>
+          </div>
+          <div className="field">
+            <label>Período proyección</label>
+            <select value={anios} onChange={e=>setAnios(parseInt(e.target.value))}>
+              {[5,10,15,20,25,30].map(y=><option key={y} value={y}>{y} años</option>)}
+            </select>
+          </div>
+          <div className="field"><label>Revalorización anual esperada (%)</label><input type="number" value={aprecPct} step="0.5" min="-5" max="20" onChange={e=>setAprecPct(parseFloat(e.target.value)||0)}/></div>
+        </div>
+      </div>
+
+      {/* SECTION 1: ACQUISITION */}
+      <SH t="Costes de adquisición"/>
+      <div className="tw" style={{marginBottom:'1rem'}}>
+        <table>
+          <thead><tr>
+            <th>Concepto</th>
+            <th className="nr" style={{color:'var(--oral)'}}>👤 Particular</th>
+            <th className="nr" style={{color:'var(--grnl)'}}>🏢 Holding</th>
+            <th className="nr" style={{color:'var(--vio)'}}>🏛 Usufructo ({(pctUsuf*100).toFixed(0)}%)</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Precio / valor del derecho adquirido</td><td className="nr">{fmt(precio)}</td><td className="nr">{fmt(precio)}</td><td className="nr c-vio">{fmt(valorUsuf)}</td></tr>
+            <tr><td>{tipoOp==='segunda'?`ITP (${itpPct}%)`:`IVA 10% + AJD ${ajdPct}%`}</td><td className="nr">{fmt(impComp)}</td><td className="nr">{fmt(impComp)}</td><td className="nr">{fmt(impUsuf)}</td></tr>
+            <tr><td>Notaría + Registro (~0,8%)</td><td className="nr">{fmt(notReg)}</td><td className="nr">{fmt(notReg)}</td><td className="nr">{fmt(notUsuf)}</td></tr>
+            <tr className="tr-tot">
+              <td><strong>Total desembolso</strong></td>
+              <td className="nr fw8 c-is">{fmt(totalInvProp)}</td>
+              <td className="nr fw8 c-is">{fmt(totalInvProp)}</td>
+              <td className="nr fw8 c-vio">{fmt(totalInvUsuf)}</td>
+            </tr>
+            <tr><td>Valor nuda propiedad (queda en otro titular)</td><td className="nr" style={{color:'var(--txtdim)'}}>—</td><td className="nr" style={{color:'var(--txtdim)'}}>—</td><td className="nr" style={{color:'var(--txtdim)'}}>{fmt(valorNuda)}</td></tr>
+            <tr><td>Rentabilidad bruta sobre desembolso</td><td className="nr fw7 c-ret">{yldGrP.toFixed(2)}%</td><td className="nr fw7 c-ret">{yldGrH.toFixed(2)}%</td><td className="nr fw7 c-vio">{yldGrU.toFixed(2)}%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="note" style={{marginBottom:'1rem'}}>IVA de obra nueva NO deducible en alquiler residencial. En usufructo: ITP/IVA aplica solo sobre el valor del usufructo ({(pctUsuf*100).toFixed(0)}% del precio), no sobre el inmueble completo.</p>
+
+      {/* SECTION 2: ANNUAL */}
+      <SH t="Análisis del alquiler anual"/>
+      <div className="tw" style={{marginBottom:'1rem'}}>
+        <table>
+          <thead><tr>
+            <th>Concepto</th>
+            <th className="nr" style={{color:'var(--oral)'}}>👤 Particular</th>
+            <th className="nr" style={{color:'var(--grnl)'}}>🏢 Holding</th>
+            <th className="nr" style={{color:'var(--vio)'}}>🏛 Usufructo ({usufTit==='holding'?'IS':'IRPF'})</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Renta bruta anual</td><td className="nr">{fmt(rentaA)}</td><td className="nr">{fmt(rentaA)}</td><td className="nr">{fmt(rentaA)}</td></tr>
+            <tr style={{color:'var(--txtd)',fontStyle:'italic'}}>
+              <td>Amortización (3%const. / 2%const. / coste÷{usufYears}a)</td>
+              <td className="nr">−{fmt(amortP)}</td>
+              <td className="nr">−{fmt(amortH)}</td>
+              <td className="nr c-vio">−{fmt(amortU)}</td>
+            </tr>
+            <tr><td>Gastos deducibles (IBI, comunidad, seguro…)</td><td className="nr">−{fmt(gastos)}</td><td className="nr">−{fmt(gastos)}</td><td className="nr">−{fmt(gastos)}</td></tr>
+            {intHip>0&&<tr><td>Intereses hipoteca</td><td className="nr">−{fmt(intHip)}</td><td className="nr">−{fmt(intHip)}</td><td className="nr">−{fmt(intHip)}</td></tr>}
+            <tr className="tr-tot"><td>Rendimiento neto previo</td><td className="nr">{fmt(rnBrP)}</td><td className="nr">{fmt(rnH)}</td><td className="nr">{fmt(rnU)}</td></tr>
+            <tr style={{background:'rgba(249,115,22,.04)'}}>
+              <td>Reducción {redPct}% art. 23 LIRPF <span className="tag t-irpf">Solo particulares</span></td>
+              <td className="nr c-irpf">−{fmt(Math.max(0,rnBrP)*redPct/100)}</td>
+              <td className="nr" style={{color:'var(--txtdim)'}}>N/A</td>
+              <td className="nr" style={{color:isUsufH?'var(--txtdim)':'var(--oral)'}}>
+                {isUsufH ? 'N/A' : `−${fmt(Math.max(0,rnU)*redPct/100)}`}
+              </td>
+            </tr>
+            <tr><td>Base imponible</td><td className="nr">{fmt(biP)}</td><td className="nr">{fmt(Math.max(0,rnH))}</td><td className="nr">{fmt(biU)}</td></tr>
+            <tr>
+              <td>Impuesto</td>
+              <td className="nr c-irpf fw7">−{fmt(taxP)} <span style={{fontSize:'.68rem',fontWeight:'normal',color:'var(--txtd)'}}>IRPF {margPct}%</span></td>
+              <td className="nr c-is fw7">−{fmt(isH)} <span style={{fontSize:'.68rem',fontWeight:'normal',color:'var(--txtd)'}}>IS {IS_r*100}%</span></td>
+              <td className="nr fw7" style={{color:isUsufH?'var(--bluel)':'var(--oral)'}}>−{fmt(taxU)} <span style={{fontSize:'.68rem',fontWeight:'normal',color:'var(--txtd)'}}>{isUsufH?`IS ${IS_r*100}%`:`IRPF ${margPct}%`}</span></td>
+            </tr>
+            <tr className="tr-tot">
+              <td><strong>Cash flow neto anual</strong></td>
+              <td className="nr fw8" style={{color:cashP>=0?'var(--grnl)':'var(--red)',fontSize:'1.05rem'}}>{fmt(cashP)}</td>
+              <td className="nr fw8" style={{color:cashH>=0?'var(--grnl)':'var(--red)',fontSize:'1.05rem'}}>{fmt(cashH)}</td>
+              <td className="nr fw8" style={{color:cashU>=0?'var(--grnl)':'var(--red)',fontSize:'1.05rem'}}>{fmt(cashU)}</td>
+            </tr>
+            {wrInm>0&&<tr style={{background:'rgba(16,185,129,.04)'}}>
+              <td>Dist. socio {wrInm}% + IRPF dividendo <span className="tag t-ret">Holding</span></td>
+              <td className="nr" style={{color:'var(--txtdim)'}}>—</td>
+              <td className="nr" style={{fontSize:'.78rem',color:'var(--txtm)'}}>{fmt(distH)} → IRPF {fmt(irpfH)} → neto {fmt(distH-irpfH)}</td>
+              <td className="nr" style={{color:isUsufH?'var(--txtm)':'var(--txtdim)',fontSize:'.78rem'}}>{isUsufH?`Extrae ${wrInm}%`:'—'}</td>
+            </tr>}
+            <tr>
+              <td>Rentabilidad neta s/ desembolso</td>
+              <td className="nr fw7 c-ret">{yldNetP.toFixed(2)}%</td>
+              <td className="nr fw7 c-ret">{yldNetH.toFixed(2)}%</td>
+              <td className="nr fw7 c-vio">{yldNetU.toFixed(2)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* SECTION 3: PROJECTION */}
+      <SH t={`Proyección a ${anios} años (venta al final del período)`}/>
+      {usufExpBefore&&<div style={{marginBottom:'.6rem',padding:'.5rem .75rem',background:'var(--ambbg)',border:'1px solid rgba(245,158,11,.25)',borderRadius:'8px',fontSize:'.78rem',color:'var(--amb)'}}>⚠ El usufructo expira en el año {usufYears} (antes del final de la proyección). Las rentas del usufructo se calculan solo durante sus {usufYears} años de vigencia.</div>}
+      <div className="tw" style={{marginBottom:'1rem'}}>
+        <table>
+          <thead><tr>
+            <th>Concepto</th>
+            <th className="nr" style={{color:'var(--oral)'}}>👤 Particular</th>
+            <th className="nr" style={{color:'var(--grnl)'}}>🏢 Holding</th>
+            <th className="nr" style={{color:'var(--vio)'}}>🏛 Usufructo</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Inversión inicial</td><td className="nr c-irpf">−{fmt(totalInvProp)}</td><td className="nr c-irpf">−{fmt(totalInvProp)}</td><td className="nr" style={{color:'var(--vio)'}}>−{fmt(totalInvUsuf)}</td></tr>
+            <tr><td>Cash flow neto acumulado</td><td className="nr">{fmt(acumP)} <span style={{fontSize:'.7rem',color:'var(--txtdim)'}}>({anios}a)</span></td><td className="nr">{fmt(acumH)} <span style={{fontSize:'.7rem',color:'var(--txtdim)'}}>({anios}a)</span></td><td className="nr">{fmt(acumU)} <span style={{fontSize:'.7rem',color:'var(--txtdim)'}}>({yearsRent}a)</span></td></tr>
+            <tr><td>Valor inmueble final ({aprecPct}% anual)</td><td className="nr">{fmt(valorF)}</td><td className="nr">{fmt(valorF)}</td><td className="nr" style={{color:'var(--txtdim)'}}>Revierte al nudo propietario</td></tr>
+            <tr><td>Base fiscal venta (tras amortizaciones)</td><td className="nr">{fmt(baseP)}</td><td className="nr">{fmt(baseH)}</td><td className="nr" style={{color:'var(--txtdim)'}}>—</td></tr>
+            <tr><td>Plusvalía imponible</td><td className="nr">{fmt(pvPBr)}</td><td className="nr">{fmt(pvHBr)}</td><td className="nr" style={{color:'var(--txtdim)'}}>Sin ganancia (extinción)</td></tr>
+            <tr>
+              <td>Impuesto plusvalía</td>
+              <td className="nr c-irpf">−{fmt(pvPTax)} <span style={{fontSize:'.68rem',color:'var(--txtd)'}}>IRPF ahorro</span></td>
+              <td className="nr c-is">−{fmt(pvHIS)} <span style={{fontSize:'.68rem',color:'var(--txtd)'}}>IS {IS_r*100}%</span></td>
+              <td className="nr" style={{color:'var(--txtdim)'}}>—</td>
+            </tr>
+            <tr><td>Neto de venta</td><td className="nr">{fmt(pvPNet)}</td><td className="nr">{fmt(pvHNet)}</td><td className="nr" style={{color:'var(--txtdim)'}}>0 €</td></tr>
+            {pvHBr>0&&wrInm>0&&<tr style={{background:'rgba(16,185,129,.04)'}}>
+              <td>Socio extrae {wrInm}% venta holding → IRPF</td>
+              <td className="nr" style={{color:'var(--txtdim)'}}>—</td>
+              <td className="nr" style={{fontSize:'.78rem',color:'var(--txtm)'}}>{fmt(pvHDist)} → IRPF {fmt(pvHIrpf)} → neto {fmt(pvHDist-pvHIrpf)}</td>
+              <td className="nr" style={{color:'var(--txtdim)'}}>—</td>
+            </tr>}
+            <tr className="tr-tot" style={{borderTop:'2px solid var(--bordl)'}}>
+              <td><strong>Retorno total neto</strong></td>
+              <td className="nr fw8" style={{color:'var(--oral)',fontSize:'1.05rem'}}>{fmt(retP)}</td>
+              <td className="nr fw8" style={{color:'var(--grnl)',fontSize:'1.05rem'}}>{fmt(retH)}</td>
+              <td className="nr fw8" style={{color:'var(--vio)',fontSize:'1.05rem'}}>{fmt(retU)}</td>
+            </tr>
+            <tr>
+              <td>ROI sobre inversión inicial</td>
+              <td className="nr fw7" style={{color:roiP>=0?'var(--grnl)':'var(--red)'}}>{roiP.toFixed(1)}%</td>
+              <td className="nr fw7" style={{color:roiH>=0?'var(--grnl)':'var(--red)'}}>{roiH.toFixed(1)}%</td>
+              <td className="nr fw7" style={{color:roiU>=0?'var(--grnl)':'var(--red)'}}>{roiU.toFixed(1)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Art. 21 / Holding note */}
+      <div style={{padding:'.8rem 1rem',background:'var(--viobg)',border:'1px solid rgba(167,139,250,.25)',borderRadius:'8px',fontSize:'.8rem',color:'var(--txtm)',marginBottom:'.75rem'}}>
+        <strong style={{color:'var(--vio)'}}>🏛 Claves fiscales del usufructo temporal</strong>
+        <ul style={{marginTop:'.5rem',paddingLeft:'1.1rem',lineHeight:1.75,listStyle:'disc'}}>
+          <li><strong>Menor desembolso inicial:</strong> Solo se paga el {(pctUsuf*100).toFixed(0)}% del valor del inmueble ({fmt(valorUsuf)}), con ITP/AJD sobre ese importe, no sobre el total.</li>
+          <li><strong>Amortización del derecho:</strong> El usufructuario amortiza el coste del derecho entre los {usufYears} años ({fmt(amortU)}/año). La base amortizable NO es el valor de la construcción sino el coste de adquisición del usufructo.</li>
+          <li><strong>Sin plusvalía al extinguirse:</strong> La extinción del usufructo por transcurso del plazo NO genera ganancia patrimonial para el usufructuario (no es una transmisión). El nudo propietario consolida la plena propiedad sin nuevo impuesto.</li>
+          <li><strong>Mayor rentabilidad sobre capital:</strong> La menor inversión eleva el yield bruto a {yldGrU.toFixed(1)}% vs {yldGrP.toFixed(1)}% en plena propiedad. Útil para diversificar capital o como herramienta sucesoria.</li>
+          <li><strong>Planificación sucesoria:</strong> Padres retienen el usufructo vitalicio (perciben rentas), hijos reciben la nuda propiedad por donación o herencia. Al fallecimiento, consolidan sin nuevo ISD (tributaron por su valor reducido). Esta estructura es independiente de si se usa o no una holding.</li>
+          <li><strong>Holding + venta directa del inmueble:</strong> El art. 21 LIS NO aplica a la venta del inmueble por la holding (solo a participaciones en empresas). La plusvalía tributa a IS al {IS_r*100}%.</li>
+        </ul>
+      </div>
+
+      <p className="note">Simplificaciones: proyección lineal sin reinversión de rentas. Plusvalía municipal (IIVTNU) excluida. Para IS: si la holding no tiene empleado a jornada completa, el alquiler puede considerarse actividad no económica ("sociedad patrimonial") con efectos en Patrimonio y exención empresa familiar. Gastos de agencia en venta (~3-5%) no incluidos.</p>
+    </div>
+  );
+}
+
+/* ─── SCENARIO SUMMARY CARD ──────────────────── */
+function ScCard({lbl,ttl,cls,r,isTotal,note}) {
+  const colors={a:'var(--bluel)',b:'var(--grnl)',c:'var(--vio)'};
+  const rateBg={a:'var(--bluebg)',b:'var(--grnbg)',c:'var(--viobg)'};
+  return(
+    <div className={`sc-card ${cls}`}>
+      <div className={`sc-lbl ${cls}`}>{lbl}</div>
+      <div className="sc-ttl">{ttl}</div>
+      <div className="sc-row"><div className="sc-rl">IS total pagado</div><div className="sc-rv c-is">{fmt(isTotal)}</div></div>
+      <div className="sc-row"><div className="sc-rl">IRPF socio</div><div className="sc-rv c-irpf">{fmt(r.irpf)}</div></div>
+      <div className="sc-row"><div className="sc-rl">Retenido en sociedad</div><div className="sc-rv c-ret">{fmt(r.ret)}</div></div>
+      <div className="sc-sep">
+        <div className="sc-tl">Carga fiscal total</div>
+        <div className="sc-tv" style={{color:colors[cls]}}>{fmt(r.totalTax)}</div>
+        <span className="sc-rate" style={{background:rateBg[cls],color:colors[cls]}}>Tipo ef. {fmtPct(r.er)}</span>
+        {note&&<div className="sc-note">{note}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── APP ────────────────────────────────────── */
+let uid=1;
+const DEF=[
+  {id:uid++,name:'Operativa A',profit:250000,bins:0,isType:'general'},
+  {id:uid++,name:'Operativa B',profit:120000,bins:0,isType:'micropyme'},
+];
+
+function App() {
+  const [cos,setCos]=useState(DEF);
+  const [wr,setWr]=useState(0.5);
+  const [art21,setArt21]=useState(true);
+  const [det,setDet]=useState('a');
+  const slRef=useRef(null);
+
+  const add=()=>setCos(p=>[...p,{id:uid++,name:`Sociedad ${p.length+1}`,profit:80000,bins:0,isType:'general'}]);
+  const rm=id=>setCos(p=>p.filter(c=>c.id!==id));
+  const upd=(id,f,v)=>setCos(p=>p.map(c=>c.id===id?{...c,[f]:v}:c));
+
+  useEffect(()=>{if(slRef.current)slRef.current.style.setProperty('--pct',`${wr*100}%`);},[wr]);
+
+  const rA=calcA(cos,wr), rB=calcB(cos,wr,art21), rC=calcC(cos,wr);
+
+  return(
+    <div>
+    <div className="app">
+      {/* LEFT */}
+      <div>
+        <div className="card">
+          <div className="card-title">🏢 Sociedades</div>
+          {cos.map(c=>(
+            <div key={c.id} className="co">
+              <div className="co-hdr">
+                <input className="co-name" type="text" value={c.name} placeholder="Nombre" onChange={e=>upd(c.id,'name',e.target.value)}/>
+                {cos.length>1&&<button className="btn-rm" onClick={()=>rm(c.id)}>✕ Quitar</button>}
+              </div>
+              <div className="row2">
+                <div className="field"><label>BAI (beneficio antes IS)</label><input type="number" value={c.profit} step="5000" onChange={e=>upd(c.id,'profit',parseFloat(e.target.value)||0)}/></div>
+                <div className="field"><label>BINs pendientes</label><input type="number" value={c.bins} step="1000" min="0" onChange={e=>upd(c.id,'bins',Math.max(0,parseFloat(e.target.value)||0))}/></div>
+              </div>
+              <div className="field">
+                <label>Tipo IS aplicable</label>
+                <select value={c.isType} onChange={e=>upd(c.id,'isType',e.target.value)}>
+                  <option value="general">General — 25%</option>
+                  <option value="micropyme">Micropyme (INCN &lt; 1M) — 23%</option>
+                  <option value="nueva">Nueva empresa (1.er beneficio) — 15%</option>
+                </select>
+              </div>
+            </div>
+          ))}
+          {cos.length<7&&<button className="btn-add" onClick={add}>+ Añadir sociedad</button>}
+          <p className="note">BAI negativo = la sociedad genera pérdidas/BINs. En consolidación, compensan las bases positivas de otras del grupo.</p>
+        </div>
+
+        <div className="card">
+          <div className="card-title">⚙️ Configuración</div>
+          <div className="field">
+            <label>% que extrae el socio (sobre BDI neto)</label>
+            <input ref={slRef} type="range" min="0" max="1" step="0.05" value={wr} onChange={e=>setWr(parseFloat(e.target.value))} style={{'--pct':`${wr*100}%`}}/>
+            <div className="sl-val">{(wr*100).toFixed(0)}% al socio · {(100-wr*100).toFixed(0)}% queda en sociedad</div>
+          </div>
+          <hr className="div"/>
+          <div className="field">
+            <label>Art. 21 LIS (exención holding)</label>
+            <div style={{marginTop:'.5rem'}}>
+              <div className="tog-wrap">
+                <label className="tog">
+                  <input type="checkbox" checked={art21} onChange={e=>setArt21(e.target.checked)}/>
+                  <span className="tog-track"/>
+                </label>
+                <span className="tog-lbl" onClick={()=>setArt21(!art21)}>
+                  <strong>{art21?'Activo — 95% exento':'Inactivo — sin exención'}</strong>
+                  {art21?'Participación ≥5% y período ≥1 año cumplidos':'Holding paga 25% sobre dividendos intragrupo'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <hr className="div"/>
+          <p className="note" style={{lineHeight:1.55}}>
+            <strong style={{color:'var(--txtm)'}}>Supuestos:</strong><br/>
+            · IRPF: escala estatal 19–28% (sin autonómica).<br/>
+            · Consolidación aplica tipo 25% (puede perderse tipo reducido de filiales).<br/>
+            · No se modelan precios de transferencia, retenciones, dividendos a cuenta ni normativa autonómica.
+          </p>
+        </div>
+
+        <div className="card" style={{marginTop:'1rem'}}>
+          <div className="card-title">📋 Escala IRPF ahorro</div>
+          <div className="tw"><table>
+            <thead><tr><th>Tramo</th><th className="nr">Tipo</th></tr></thead>
+            <tbody>
+              {[{a:'0',b:'6.000 €',r:.19},{a:'6.000',b:'50.000 €',r:.21},{a:'50.000',b:'200.000 €',r:.23},{a:'200.000',b:'300.000 €',r:.27},{a:'300.000',b:'∞',r:.28}].map(t=>(
+                <tr key={t.a}><td>{t.a} – {t.b}</td><td className="nr fw7" style={{color:'var(--oral)'}}>{(t.r*100).toFixed(0)}%</td></tr>
+              ))}
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      {/* RIGHT */}
+      <div className="rc">
+        {/* Scenario summary cards */}
+        <div className="sc-grid">
+          <ScCard lbl="Escenario A" ttl="SL Aislada" cls="a" r={rA} isTotal={rA.totalIS}
+            note="Base de comparación. Cada sociedad tributa por separado. Dividendo al socio paga IRPF 19–28%."/>
+          <ScCard lbl="Escenario B" ttl="Holding (art. 21)" cls="b" r={rB} isTotal={rB.totalISop+rB.hIS}
+            note={art21?"IS adicional en holding ~1,25%. Ventaja clave: venta de filiales con plusvalía casi exenta (art. 21).":"Art. 21 inactivo. Actívalo para ver el beneficio de la exención."}/>
+          <ScCard lbl="Escenario C" ttl="Consolidación fiscal" cls="c" r={rC} isTotal={rC.gIS}
+            note={rC.loff>0?`Compensa ${fmt(rC.loff)} de pérdidas entre entidades del grupo. IS sobre base neta.`:"Sin pérdidas que compensar: la consolidación no aporta ahorro IS en este escenario."}/>
+        </div>
+
+        {/* Chart */}
+        <div className="chart-box">
+          <div className="chart-ttl">▐ Carga fiscal y retención comparada por escenario</div>
+          <Chart3 rA={rA} rB={rB} rC={rC}/>
+          <div style={{display:'flex',gap:'1rem',marginTop:'.7rem',flexWrap:'wrap'}}>
+            {[['var(--bluel)','IS pagado'],['var(--oral)','IRPF del socio'],['var(--grnl)','Retenido en sociedad']].map(([c,l])=>(
+              <div key={l} style={{display:'flex',alignItems:'center',gap:'.35rem',fontSize:'.73rem',color:'var(--txtd)'}}>
+                <span style={{width:11,height:11,borderRadius:3,background:c,display:'inline-block'}}></span>{l}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Capital gains simulation */}
+        <PlusvPanel art21={art21}/>
+
+        {/* Property rental simulation */}
+        <InmueblePanel art21={art21}/>
+
+        {/* Detail breakdown */}
+        <div className="card">
+          <div className="card-title" style={{marginBottom:'.75rem'}}>≡ Desglose detallado por escenario</div>
+          <div className="dtabs">
+            {[['a','SL Aislada'],['b','Holding (art. 21)'],['c','Consolidación']].map(([id,label])=>(
+              <button key={id} className={`dtab ${det===id?id:''}`} onClick={()=>setDet(id)}>{label}</button>
+            ))}
+          </div>
+          <Flow type={det} art21={art21} wr={wr}/>
+          {det==='a'&&<DetailA r={rA}/>}
+          {det==='b'&&<DetailB r={rB} art21={art21}/>}
+          {det==='c'&&<DetailC r={rC}/>}
+        </div>
+
+        {/* Reinvestment */}
+        {art21&&<ReinvPanel rA={rA} rB={rB}/>}
+
+        {/* Insights */}
+        <Insights rA={rA} rB={rB} rC={rC} wr={wr} art21={art21}/>
+
+        {/* Disclaimer */}
+        <div style={{padding:'.85rem 1rem',background:'rgba(245,158,11,.06)',border:'1px solid rgba(245,158,11,.18)',borderRadius:'var(--r)',fontSize:'.75rem',color:'var(--txtdim)',lineHeight:1.55}}>
+          <strong style={{color:'var(--amb)'}}>⚠️ Aviso legal:</strong> Herramienta exclusivamente informativa/educativa. Los cálculos son simplificaciones del marco tributario español. No constituyen asesoramiento fiscal ni jurídico. Consulta siempre a un asesor fiscal cualificado. No se contemplan precios de transferencia, sustancia económica, reglas antiabuso, normativa autonómica, retenciones ni muchos otros factores relevantes.
+        </div>
+      </div>
+    </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

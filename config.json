@@ -1,0 +1,67 @@
+{
+  "herramientas": {
+    "dinero": [
+      {
+        "id": "simulador-descuentos",
+        "nombre": "Simulador Descuentos & Aumentos",
+        "descripcion": "Simula el impacto de descuentos y aumentos en tus proyecciones financieras.",
+        "tipo": "html",
+        "ruta": "simulador aumentos y descuentos.html"
+      },
+      {
+        "id": "simulador-holding",
+        "nombre": "Simulador Holding",
+        "descripcion": "Analiza estructuras de holding y su impacto fiscal y financiero.",
+        "tipo": "html",
+        "ruta": "simulador-holding .html"
+      },
+      {
+        "id": "simulador-nominas",
+        "nombre": "Simulador Nóminas",
+        "descripcion": "Calcula nóminas, cotizaciones y análisis de costes laborales.",
+        "tipo": "html",
+        "ruta": "simulador_nomina_dividendos .html"
+      }
+    ],
+    "especificos": [
+      {
+        "id": "comisiones",
+        "nombre": "Comisiones",
+        "descripcion": "Gestiona y calcula estructuras de comisiones complejas.",
+        "tipo": "html",
+        "ruta": "comisiones .html"
+      },
+      {
+        "id": "calculadora-roi",
+        "nombre": "Calculadora ROI",
+        "descripcion": "Calcula el retorno sobre inversión de tus proyectos.",
+        "tipo": "html",
+        "ruta": "calculadora-roi .html"
+      },
+      {
+        "id": "comparador-mieles",
+        "nombre": "Comparador Mieles",
+        "descripcion": "Compara productos con análisis detallado de características.",
+        "tipo": "html",
+        "ruta": "comparador-mieles .html"
+      }
+    ],
+    "destino": [],
+    "tiempo": [],
+    "servicio": [],
+    "marketing": [],
+    "ventas": [],
+    "sistema": [],
+    "equipo": [],
+    "sinergia": [],
+    "general": []
+  },
+  "enlaces_externos": {
+    "ejemplo": {
+      "nombre": "Google",
+      "url": "https://google.com",
+      "icono": "🔗"
+    }
+  },
+  "notas": "Edita esta archivo para agregar/modificar herramientas. Tipos: 'html' (local) o 'url' (externa)"
+}

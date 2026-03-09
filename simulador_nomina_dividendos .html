@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador: Nómina vs Dividendos · Socio-Administrador España 2026</title>
+<style>
+:root {
+  --primary: #1b3f6e;
+  --secondary: #2563a8;
+  --accent: #d97706;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --purple: #7c3aed;
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --IS-color: #3b82f6;
+  --SS-color: #8b5cf6;
+  --IRPF-color: #ef4444;
+  --DIV-color: #f59e0b;
+  --NET-color: #22c55e;
+  --RES-color: #94a3b8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:15px}
+a{color:var(--secondary)}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#0f2a4e 0%,#1b4f8a 100%);color:#fff;padding:22px 32px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+header h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px}
+header p{opacity:.82;font-size:.9rem;margin-top:4px}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:330px 1fr;gap:18px;max-width:1420px;margin:20px auto;padding:0 16px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--card);border-radius:12px;padding:18px 20px;box-shadow:0 1px 6px rgba(0,0,0,.08);margin-bottom:14px}
+.card:last-child{margin-bottom:0}
+.card-title{font-size:.92rem;font-weight:700;color:var(--primary);padding-bottom:10px;border-bottom:2px solid var(--bg);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* FORMS */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.fg input[type=number],.fg select{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.93rem;color:var(--text);background:#f8fafc;transition:border-color .15s}
+.fg input[type=number]:focus,.fg select:focus{outline:none;border-color:var(--secondary);background:#fff}
+.fg small{display:block;font-size:.75rem;color:var(--muted);margin-top:3px}
+.radio-row{display:flex;gap:6px}
+.radio-row input[type=radio]{display:none}
+.radio-row label{flex:1;text-align:center;padding:7px 4px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;color:var(--muted);transition:all .15s;user-select:none}
+.radio-row input[type=radio]:checked+label{background:var(--secondary);color:#fff;border-color:var(--secondary)}
+
+/* SLIDER CARD */
+.slider-card{background:linear-gradient(135deg,#eef6ff,#f8faff);border:2px solid #93c5fd}
+.slider-values{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sv-block{text-align:center}
+.sv-block .sv-amount{font-size:1.55rem;font-weight:800;color:var(--primary);letter-spacing:-.5px}
+.sv-block .sv-label{font-size:.75rem;color:var(--muted);font-weight:600}
+.vs-pill{background:var(--accent);color:#fff;padding:3px 14px;border-radius:20px;font-weight:800;font-size:.82rem}
+input[type=range]{width:100%;height:6px;accent-color:var(--secondary);cursor:pointer;margin:10px 0 6px}
+.slider-ends{display:flex;justify-content:space-between;font-size:.73rem;color:var(--muted)}
+
+/* METRICS ROW */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.metric{background:var(--card);border-radius:10px;padding:14px 12px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.metric.hero{background:var(--primary);color:#fff}
+.metric .m-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:5px}
+.metric.hero .m-label{color:rgba(255,255,255,.7)}
+.metric .m-val{font-size:1.38rem;font-weight:800;color:var(--primary)}
+.metric.hero .m-val{color:#fff}
+.metric .m-sub{font-size:.73rem;color:var(--muted);margin-top:3px}
+.metric.hero .m-sub{color:rgba(255,255,255,.65)}
+
+/* BREAKDOWN */
+.breakdown-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(max-width:600px){.breakdown-grid{grid-template-columns:1fr}}
+.bd-card{background:var(--card);border-radius:10px;padding:14px 16px;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.bd-title{font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--bg)}
+.bd-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem;border-bottom:1px solid #f1f5f9}
+.bd-row:last-child{border-bottom:none}
+.bd-row.subtotal{border-top:1.5px solid var(--border);padding-top:8px;margin-top:4px;font-weight:700;font-size:.9rem}
+.bd-row .bd-lbl{color:var(--text)}
+.neg{color:var(--danger);font-weight:600}
+.pos{color:var(--success);font-weight:700}
+.neu{color:var(--secondary);font-weight:600}
+
+/* EFICIENCIA BAR */
+.eff-card{margin-bottom:14px}
+.eff-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px}
+.eff-pct{font-size:2.2rem;font-weight:900;color:var(--primary);line-height:1}
+.eff-desc{font-size:.8rem;color:var(--muted);text-align:right;max-width:220px}
+.eff-bar{height:14px;background:#e2e8f0;border-radius:7px;overflow:hidden}
+.eff-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,#ef4444 0%,#f59e0b 45%,#22c55e 80%);transition:width .35s}
+.eff-scale{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:3px}
+
+/* RECOMMENDATION */
+.reco{background:linear-gradient(135deg,#f0fdf4,#f7fef9);border:1px solid #86efac;border-left:4px solid var(--success);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.reco h3{color:var(--success);font-size:.88rem;font-weight:700;margin-bottom:6px}
+.reco p{font-size:.84rem;line-height:1.6;color:var(--text)}
+
+/* WARNING */
+.warning{background:#fffbeb;border:1px solid #fcd34d;border-left:4px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:.82rem;color:#78350f;line-height:1.55}
+.warning strong{color:#92400e}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+table th{background:var(--primary);color:#fff;padding:10px 12px;text-align:left;white-space:nowrap;font-weight:600}
+table th:not(:first-child){text-align:center}
+table td{padding:8px 12px;border-bottom:1px solid #f1f5f9;white-space:nowrap}
+table td:not(:first-child){text-align:center}
+table tr:hover td{background:#f8fafc}
+table .col-highlight{background:#eff6ff;font-weight:700}
+table .best-val{color:var(--success);font-weight:800}
+table .worst-val{color:var(--danger)}
+table tr.section-row td{background:#f1f5f9;font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+
+/* CHART */
+.chart-wrap{display:flex;gap:8px;align-items:flex-end;height:200px;padding-top:8px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
+.chart-bars{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.bar-stack{width:52px;display:flex;flex-direction:column-reverse;gap:1px}
+.bar-seg{transition:height .35s;min-height:0;border-radius:2px}
+.bar-lbl{font-size:.7rem;color:var(--muted);text-align:center;margin-top:5px;font-weight:600;line-height:1.3}
+.bar-lbl.current{color:var(--primary);font-weight:800}
+.chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.76rem;color:var(--muted)}
+.leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+
+/* TIPO MARGINAL BADGE */
+.marginal-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:.78rem;font-weight:700}
+.mb-low{background:#dcfce7;color:#15803d}
+.mb-mid{background:#fef9c3;color:#92400e}
+.mb-high{background:#fee2e2;color:#b91c1c}
+
+/* FOOTER */
+footer{text-align:center;padding:20px 16px;color:var(--muted);font-size:.76rem;background:#fff;border-top:1px solid var(--border);margin-top:10px}
+
+/* TAG PILLS */
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.73rem;font-weight:700}
+.tag-g{background:#dcfce7;color:#15803d}
+.tag-r{background:#fee2e2;color:#b91c1c}
+.tag-b{background:#dbeafe;color:#1d4ed8}
+
+/* OPTIMAL BUTTON */
+.opt-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:linear-gradient(135deg,#d97706,#b45309);color:#fff;border:none;border-radius:9px;cursor:pointer;font-size:.88rem;font-weight:700;box-shadow:0 2px 8px rgba(180,83,9,.35);transition:all .18s;letter-spacing:.2px}
+.opt-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(180,83,9,.45)}
+.opt-btn:active{transform:translateY(0)}
+.opt-result{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1.5px solid #fcd34d;border-left:4px solid #d97706;border-radius:10px;padding:14px 16px;margin-bottom:14px;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* LINE CHARTS */
+.lcharts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:720px){.lcharts-grid{grid-template-columns:1fr}}
+.lchart-card{background:var(--card);border-radius:12px;padding:16px 18px 12px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.lchart-title{font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.lchart-svg{width:100%;display:block;overflow:visible}
+
+/* ===== TAB NAVIGATION ===== */
+.tab-nav{background:#fff;border-bottom:2px solid var(--border);padding:0 24px;display:flex;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.tab-btn{padding:14px 22px;border:none;background:none;cursor:pointer;font-size:.88rem;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab-btn:hover{color:var(--secondary);background:#f8fafc}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--secondary);background:#f0f6ff}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ===== CALCULADORA NÓMINA ===== */
+.nom-layout{display:grid;grid-template-columns:340px 1fr;gap:18px;max-width:1420px;margin:20px auto;padding:0 16px}
+@media(max-width:900px){.nom-layout{grid-template-columns:1fr}}
+.nom-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.nom-summary{grid-template-columns:repeat(2,1fr)}}
+.nom-metric{background:var(--card);border-radius:10px;padding:14px 12px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.nom-metric.hero{background:var(--primary);color:#fff}
+.nom-metric .nm-label{font-size:.70rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:5px}
+.nom-metric.hero .nm-label{color:rgba(255,255,255,.7)}
+.nom-metric .nm-val{font-size:1.32rem;font-weight:800;color:var(--primary)}
+.nom-metric.hero .nm-val{color:#fff}
+.nom-metric .nm-sub{font-size:.72rem;color:var(--muted);margin-top:3px}
+.nom-metric.hero .nm-sub{color:rgba(255,255,255,.65)}
+.nom-t{width:100%;border-collapse:collapse;font-size:.83rem;margin-bottom:4px}
+.nom-t tr{border-bottom:1px solid #f1f5f9}
+.nom-t tr:last-child{border-bottom:none}
+.nom-t td{padding:5px 8px}
+.nom-t td:last-child{text-align:right;font-weight:600}
+.nom-t tr.subtotal td{border-top:1.5px solid var(--border);padding-top:9px;font-weight:700;font-size:.88rem}
+.nom-t tr.section-hd td{background:#f1f5f9;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:5px 8px;font-weight:600}
+.ccaa-t{width:100%;border-collapse:collapse;font-size:.81rem}
+.ccaa-t th{background:var(--primary);color:#fff;padding:8px 10px;text-align:left;white-space:nowrap}
+.ccaa-t th:not(:first-child){text-align:right}
+.ccaa-t td{padding:6px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap}
+.ccaa-t td:not(:first-child){text-align:right}
+.ccaa-t tr.current-row td{background:#eff6ff;font-weight:700}
+.ccaa-t tr:hover td{background:#f8fafc}
+.ccaa-t .best-ccaa{color:var(--success);font-weight:800}
+.ccaa-t .worst-ccaa{color:var(--danger)}
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;padding:10px 0}
+.donut-legend{display:flex;flex-direction:column;gap:9px;min-width:160px}
+.donut-leg-item{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--text)}
+.donut-leg-dot{width:13px;height:13px;border-radius:4px;flex-shrink:0}
+.donut-leg-pct{font-weight:800;color:var(--primary);margin-left:auto;min-width:40px;text-align:right}
+.donut-leg-sub{font-size:.76rem;color:var(--muted);padding-left:20px;margin-top:-5px}
+.nom-dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:700px){.nom-dual-grid{grid-template-columns:1fr}}
+.concierto-note{background:#fef9c3;border:1px solid #fcd34d;border-left:3px solid #d97706;border-radius:8px;padding:10px 14px;font-size:.79rem;color:#78350f;margin-bottom:12px}
+
+/* ===== AUTÓNOMO SOCIETARIO ===== */
+.as-layout{display:grid;grid-template-columns:310px 1fr;gap:18px;max-width:1420px;margin:20px auto;padding:0 16px}
+@media(max-width:900px){.as-layout{grid-template-columns:1fr}}
+.as-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:640px){.as-compare{grid-template-columns:1fr}}
+.as-col{border-radius:12px;padding:18px 20px;box-shadow:0 2px 10px rgba(0,0,0,.09)}
+.as-col-emp{background:linear-gradient(135deg,#eff6ff,#f5f9ff);border:2px solid #93c5fd}
+.as-col-soc{background:linear-gradient(135deg,#f0fdf4,#f5fef7);border:2px solid #86efac}
+.as-col-title{font-size:.9rem;font-weight:800;margin-bottom:12px;padding-bottom:9px;border-bottom:2px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:6px}
+.as-col-emp .as-col-title{color:#1d4ed8}
+.as-col-soc .as-col-title{color:#15803d}
+.as-mh{text-align:center;padding:12px;border-radius:10px;margin-bottom:12px}
+.as-col-emp .as-mh{background:#1d4ed8;color:#fff}
+.as-col-soc .as-mh{background:#15803d;color:#fff}
+.as-mh-label{font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;opacity:.82;margin-bottom:3px}
+.as-mh-val{font-size:1.55rem;font-weight:900;letter-spacing:-.5px}
+.as-mh-sub{font-size:.72rem;opacity:.75;margin-top:3px}
+.as-t{width:100%;border-collapse:collapse;font-size:.82rem}
+.as-t tr{border-bottom:1px solid rgba(0,0,0,.06)}
+.as-t tr:last-child{border-bottom:none}
+.as-t td{padding:5px 7px}
+.as-t td:last-child{text-align:right;font-weight:600}
+.as-t tr.as-sec td{background:rgba(0,0,0,.04);font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:4px 7px}
+.as-t tr.as-tot td{border-top:1.5px solid rgba(0,0,0,.18);padding-top:8px;font-weight:700;font-size:.87rem}
+.as-verdict{border-radius:12px;padding:16px 18px;margin-bottom:14px;font-size:.84rem;line-height:1.7}
+.as-verdict h3{font-size:.9rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.as-verdict-emp{background:linear-gradient(135deg,#eff6ff,#f8faff);border:2px solid #93c5fd;border-left:5px solid #1d4ed8}
+.as-verdict-emp h3{color:#1d4ed8}
+.as-verdict-soc{background:linear-gradient(135deg,#f0fdf4,#f7fef9);border:2px solid #86efac;border-left:5px solid #15803d}
+.as-verdict-soc h3{color:#15803d}
+.as-verdict-tie{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:2px solid #fcd34d;border-left:5px solid #d97706}
+.as-verdict-tie h3{color:#b45309}
+.as-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:10px;font-size:.76rem;font-weight:700}
+.as-pill-b{background:#dbeafe;color:#1d4ed8}
+.as-pill-g{background:#dcfce7;color:#15803d}
+.as-pill-r{background:#fee2e2;color:#b91c1c}
+.as-pill-y{background:#fef9c3;color:#92400e}
+.as-summary-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:640px){.as-summary-strip{grid-template-columns:1fr 1fr}}
+.as-kpi{background:var(--card);border-radius:10px;padding:12px 14px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.as-kpi .ak-label{font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:4px}
+.as-kpi .ak-val{font-size:1.1rem;font-weight:800;color:var(--primary)}
+.as-kpi .ak-sub{font-size:.71rem;color:var(--muted);margin-top:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚖️ Simulador: Nómina vs Dividendos</h1>
+  <p>Socio-Administrador residente fiscal en España · Ejercicio 2026 · Solo orientativo</p>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('tab-sim',this)">⚖️ Simulador Nómina / Dividendos</button>
+  <button class="tab-btn" onclick="switchTab('tab-nom',this)">🧮 Calculadora de Nómina IRPF</button>
+  <button class="tab-btn" onclick="switchTab('tab-as',this)">👔 Autónomo Societario</button>
+</nav>
+
+<div id="tab-sim" class="tab-pane active">
+<div class="layout">
+
+  <!-- ==================== PANEL IZQUIERDO: INPUTS ==================== -->
+  <aside>
+
+    <div class="card">
+      <div class="card-title">🏢 Empresa</div>
+
+      <div class="fg">
+        <label>Beneficio antes de IS y nómina del socio (€)</label>
+        <input type="number" id="BAIT" value="150000" min="0" step="1000">
+        <small>Base sobre la que se simula. Incluye el coste total de la retribución.</small>
+      </div>
+
+      <div class="fg">
+        <label>Tipo Impuesto de Sociedades</label>
+        <div class="radio-row">
+          <input type="radio" name="IS" id="is15" value="0.15"><label for="is15">15 % Startup</label>
+          <input type="radio" name="IS" id="is23" value="0.23" checked><label for="is23">23 % PYME</label>
+          <input type="radio" name="IS" id="is25" value="0.25"><label for="is25">25 % General</label>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>% del beneficio neto que se reparte como dividendo</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="ratio_slider" min="0" max="100" value="100" style="flex:1">
+          <span id="ratio_val" style="min-width:38px;font-weight:800;color:var(--primary)">100%</span>
+        </div>
+        <small>El resto queda como reservas en la sociedad (no tributa aún).</small>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👤 Socio-Administrador</div>
+
+      <div class="fg">
+        <label>Otros ingresos en base general IRPF del socio (€)</label>
+        <input type="number" id="otros" value="0" min="0" step="500">
+        <small>Rentas, otros empleos, actividades distintas a esta sociedad, etc.</small>
+      </div>
+
+      <div class="fg">
+        <label>Base de cotización SS mensual (€)</label>
+        <input type="number" id="base_SS" value="1000" min="1000" max="4909" step="100">
+        <small>Mín. 1.000 €/mes en 2026. Cuota aproximada: 315 €/mes (31,5 %).</small>
+      </div>
+
+      <div class="fg">
+        <label>Comunidad Autónoma (ajuste IRPF base general)</label>
+        <select id="ccaa">
+          <option value="1.00">Media nacional (referencia)</option>
+          <option value="0.90">Madrid (tipos autonómicos reducidos)</option>
+          <option value="1.04">Cataluña</option>
+          <option value="1.06">Extremadura / Andalucía (tramos altos)</option>
+        </select>
+        <small>Ajuste aproximado. Los tipos exactos varían por renta y CCAA.</small>
+      </div>
+
+      <div class="fg">
+        <label>Nómina mínima de referencia del socio (€/año)</label>
+        <input type="number" id="min_nomina" value="25000" min="0" step="1000">
+        <small>Se muestra como línea de referencia en los gráficos y limita la búsqueda del óptimo. Ajuste según el salario de mercado de su rol.</small>
+      </div>
+
+      <div class="fg">
+        <label>Mínimo personal y familiar (€)</label>
+        <select id="min_personal">
+          <option value="5550">5.550 € — soltero/a sin cargas</option>
+          <option value="6700">6.700 € — mayor de 65 años</option>
+          <option value="7550">7.550 € — cónyuge a cargo</option>
+          <option value="9200">9.200 € — 2 hijos menores a cargo</option>
+          <option value="11000">11.000 € — 3 o más hijos a cargo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>Nota metodológica:</strong> Tipos IRPF estimados (base general: tarifa media nacional; base ahorro: tarifa estatal). IS 2026. SS autónomo societario ~31,5% sobre base elegida. No incluye mínimos exentos por Comunidad, reducciones adicionales ni situaciones especiales (PVA, deducción doble imposición, etc.). Consulte siempre a su asesor fiscal.
+    </div>
+
+  </aside>
+
+  <!-- ==================== PANEL DERECHO: RESULTADOS ==================== -->
+  <main>
+
+    <!-- Slider principal -->
+    <div class="card slider-card">
+      <div class="card-title">⚖️ Distribución de la retribución del socio</div>
+      <div class="slider-values">
+        <div class="sv-block">
+          <div class="sv-amount" id="nom_display">—</div>
+          <div class="sv-label">Nómina bruta anual</div>
+        </div>
+        <div class="vs-pill">VS</div>
+        <div class="sv-block">
+          <div class="sv-amount" id="div_display">—</div>
+          <div class="sv-label">Dividendo disponible</div>
+        </div>
+      </div>
+      <input type="range" id="nom_slider" min="0" max="150000" value="60000" step="500">
+      <div class="slider-ends">
+        <span>← 0 € nómina (solo dividendos)</span>
+        <span>Nómina = 100% beneficio →</span>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="setNomina(0)" style="padding:5px 12px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:.78rem;background:#f8fafc;font-weight:600">Solo dividendos</button>
+        <button onclick="setNominaRatio(0.15)" style="padding:5px 12px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:.78rem;background:#f8fafc;font-weight:600">Nómina mínima (15%)</button>
+        <button onclick="setNominaRatio(0.45)" style="padding:5px 12px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:.78rem;background:#f8fafc;font-weight:600">Mixto (45%)</button>
+        <button onclick="setNominaRatio(0.80)" style="padding:5px 12px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:.78rem;background:#f8fafc;font-weight:600">Nómina alta (80%)</button>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #dbeafe">
+        <button class="opt-btn" onclick="applyOptimal()">
+          ⭐ Calcular distribución óptima (máx. neto)
+        </button>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Escanea 2.000 puntos y anima el slider hasta el máximo neto fiscal posible.</div>
+      </div>
+    </div>
+
+    <!-- Resultado óptimo -->
+    <div id="opt_result" class="opt-result" style="display:none"></div>
+
+    <!-- Gráficos de curva -->
+    <div class="lcharts-grid">
+      <div class="lchart-card">
+        <div class="lchart-title">💚 Neto recibido por el socio (€)</div>
+        <div id="lchart_neto"></div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:4px">
+          <span style="display:inline-block;width:10px;height:10px;background:#22c55e;border-radius:2px;margin-right:4px;vertical-align:middle"></span>Curva neto ·
+          <span style="color:#d97706;font-weight:700">⬤ Óptimo</span> ·
+          <span style="color:#22c55e;font-weight:700">⬤ Actual</span>
+        </div>
+      </div>
+      <div class="lchart-card">
+        <div class="lchart-title">🔴 Carga fiscal total (€)</div>
+        <div id="lchart_carga"></div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:4px">
+          <span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px;vertical-align:middle"></span>IS + IRPF + SS ·
+          <span style="color:#d97706;font-weight:700">⬤ Mínimo</span> ·
+          <span style="color:#ef4444;font-weight:700">⬤ Actual</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico % carga fiscal vs neto -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">📊 % sobre beneficio bruto: Neto del socio vs Carga fiscal</div>
+      <div id="lchart_pct"></div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;font-size:.75rem;color:var(--muted)">
+        <span><span style="display:inline-block;width:20px;height:3px;background:#22c55e;vertical-align:middle;border-radius:2px;margin-right:4px"></span>% Neto socio / Beneficio</span>
+        <span><span style="display:inline-block;width:20px;height:3px;background:#ef4444;vertical-align:middle;border-radius:2px;margin-right:4px"></span>% Carga fiscal (IS+IRPF+SS) / Beneficio</span>
+        <span><span style="display:inline-block;width:20px;height:3px;background:#94a3b8;vertical-align:middle;border-radius:2px;margin-right:4px;border-top:2px dashed #94a3b8"></span>% Reservas en sociedad</span>
+        <span style="color:#d97706;font-weight:700">⬤ Óptimo (máx. neto%)</span>
+        <span style="color:#64748b;font-weight:700">│ Posición actual</span>
+      </div>
+    </div>
+
+    <!-- Métricas clave -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="m-label">IS pagado</div>
+        <div class="m-val" id="m_IS">—</div>
+        <div class="m-sub">Impuesto de Sociedades</div>
+      </div>
+      <div class="metric">
+        <div class="m-label">Carga fiscal total</div>
+        <div class="m-val" id="m_carga">—</div>
+        <div class="m-sub">IS + IRPF + SS socio</div>
+      </div>
+      <div class="metric hero">
+        <div class="m-label">Neto del socio</div>
+        <div class="m-val" id="m_neto">—</div>
+        <div class="m-sub" id="m_eff_sub">Eficiencia: —%</div>
+      </div>
+    </div>
+
+    <!-- Desglose -->
+    <div class="breakdown-grid">
+      <div class="bd-card">
+        <div class="bd-title">🏢 Sociedad</div>
+        <div class="bd-row"><span class="bd-lbl">Beneficio antes de nómina</span><span class="neu" id="bd_BAIT">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">(−) Nómina bruta socio</span><span class="neg" id="bd_nom">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">Base imponible IS</span><span id="bd_baseIS">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">(−) Impuesto de Sociedades</span><span class="neg" id="bd_IS">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">Beneficio neto</span><span id="bd_bNeto">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">(−) Reservas (no repartidas)</span><span class="neg" id="bd_reservas">—</span></div>
+        <div class="bd-row subtotal"><span>Dividendo bruto repartido</span><span class="pos" id="bd_div">—</span></div>
+      </div>
+      <div class="bd-card">
+        <div class="bd-title">👤 Socio</div>
+        <div class="bd-row"><span class="bd-lbl">Nómina bruta recibida</span><span class="neu" id="bd2_nom">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">(−) SS autónomo societario</span><span class="neg" id="bd2_SS">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">(−) IRPF sobre nómina</span><span class="neg" id="bd2_irpf_nom">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">Dividendo bruto recibido</span><span class="neu" id="bd2_div">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">(−) IRPF sobre dividendos</span><span class="neg" id="bd2_irpf_div">—</span></div>
+        <div class="bd-row"><span class="bd-lbl">Tipo marginal base general</span><span id="bd2_marginal">—</span></div>
+        <div class="bd-row subtotal"><span>Neto total socio</span><span class="pos" id="bd2_neto">—</span></div>
+      </div>
+    </div>
+
+    <!-- Eficiencia -->
+    <div class="card eff-card">
+      <div class="card-title">📊 Eficiencia fiscal del escenario actual</div>
+      <div class="eff-header">
+        <div>
+          <div class="eff-pct" id="eff_pct">—%</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:2px">del beneficio bruto llega como neto al socio</div>
+        </div>
+        <div class="eff-desc" id="eff_desc">Ajusta los parámetros para ver el análisis.</div>
+      </div>
+      <div class="eff-bar"><div class="eff-fill" id="eff_fill" style="width:0%"></div></div>
+      <div class="eff-scale"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+    </div>
+
+    <!-- Recomendación -->
+    <div class="reco" id="reco">
+      <h3>💡 Análisis del escenario</h3>
+      <p id="reco_text">Ajusta los parámetros para ver el análisis personalizado.</p>
+    </div>
+
+    <!-- Tabla comparativa -->
+    <div class="card">
+      <div class="card-title">📋 Comparativa de escenarios</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th>Solo dividendos<br><small style="font-weight:400;opacity:.8">Nómina = 0</small></th>
+              <th>Nómina mínima<br><small style="font-weight:400;opacity:.8">15% beneficio</small></th>
+              <th>Mixto<br><small style="font-weight:400;opacity:.8">45% beneficio</small></th>
+              <th>Nómina alta<br><small style="font-weight:400;opacity:.8">80% beneficio</small></th>
+              <th style="background:#1e4d8c">Tu escenario<br><small style="font-weight:400;opacity:.8">slider actual</small></th>
+            </tr>
+          </thead>
+          <tbody id="tabla_body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="card">
+      <div class="card-title">📈 Desglose fiscal visual (del beneficio bruto)</div>
+      <div class="chart-wrap" id="chart_wrap"></div>
+      <div class="chart-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--IS-color)"></div>IS (Impuesto Sociedades)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--SS-color)"></div>SS autónomo</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--IRPF-color)"></div>IRPF nómina</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--DIV-color)"></div>IRPF dividendos</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--RES-color)"></div>Reservas (no repartidas)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--NET-color)"></div>Neto socio</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div><!-- /tab-sim -->
+
+<!-- ==================== CALCULADORA DE NÓMINA IRPF ==================== -->
+<div id="tab-nom" class="tab-pane">
+  <div class="nom-layout">
+
+    <!-- ===== PANEL IZQUIERDO: INPUTS ===== -->
+    <aside>
+      <div class="card">
+        <div class="card-title">💼 Datos del Trabajador</div>
+
+        <div class="fg">
+          <label>Salario bruto anual (€)</label>
+          <input type="number" id="nom_bruto" value="35000" min="0" step="500" oninput="updateCalculadora()">
+          <small>Total anual incluyendo pagas extraordinarias.</small>
+        </div>
+
+        <div class="fg">
+          <label>Comunidad Autónoma de residencia fiscal</label>
+          <select id="nom_ccaa" onchange="updateCalculadora()">
+            <option value="and">Andalucía</option>
+            <option value="ara">Aragón</option>
+            <option value="ast">Asturias</option>
+            <option value="bal">Baleares</option>
+            <option value="can">Canarias</option>
+            <option value="ctb">Cantabria</option>
+            <option value="clm">Castilla-La Mancha</option>
+            <option value="cyl">Castilla y León</option>
+            <option value="cat">Cataluña</option>
+            <option value="ext">Extremadura</option>
+            <option value="gal">Galicia</option>
+            <option value="mad" selected>Madrid</option>
+            <option value="mur">Murcia</option>
+            <option value="nav">Navarra ★</option>
+            <option value="pvs">País Vasco ★</option>
+            <option value="rio">La Rioja</option>
+            <option value="val">C. Valenciana</option>
+            <option value="ceu">Ceuta ★★</option>
+            <option value="mel">Melilla ★★</option>
+          </select>
+          <small>★ Régimen foral (tarifa íntegra aprox.). ★★ Bonificación 60% sobre cuota.</small>
+        </div>
+
+        <div class="fg">
+          <label>Número de pagas anuales</label>
+          <div class="radio-row">
+            <input type="radio" name="nom_pagas" id="nom_p12" value="12" onchange="updateCalculadora()"><label for="nom_p12">12 pagas</label>
+            <input type="radio" name="nom_pagas" id="nom_p14" value="14" checked onchange="updateCalculadora()"><label for="nom_p14">14 pagas</label>
+          </div>
+          <small>14 pagas = 12 ordinarias + 2 pagas extra (junio / diciembre).</small>
+        </div>
+
+        <div class="fg">
+          <label>Hijos menores de 25 años a cargo</label>
+          <select id="nom_hijos" onchange="updateCalculadora()">
+            <option value="0">Sin hijos</option>
+            <option value="1">1 hijo — +2.400 €</option>
+            <option value="2">2 hijos — +5.100 €</option>
+            <option value="3">3 hijos — +9.100 €</option>
+            <option value="4">4 o más hijos — +13.600 €</option>
+          </select>
+          <small>Incrementa el mínimo personal y familiar aplicable.</small>
+        </div>
+
+        <div class="fg">
+          <label>Edad del contribuyente</label>
+          <div class="radio-row">
+            <input type="radio" name="nom_edad" id="nom_e1" value="0" checked onchange="updateCalculadora()"><label for="nom_e1">&lt; 65 años</label>
+            <input type="radio" name="nom_edad" id="nom_e2" value="1150" onchange="updateCalculadora()"><label for="nom_e2">≥ 65 años</label>
+            <input type="radio" name="nom_edad" id="nom_e3" value="2550" onchange="updateCalculadora()"><label for="nom_e3">≥ 75 años</label>
+          </div>
+          <small>+1.150 € (≥65) o +2.550 € total adicional (≥75) sobre mínimo.</small>
+        </div>
+
+        <div class="fg">
+          <label>Discapacidad reconocida</label>
+          <select id="nom_discap" onchange="updateCalculadora()">
+            <option value="0">Sin discapacidad</option>
+            <option value="3000">33%–65%: +3.000 €/año al mínimo</option>
+            <option value="9000">≥65% o con asistencia: +9.000 €/año</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>Movilidad geográfica</label>
+          <div class="radio-row">
+            <input type="radio" name="nom_movil" id="nom_mv0" value="0" checked onchange="updateCalculadora()"><label for="nom_mv0">No aplica</label>
+            <input type="radio" name="nom_movil" id="nom_mv1" value="2000" onchange="updateCalculadora()"><label for="nom_mv1">Sí (+2.000 €)</label>
+          </div>
+          <small>Reducción adicional en gastos deducibles por traslado laboral.</small>
+        </div>
+      </div>
+
+      <div class="warning">
+        <strong>Nota metodológica:</strong> Escala estatal + autonómica 2025/2026 (orientativo). SS empleado: 6,47% sobre base de cotización. No incluye deducciones autonómicas, deducción por maternidad, ni situaciones especiales. Navarra y País Vasco: tarifa foral íntegra aproximada. Consulte siempre a un asesor fiscal colegiado.
+      </div>
+    </aside>
+
+    <!-- ===== PANEL DERECHO: RESULTADOS ===== -->
+    <main>
+
+      <!-- Métricas resumen -->
+      <div class="nom-summary">
+        <div class="nom-metric">
+          <div class="nm-label">Bruto / paga</div>
+          <div class="nm-val" id="nm_bruto_mes">—</div>
+          <div class="nm-sub" id="nm_bruto_sub">14 pagas → ÷14</div>
+        </div>
+        <div class="nom-metric">
+          <div class="nm-label">SS empleado / paga</div>
+          <div class="nm-val" id="nm_ss_mes" style="color:var(--SS-color)">—</div>
+          <div class="nm-sub" id="nm_ss_sub">6,47% base SS · ÷14</div>
+        </div>
+        <div class="nom-metric">
+          <div class="nm-label">IRPF / paga</div>
+          <div class="nm-val" id="nm_irpf_mes" style="color:var(--danger)">—</div>
+          <div class="nm-sub" id="nm_irpf_sub">Retención estimada · ÷14</div>
+        </div>
+        <div class="nom-metric hero">
+          <div class="nm-label">🏆 Neto / paga</div>
+          <div class="nm-val" id="nm_neto_mes">—</div>
+          <div class="nm-sub" id="nm_eff_sub">Tipo efectivo: —</div>
+        </div>
+      </div>
+
+      <!-- Aviso concierto foral -->
+      <div class="concierto-note" id="nom_concierto_note" style="display:none">
+        ★ <strong>Régimen de Concierto Económico:</strong> Navarra y País Vasco tienen su propio IRPF foral, independiente del estatal. El resultado es una <strong>aproximación orientativa</strong> basada en las tarifas forales. Para cálculos exactos, consulte un asesor conocedor del Derecho Foral.
+      </div>
+
+      <!-- Donut + Resumen anual -->
+      <div class="nom-dual-grid">
+        <div class="card">
+          <div class="card-title">🍩 Distribución del salario bruto</div>
+          <div id="nom_donut"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Resumen anual</div>
+          <table class="nom-t" id="nom_resumen_anual"></table>
+        </div>
+      </div>
+
+      <!-- IRPF paso a paso -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">🧮 Cálculo IRPF paso a paso</div>
+        <table class="nom-t" id="nom_irpf_detalle"></table>
+      </div>
+
+      <!-- SS empleado / empresa -->
+      <div class="nom-dual-grid">
+        <div class="card">
+          <div class="card-title">👤 SS Empleado (a cargo del trabajador)</div>
+          <table class="nom-t" id="nom_ss_emp"></table>
+        </div>
+        <div class="card">
+          <div class="card-title">🏢 SS Empresa (coste para el empleador)</div>
+          <table class="nom-t" id="nom_ss_comp"></table>
+        </div>
+      </div>
+
+      <!-- Comparativa CCAA -->
+      <div class="card">
+        <div class="card-title">🗺️ Comparativa IRPF por Comunidad Autónoma — mismo salario bruto</div>
+        <div class="tbl-wrap">
+          <table class="ccaa-t" id="nom_ccaa_table"></table>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /nom-layout -->
+</div><!-- /tab-nom -->
+
+<!-- ==================== AUTÓNOMO SOCIETARIO ==================== -->
+<div id="tab-as" class="tab-pane">
+  <div class="as-layout">
+
+    <!-- ===== INPUTS ===== -->
+    <aside>
+      <div class="card">
+        <div class="card-title">🏢 Empresa</div>
+
+        <div class="fg">
+          <label>Beneficio antes de IS y nómina del socio (BAIT) (€)</label>
+          <input type="number" id="as_bait" value="150000" min="0" step="1000" oninput="updateAS()">
+        </div>
+
+        <div class="fg">
+          <label>Tipo Impuesto de Sociedades</label>
+          <div class="radio-row">
+            <input type="radio" name="as_IS" id="as_is15" value="0.15" onchange="updateAS()"><label for="as_is15">15 % Startup</label>
+            <input type="radio" name="as_IS" id="as_is23" value="0.23" checked onchange="updateAS()"><label for="as_is23">23 % PYME</label>
+            <input type="radio" name="as_IS" id="as_is25" value="0.25" onchange="updateAS()"><label for="as_is25">25 % General</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👤 Socio-Administrador</div>
+
+        <div class="fg">
+          <label>Nómina bruta anual del socio (€)</label>
+          <input type="number" id="as_nomina" value="50000" min="0" step="1000" oninput="updateAS()">
+          <small>Importe acordado; la SS se trata de forma diferente en cada escenario.</small>
+        </div>
+
+        <div class="fg">
+          <label>Base de cotización SS mensual (€/mes)</label>
+          <input type="number" id="as_base_ss" value="1000" min="1000" max="4909" step="100" oninput="updateAS()">
+          <small>Mín. 1.000 €/mes · Máx. 4.909,50 €/mes · Cuota ≈ base × 31,5%.</small>
+        </div>
+
+        <div class="fg">
+          <label>Comunidad Autónoma (IRPF socio)</label>
+          <select id="as_ccaa" onchange="updateAS()">
+            <option value="and">Andalucía</option>
+            <option value="ara">Aragón</option>
+            <option value="ast">Asturias</option>
+            <option value="bal">Baleares</option>
+            <option value="can">Canarias</option>
+            <option value="ctb">Cantabria</option>
+            <option value="clm">Castilla-La Mancha</option>
+            <option value="cyl">Castilla y León</option>
+            <option value="cat">Cataluña</option>
+            <option value="ext">Extremadura</option>
+            <option value="gal">Galicia</option>
+            <option value="mad" selected>Madrid</option>
+            <option value="mur">Murcia</option>
+            <option value="nav">Navarra ★</option>
+            <option value="pvs">País Vasco ★</option>
+            <option value="rio">La Rioja</option>
+            <option value="val">C. Valenciana</option>
+            <option value="ceu">Ceuta ★★</option>
+            <option value="mel">Melilla ★★</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>Otros ingresos base general IRPF (€)</label>
+          <input type="number" id="as_otros" value="0" min="0" step="500" oninput="updateAS()">
+        </div>
+
+        <div class="fg">
+          <label>Mínimo personal y familiar (€)</label>
+          <select id="as_min_personal" onchange="updateAS()">
+            <option value="5550">5.550 € — soltero/a sin cargas</option>
+            <option value="6700">6.700 € — ≥ 65 años</option>
+            <option value="7550">7.550 € — cónyuge a cargo</option>
+            <option value="9200">9.200 € — 2 hijos menores</option>
+            <option value="11000">11.000 € — 3 o más hijos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="warning">
+        <strong>¿Cuál es la diferencia?</strong><br>
+        <strong>Empresa paga SS →</strong> gasto deducible de IS · el socio no deduce SS en IRPF (no la pagó).<br>
+        <strong>Socio paga SS →</strong> no es gasto de IS · el socio la deduce del rendimiento del trabajo en IRPF.<br>
+        El neto en mano del socio es distinto en cada caso. La eficiencia fiscal total también.
+      </div>
+    </aside>
+
+    <!-- ===== RESULTADOS ===== -->
+    <main>
+
+      <!-- KPIs comunes -->
+      <div class="as-summary-strip">
+        <div class="as-kpi">
+          <div class="ak-label">Cuota SS anual</div>
+          <div class="ak-val" id="as_ss_anual">—</div>
+          <div class="ak-sub" id="as_ss_mes_lbl">— €/mes</div>
+        </div>
+        <div class="as-kpi">
+          <div class="ak-label">Diferencia neto socio</div>
+          <div class="ak-val" id="as_delta_neto">—</div>
+          <div class="ak-sub">A favor del escenario ganador</div>
+        </div>
+        <div class="as-kpi">
+          <div class="ak-label">Diferencia carga fiscal</div>
+          <div class="ak-val" id="as_delta_carga">—</div>
+          <div class="ak-sub">IS + SS + IRPF combinado</div>
+        </div>
+      </div>
+
+      <!-- Comparativa de columnas -->
+      <div class="as-compare">
+        <!-- Columna A: Empresa paga -->
+        <div class="as-col as-col-emp">
+          <div class="as-col-title">🏢 SS en cuenta de la empresa<br><small style="font-weight:500;font-size:.75rem;opacity:.8">Retribución en especie · DGT V0067-19</small></div>
+          <div class="as-mh">
+            <div class="as-mh-label">💰 Neto en mano del socio</div>
+            <div class="as-mh-val" id="as_neto_emp">—</div>
+            <div class="as-mh-sub" id="as_eff_emp">Eficiencia BAIT: —</div>
+          </div>
+          <table class="as-t" id="as_t_emp"></table>
+        </div>
+
+        <!-- Columna B: Socio paga -->
+        <div class="as-col as-col-soc">
+          <div class="as-col-title">👤 SS en cuenta personal del socio<br><small style="font-weight:500;font-size:.75rem;opacity:.8">Gasto deducible en su IRPF · opción más limpia</small></div>
+          <div class="as-mh">
+            <div class="as-mh-label">💰 Neto en mano del socio</div>
+            <div class="as-mh-val" id="as_neto_soc">—</div>
+            <div class="as-mh-sub" id="as_eff_soc">Eficiencia BAIT: —</div>
+          </div>
+          <table class="as-t" id="as_t_soc"></table>
+        </div>
+      </div>
+
+      <!-- Veredicto -->
+      <div class="as-verdict" id="as_verdict">
+        <h3>⏳ Introduce los datos para ver el análisis</h3>
+      </div>
+
+      <!-- Gráfico de barras comparativo -->
+      <div class="card">
+        <div class="card-title">📊 Distribución del BAIT — comparativa visual</div>
+        <div class="chart-wrap" id="as_chart" style="height:200px"></div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--IS-color)"></div>IS</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--SS-color)"></div>SS autónomo</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--IRPF-color)"></div>IRPF socio</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--NET-color)"></div>Neto socio (nómina)</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--RES-color)"></div>Reservas empresa (tras IS)</div>
+        </div>
+      </div>
+
+      <!-- Tabla comparativa detallada -->
+      <div class="card">
+        <div class="card-title">📋 Tabla comparativa completa</div>
+        <div class="tbl-wrap">
+          <table id="as_tabla_full" style="width:100%;border-collapse:collapse;font-size:.83rem">
+            <thead>
+              <tr>
+                <th style="background:var(--primary);color:#fff;padding:10px 12px;text-align:left">Concepto</th>
+                <th style="background:#1d4ed8;color:#fff;padding:10px 12px;text-align:center">💼 Empresa paga SS</th>
+                <th style="background:#15803d;color:#fff;padding:10px 12px;text-align:center">👤 Socio paga SS</th>
+                <th style="background:#374151;color:#fff;padding:10px 12px;text-align:center">Diferencia (A−B)</th>
+              </tr>
+            </thead>
+            <tbody id="as_tabla_body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /as-layout -->
+</div><!-- /tab-as -->
+
+<footer>
+  <strong>Aviso legal:</strong> Herramienta orientativa. No constituye asesoramiento fiscal, jurídico ni financiero. Los tipos y tramos pueden variar según CCAA, situación personal y normativa vigente en cada ejercicio. Consulte siempre a un asesor fiscal colegiado antes de tomar decisiones. · España 2026
+</footer>
+
+<script>
+// ===================================================================
+//  TABLAS FISCALES 2026 (aproximadas)
+// ===================================================================
+
+// IRPF Base General — tarifa media nacional (estatal + autonómica)
+const T_GENERAL = [
+  {h:12450,  t:.19},
+  {h:20200,  t:.24},
+  {h:35200,  t:.30},
+  {h:60000,  t:.37},
+  {h:300000, t:.45},
+  {h:Infinity,t:.47}
+];
+
+// IRPF Base del Ahorro 2026
+const T_AHORRO = [
+  {h:6000,   t:.19},
+  {h:50000,  t:.21},
+  {h:200000, t:.23},
+  {h:300000, t:.27},
+  {h:Infinity,t:.30}
+];
+
+const SS_RATE = 0.315; // tasa aprox. autónomo societario 2026
+
+// ===================================================================
+//  CÁLCULO DEL IMPUESTO PROGRESIVO
+// ===================================================================
+function calcImp(base, tramos, factor = 1) {
+  if (base <= 0) return 0;
+  let imp = 0, prev = 0, resto = base;
+  for (const t of tramos) {
+    if (resto <= 0) break;
+    const en = Math.min(resto, t.h - prev);
+    imp += en * t.t * factor;
+    resto -= en;
+    prev = t.h;
+  }
+  return imp;
+}
+
+function tipoMarginal(base, tramos, factor = 1) {
+  let prev = 0;
+  for (const t of tramos) {
+    if (base <= t.h) return t.t * factor;
+    prev = t.h;
+  }
+  return tramos[tramos.length - 1].t * factor;
+}
+
+// Reducción rendimientos del trabajo (simplificada 2025/2026)
+function reduccionTrabajo(rdtoNeto) {
+  if (rdtoNeto <= 0) return 0;
+  if (rdtoNeto <= 14852) return 7302;
+  if (rdtoNeto <= 17673.52) return Math.max(0, 7302 - 1.75 * (rdtoNeto - 14852));
+  return 2364;
+}
+
+// ===================================================================
+//  CÁLCULO PRINCIPAL
+// ===================================================================
+function calcEscenario({BAIT, tipoIS, nomina, otros, baseSS, ratio, minPersonal, ccaa}) {
+  // --- SOCIEDAD ---
+  const baseIS   = Math.max(0, BAIT - nomina);
+  const IS       = baseIS * tipoIS;
+  const bNeto    = baseIS - IS;
+  const div_bruto= bNeto * ratio;
+  const reservas = bNeto * (1 - ratio);
+
+  // --- SOCIO: SS ---
+  const SS = baseSS * 12 * SS_RATE;
+
+  // --- SOCIO: IRPF nómina ---
+  // Rendimiento neto trabajo = nómina − SS − gastos deducibles trabajo (2.000 € flat)
+  const gastosT   = Math.min(2000, nomina * 0.05 + 2000); // simplificado
+  const rdtoNeto  = Math.max(0, nomina - SS - 2000);
+  const redT      = reduccionTrabajo(rdtoNeto);
+  const baseGNom  = Math.max(0, rdtoNeto - redT);
+
+  // Base liquidable general total (con otros ingresos)
+  const baseLiqTot  = Math.max(0, otros + baseGNom - minPersonal);
+  const baseLiqOtros= Math.max(0, otros - minPersonal);
+
+  const irpfTot   = calcImp(baseLiqTot,   T_GENERAL, ccaa);
+  const irpfOtros = calcImp(baseLiqOtros, T_GENERAL, ccaa);
+  const irpfNom   = Math.max(0, irpfTot - irpfOtros);
+
+  // --- SOCIO: IRPF dividendos ---
+  const irpfDiv   = calcImp(div_bruto, T_AHORRO);
+
+  // --- NETOS ---
+  const netoNom   = Math.max(0, nomina - SS - irpfNom);
+  const netoDiv   = Math.max(0, div_bruto - irpfDiv);
+  const netoTotal = netoNom + netoDiv;
+
+  // --- RESUMEN ---
+  const cargaTot  = IS + SS + irpfNom + irpfDiv;
+  const eficiencia= BAIT > 0 ? netoTotal / BAIT * 100 : 0;
+  const marginal  = tipoMarginal(baseLiqTot, T_GENERAL, ccaa);
+
+  return {
+    // Sociedad
+    baseIS, IS, bNeto, div_bruto, reservas,
+    // SS
+    SS,
+    // IRPF
+    irpfNom, irpfDiv,
+    // Netos
+    netoNom, netoDiv, netoTotal,
+    // Resumen
+    cargaTot, eficiencia, marginal,
+    nomina, ratio
+  };
+}
+
+// ===================================================================
+//  FORMATO
+// ===================================================================
+const EUR = n => (isNaN(n)||n===undefined) ? '—'
+  : n.toLocaleString('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+
+const PCT = n => (isNaN(n)||n===undefined) ? '—' : n.toFixed(1) + '%';
+
+// ===================================================================
+//  LEER INPUTS
+// ===================================================================
+function getParams() {
+  const BAIT       = +document.getElementById('BAIT').value || 0;
+  const tipoIS     = +document.querySelector('input[name=IS]:checked').value;
+  const nomina     = Math.min(+document.getElementById('nom_slider').value || 0, BAIT);
+  const otros      = +document.getElementById('otros').value || 0;
+  const baseSS     = +document.getElementById('base_SS').value || 1000;
+  const ratio      = +document.getElementById('ratio_slider').value / 100;
+  const minPersonal= +document.getElementById('min_personal').value || 5550;
+  const ccaa       = +document.getElementById('ccaa').value || 1;
+  const minNomina  = +document.getElementById('min_nomina').value || 0;
+  return {BAIT, tipoIS, nomina, otros, baseSS, ratio, minPersonal, ccaa, minNomina};
+}
+
+// ===================================================================
+//  ACTUALIZAR UI
+// ===================================================================
+function update() {
+  const p = getParams();
+  const r = calcEscenario(p);
+
+  // Slider labels
+  document.getElementById('nom_display').textContent = EUR(p.nomina);
+  document.getElementById('div_display').textContent = EUR(r.div_bruto);
+
+  // Métricas
+  document.getElementById('m_IS').textContent    = EUR(r.IS);
+  document.getElementById('m_carga').textContent = EUR(r.cargaTot);
+  document.getElementById('m_neto').textContent  = EUR(r.netoTotal);
+  document.getElementById('m_eff_sub').textContent= 'Eficiencia: ' + PCT(r.eficiencia);
+
+  // Desglose sociedad
+  document.getElementById('bd_BAIT').textContent    = EUR(p.BAIT);
+  document.getElementById('bd_nom').textContent     = EUR(p.nomina);
+  document.getElementById('bd_baseIS').textContent  = EUR(r.baseIS);
+  document.getElementById('bd_IS').textContent      = EUR(r.IS);
+  document.getElementById('bd_bNeto').textContent   = EUR(r.bNeto);
+  document.getElementById('bd_reservas').textContent= EUR(r.reservas);
+  document.getElementById('bd_div').textContent     = EUR(r.div_bruto);
+
+  // Desglose socio
+  document.getElementById('bd2_nom').textContent     = EUR(p.nomina);
+  document.getElementById('bd2_SS').textContent      = EUR(r.SS);
+  document.getElementById('bd2_irpf_nom').textContent= EUR(r.irpfNom);
+  document.getElementById('bd2_div').textContent     = EUR(r.div_bruto);
+  document.getElementById('bd2_irpf_div').textContent= EUR(r.irpfDiv);
+  document.getElementById('bd2_neto').textContent    = EUR(r.netoTotal);
+
+  // Tipo marginal badge
+  const mg = r.marginal;
+  const mgCls = mg <= 0.30 ? 'mb-low' : mg <= 0.40 ? 'mb-mid' : 'mb-high';
+  document.getElementById('bd2_marginal').innerHTML =
+    `<span class="marginal-badge ${mgCls}">${PCT(mg * 100)}</span>`;
+
+  // Eficiencia
+  document.getElementById('eff_pct').textContent = PCT(r.eficiencia);
+  document.getElementById('eff_fill').style.width = Math.min(100, r.eficiencia) + '%';
+  document.getElementById('eff_desc').textContent =
+    r.eficiencia >= 60 ? 'Escenario eficiente' :
+    r.eficiencia >= 45 ? 'Eficiencia moderada' : 'Escenario con alta carga fiscal';
+
+  // Recomendación
+  renderReco(p, r);
+
+  // Tabla
+  renderTabla(p);
+
+  // Gráfico de barras (comparativa escenarios)
+  renderChart(p);
+
+  // Gráficos de curva (neto y carga en función de la nómina)
+  renderLineCharts(p);
+}
+
+// ===================================================================
+//  RECOMENDACIÓN
+// ===================================================================
+function renderReco(p, r) {
+  const { BAIT, nomina, baseSS } = p;
+  const { eficiencia, marginal, IS, SS, irpfNom, irpfDiv, div_bruto, netoTotal } = r;
+  const ratioNom = BAIT > 0 ? nomina / BAIT : 0;
+  let msg = '';
+
+  if (nomina === 0) {
+    msg = `Con nómina 0 € el socio extrae todo vía dividendos. La sociedad paga ${EUR(IS)} de IS. Los dividendos tributan en la base del ahorro (19–30%). `;
+    msg += 'Este esquema es válido para socios capitalistas sin actividad real, pero si el socio trabaja en la empresa, la AEAT puede considerar que debería percibir retribución por su trabajo. ';
+    msg += 'Riesgo de inspección elevado si la actividad de la empresa depende del socio.';
+  } else if (ratioNom > 0.75) {
+    msg = `Nómina muy alta (${PCT(ratioNom * 100)} del beneficio). Tipo marginal en base general: ${PCT(marginal * 100)}. `;
+    if (marginal > 0.37) {
+      msg += `Con este marginal tan alto, desplazar parte de la retribución a dividendos (que tributan al ${PCT(calcImp(div_bruto, T_AHORRO) / (div_bruto || 1) * 100)} efectivo en el ahorro) podría mejorar significativamente la eficiencia. `;
+    }
+    msg += 'La nómina sí genera gasto deducible en IS y mantiene plena cobertura social, lo que justifica mantenerla a un nivel razonable de mercado.';
+  } else if (ratioNom < 0.20 && BAIT > 30000) {
+    msg = `Nómina baja y dividendos protagonistas. Eficiencia fiscal: ${PCT(eficiencia)}. `;
+    msg += `El tipo efectivo sobre dividendos es ${PCT(irpfDiv / (div_bruto || 1) * 100)}, frente al marginal del ${PCT(marginal * 100)} en base general. `;
+    msg += 'Importante: mantener al menos una nómina acorde al mercado para el rol real protege ante inspecciones y garantiza cotización básica (IT, jubilación). ';
+    if (baseSS === 1000) msg += 'Con base mínima (1.000 €/mes) la pensión futura será reducida; valore complementar con ahorro privado.';
+  } else {
+    msg = `Distribución mixta. Tipo marginal base general: ${PCT(marginal * 100)}. Eficiencia fiscal: ${PCT(eficiencia)}. `;
+    if (marginal >= 0.37 && div_bruto > 10000) {
+      msg += 'El marginal alto sugiere que aumentar peso de dividendos mejoraría el neto. ';
+    } else if (marginal <= 0.24) {
+      msg += 'El marginal no es muy elevado aún, por lo que la ventaja de desplazar a dividendos es limitada en este tramo. ';
+    }
+    msg += 'Este perfil equilibrado suele ser el más robusto ante inspecciones de la AEAT.';
+  }
+
+  if (baseSS > 2000) {
+    msg += ` Base SS elevada (${EUR(baseSS)}/mes = ${EUR(r.SS)}/año): coste alto, asegúrese de que la mejora de prestaciones justifica el sobrecoste frente a la base mínima.`;
+  }
+
+  document.getElementById('reco_text').textContent = msg;
+}
+
+// ===================================================================
+//  TABLA COMPARATIVA
+// ===================================================================
+function renderTabla(p) {
+  const {BAIT, tipoIS, otros, baseSS, ratio, minPersonal, ccaa} = p;
+  const escenarios = [
+    {label: 'Solo dividendos', nomina: 0},
+    {label: 'Nómina mínima', nomina: BAIT * 0.15},
+    {label: 'Mixto', nomina: BAIT * 0.45},
+    {label: 'Nómina alta', nomina: BAIT * 0.80},
+    {label: 'Tu escenario', nomina: p.nomina, current: true},
+  ];
+
+  const res = escenarios.map(e =>
+    calcEscenario({BAIT, tipoIS, nomina: Math.min(e.nomina, BAIT), otros, baseSS, ratio, minPersonal, ccaa})
+  );
+
+  const netos   = res.map(r => r.netoTotal);
+  const cargas  = res.map(r => r.cargaTot);
+  const maxNeto = Math.max(...netos);
+  const minCarga= Math.min(...cargas);
+
+  const rows = [
+    {id:'sec1', section: true, label: 'Extracción'},
+    {label:'Nómina bruta',  vals: res.map(r => EUR(r.nomina))},
+    {label:'Dividendo bruto repartido', vals: res.map(r => EUR(r.div_bruto))},
+    {id:'sec2', section: true, label: 'Impuestos y cuotas'},
+    {label:'IS pagado',     vals: res.map(r => EUR(r.IS)),      cmpFn: (v,arr) => v===Math.min(...arr.map(x=>x.IS))},
+    {label:'SS autónomo',   vals: res.map(r => EUR(r.SS))},
+    {label:'IRPF nómina',   vals: res.map(r => EUR(r.irpfNom))},
+    {label:'IRPF dividendos',vals: res.map(r => EUR(r.irpfDiv))},
+    {label:'Carga total',   vals: res.map(r => EUR(r.cargaTot)), isCarga:true},
+    {id:'sec3', section: true, label: 'Resultado'},
+    {label:'🏆 Neto socio', vals: res.map(r => EUR(r.netoTotal)), isNeto:true},
+    {label:'Eficiencia fiscal', vals: res.map(r => PCT(r.eficiencia))},
+    {label:'Tipo marginal (base gral.)', vals: res.map(r => PCT(r.marginal * 100))},
+  ];
+
+  let html = '';
+  for (const row of rows) {
+    if (row.section) {
+      html += `<tr class="section-row"><td colspan="6">${row.label}</td></tr>`;
+      continue;
+    }
+    html += '<tr>';
+    html += `<td><strong>${row.label}</strong></td>`;
+    res.forEach((r, i) => {
+      let cls = escenarios[i].current ? ' col-highlight' : '';
+      if (row.isNeto && r.netoTotal === maxNeto) cls += ' best-val';
+      if (row.isCarga && r.cargaTot === minCarga) cls += ' best-val';
+      if (row.isCarga && r.cargaTot === Math.max(...cargas)) cls += ' worst-val';
+      html += `<td class="${cls.trim()}">${row.vals[i]}</td>`;
+    });
+    html += '</tr>';
+  }
+
+  document.getElementById('tabla_body').innerHTML = html;
+}
+
+// ===================================================================
+//  GRÁFICO SVG
+// ===================================================================
+function renderChart(p) {
+  const {BAIT, tipoIS, otros, baseSS, ratio, minPersonal, ccaa} = p;
+  const escenarios = [
+    {label: 'Solo dividendos', nomina: 0},
+    {label: 'Nómina mín.', nomina: BAIT * 0.15},
+    {label: 'Mixto', nomina: BAIT * 0.45},
+    {label: 'Nómina alta', nomina: BAIT * 0.80},
+    {label: 'Tu escenario', nomina: p.nomina, current: true},
+  ];
+
+  const res = escenarios.map(e =>
+    calcEscenario({BAIT, tipoIS, nomina: Math.min(e.nomina, BAIT), otros, baseSS, ratio, minPersonal, ccaa})
+  );
+
+  const maxVal = BAIT || 1;
+  const chartH = 165;
+
+  let html = '';
+  escenarios.forEach((e, i) => {
+    const r = res[i];
+    const scale = chartH / maxVal;
+    const segs = [
+      {v: r.IS,        c: 'var(--IS-color)',  lbl: 'IS'},
+      {v: r.SS,        c: 'var(--SS-color)',  lbl: 'SS'},
+      {v: r.irpfNom,   c: 'var(--IRPF-color)',lbl: 'IRPF nóm.'},
+      {v: r.irpfDiv,   c: 'var(--DIV-color)', lbl: 'IRPF div.'},
+      {v: r.reservas,  c: 'var(--RES-color)', lbl: 'Reservas'},
+      {v: r.netoTotal, c: 'var(--NET-color)', lbl: 'Neto socio'},
+    ];
+
+    let barsHtml = segs.map(s => {
+      const h = Math.max(0, s.v * scale);
+      return `<div class="bar-seg" style="height:${h.toFixed(1)}px;background:${s.c}" title="${s.lbl}: ${EUR(s.v)}"></div>`;
+    }).join('');
+
+    const lblCls = e.current ? 'bar-lbl current' : 'bar-lbl';
+    html += `
+      <div class="chart-col">
+        <div class="chart-bars">
+          <div class="bar-stack" style="height:${chartH}px">
+            ${barsHtml}
+          </div>
+        </div>
+        <div class="${lblCls}">${e.label}<br>
+          <small style="font-size:.68rem">${PCT(r.eficiencia)} neto</small>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('chart_wrap').innerHTML = html;
+}
+
+// ===================================================================
+//  GRÁFICOS DE LÍNEA (curvas continuas sobre rango de nómina)
+// ===================================================================
+function buildCurveData(p, N = 150) {
+  const data = [];
+  for (let i = 0; i <= N; i++) {
+    const nomina = p.BAIT * i / N;
+    const r = calcEscenario({...p, nomina});
+    const cargaPct  = p.BAIT > 0 ? r.cargaTot   / p.BAIT * 100 : 0;
+    const netoPct   = p.BAIT > 0 ? r.netoTotal   / p.BAIT * 100 : 0;
+    const reservPct = p.BAIT > 0 ? r.reservas    / p.BAIT * 100 : 0;
+    data.push({nomina, neto: r.netoTotal, carga: r.cargaTot,
+               cargaPct, netoPct, reservPct});
+  }
+  return data;
+}
+
+function buildSVG(data, p, field, color) {
+  if (!p.BAIT || p.BAIT <= 0) return '<div style="color:var(--muted);font-size:.82rem;padding:20px 0;text-align:center">Introduce el beneficio de la empresa.</div>';
+
+  const VW = 502, VH = 195;
+  const ML = 58, MT = 14, MR = 10, MB = 34;
+  const PW = VW - ML - MR;  // 434
+  const PH = VH - MT - MB;  // 147
+
+  const vals = data.map(d => d[field]);
+  let maxV = Math.max(...vals);
+  let minV = Math.min(...vals);
+  const pad = Math.max((maxV - minV) * 0.06, maxV * 0.03);
+  maxV += pad; minV = Math.max(0, minV - pad);
+  const rng = maxV - minV || 1;
+
+  const xS = n => ML + (n / p.BAIT) * PW;
+  const yS = v => MT + PH - ((v - minV) / rng) * PH;
+
+  // Polyline
+  const pts = data.map(d => `${xS(d.nomina).toFixed(1)},${yS(d[field]).toFixed(1)}`).join(' ');
+  // Area fill
+  const areaD = `M${xS(0).toFixed(1)},${(MT+PH).toFixed(0)} ` +
+    data.map(d => `L${xS(d.nomina).toFixed(1)},${yS(d[field]).toFixed(1)}`).join(' ') +
+    ` L${xS(p.BAIT).toFixed(1)},${(MT+PH).toFixed(0)} Z`;
+
+  // Current marker
+  const curX = xS(p.nomina);
+  const curIdx = Math.min(data.length - 1, Math.round(p.nomina / p.BAIT * (data.length - 1)));
+  const curY = yS(data[curIdx][field]);
+  const curV = data[curIdx][field];
+
+  // Optimal marker
+  const optData = field === 'neto'
+    ? data.reduce((b, d) => d.neto > b.neto ? d : b, data[0])
+    : data.reduce((b, d) => d.carga < b.carga ? d : b, data[0]);
+  const optX = xS(optData.nomina);
+  const optY = yS(optData[field]);
+  const optV = optData[field];
+
+  // Y grid
+  let grid = '';
+  for (let i = 0; i <= 4; i++) {
+    const gy = MT + PH * i / 4;
+    const gv = maxV - rng * i / 4;
+    grid += `<line x1="${ML}" y1="${gy.toFixed(0)}" x2="${ML+PW}" y2="${gy.toFixed(0)}" stroke="#f0f4f8" stroke-width="1"/>`;
+    const lbl = gv >= 1000 ? (gv/1000).toFixed(0)+'k' : gv.toFixed(0);
+    grid += `<text x="${ML-4}" y="${(gy+3.5).toFixed(0)}" text-anchor="end" font-size="9" fill="#94a3b8">${lbl}</text>`;
+  }
+  // X grid
+  for (let i = 0; i <= 5; i++) {
+    const gx = ML + PW * i / 5;
+    const gn = p.BAIT * i / 5;
+    grid += `<line x1="${gx.toFixed(0)}" y1="${MT}" x2="${gx.toFixed(0)}" y2="${MT+PH}" stroke="#f0f4f8" stroke-width="1"/>`;
+    const xl = gn >= 1000 ? (gn/1000).toFixed(0)+'k' : gn.toFixed(0);
+    grid += `<text x="${gx.toFixed(0)}" y="${MT+PH+13}" text-anchor="middle" font-size="8.5" fill="#94a3b8">${xl}</text>`;
+  }
+
+  // Smart label placement for optimal marker
+  const optLblX = optX > ML + PW * 0.78 ? optX - 5 : optX + 5;
+  const optLblAnch = optX > ML + PW * 0.78 ? 'end' : 'start';
+  const optLblY = optY > MT + PH * 0.15 ? optY - 8 : optY + 16;
+
+  // Smart label placement for current marker
+  const curLblX = Math.abs(curX - optX) < 40 ? curX - 5 : curX + 5;
+  const curLblAnch = Math.abs(curX - optX) < 40 ? 'end' : (curX > ML + PW * 0.78 ? 'end' : 'start');
+  const curLblY = curY > MT + PH * 0.15 ? curY - 8 : curY + 16;
+
+  // Tooltip values
+  const fmtShort = v => v >= 1000 ? (v/1000).toFixed(1)+'k€' : v.toFixed(0)+'€';
+
+  return `<svg viewBox="0 0 ${VW} ${VH}" class="lchart-svg">
+    ${grid}
+    <path d="${areaD}" fill="${color}" opacity="0.08"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- Optimal vertical guide -->
+    <line x1="${optX.toFixed(1)}" y1="${MT}" x2="${optX.toFixed(1)}" y2="${MT+PH}" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3" opacity=".9"/>
+    <!-- Current vertical guide -->
+    <line x1="${curX.toFixed(1)}" y1="${MT}" x2="${curX.toFixed(1)}" y2="${MT+PH}" stroke="${color}" stroke-width="1.5" stroke-dasharray="5,3" opacity=".55"/>
+    <!-- Optimal dot -->
+    <circle cx="${optX.toFixed(1)}" cy="${optY.toFixed(1)}" r="5" fill="#d97706" stroke="white" stroke-width="2"/>
+    <text x="${optLblX.toFixed(0)}" y="${optLblY.toFixed(0)}" text-anchor="${optLblAnch}" font-size="8.5" fill="#b45309" font-weight="700">Óptimo ${fmtShort(optV)}</text>
+    <!-- Current dot -->
+    <circle cx="${curX.toFixed(1)}" cy="${curY.toFixed(1)}" r="5.5" fill="${color}" stroke="white" stroke-width="2"/>
+    <text x="${curLblX.toFixed(0)}" y="${curLblY.toFixed(0)}" text-anchor="${curLblAnch}" font-size="8.5" fill="${color}" font-weight="700">Actual ${fmtShort(curV)}</text>
+    <!-- Línea mínimo nómina -->
+    ${p.minNomina > 0 && p.minNomina <= p.BAIT ? (() => {
+      const mx = xS(p.minNomina).toFixed(1);
+      const lx = +mx > ML + PW * 0.78 ? +mx - 5 : +mx + 5;
+      const la = +mx > ML + PW * 0.78 ? 'end' : 'start';
+      return `<line x1="${mx}" y1="${MT}" x2="${mx}" y2="${MT+PH}" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="4,3" opacity=".75"/>
+    <text x="${lx}" y="${MT+12}" text-anchor="${la}" font-size="8" fill="#7c3aed" font-weight="700">Mín. ${(p.minNomina/1000).toFixed(0)}k€</text>`;
+    })() : ''}
+
+    <!-- Axes -->
+    <line x1="${ML}" y1="${MT}" x2="${ML}" y2="${MT+PH}" stroke="#cbd5e1"/>
+    <line x1="${ML}" y1="${MT+PH}" x2="${ML+PW}" y2="${MT+PH}" stroke="#cbd5e1"/>
+    <text x="${(ML+PW/2).toFixed(0)}" y="${VH-1}" text-anchor="middle" font-size="9" fill="#64748b">Nómina bruta del socio →</text>
+  </svg>`;
+}
+
+function renderLineCharts(p) {
+  const data = buildCurveData(p);
+  document.getElementById('lchart_neto').innerHTML  = buildSVG(data, p, 'neto',  '#22c55e');
+  document.getElementById('lchart_carga').innerHTML = buildSVG(data, p, 'carga', '#ef4444');
+  document.getElementById('lchart_pct').innerHTML   = buildPctSVG(data, p);
+}
+
+// ===================================================================
+//  GRÁFICO % (neto% + carga% + reservas% sobre BAIT)
+// ===================================================================
+function buildPctSVG(data, p) {
+  if (!p.BAIT || p.BAIT <= 0) return '<div style="color:var(--muted);font-size:.82rem;padding:20px 0;text-align:center">Introduce el beneficio de la empresa.</div>';
+
+  const VW = 900, VH = 220;
+  const ML = 52, MT = 16, MR = 10, MB = 36;
+  const PW = VW - ML - MR;   // 838
+  const PH = VH - MT - MB;   // 168
+
+  // Y fija: 0 a 100 %
+  const xS = n => ML + (n / p.BAIT) * PW;
+  const yS = v => MT + PH - (v / 100) * PH;   // v en porcentaje
+
+  // Polylines
+  const ptsNeto  = data.map(d => `${xS(d.nomina).toFixed(1)},${yS(d.netoPct).toFixed(1)}`).join(' ');
+  const ptsCarga = data.map(d => `${xS(d.nomina).toFixed(1)},${yS(d.cargaPct).toFixed(1)}`).join(' ');
+  const ptsRes   = data.map(d => `${xS(d.nomina).toFixed(1)},${yS(d.reservPct).toFixed(1)}`).join(' ');
+
+  // Área bajo curva neto (relleno verde claro)
+  const areaNetoD = `M${xS(0).toFixed(1)},${(MT+PH).toFixed(0)} ` +
+    data.map(d => `L${xS(d.nomina).toFixed(1)},${yS(d.netoPct).toFixed(1)}`).join(' ') +
+    ` L${xS(p.BAIT).toFixed(1)},${(MT+PH).toFixed(0)} Z`;
+
+  // Posición actual
+  const curIdx = Math.min(data.length - 1, Math.round(p.nomina / p.BAIT * (data.length - 1)));
+  const curX      = xS(p.nomina);
+  const curNeto   = data[curIdx].netoPct;
+  const curCarga  = data[curIdx].cargaPct;
+  const curRes    = data[curIdx].reservPct;
+
+  // Óptimo (máx. netoPct)
+  const optData = data.reduce((b, d) => d.netoPct > b.netoPct ? d : b, data[0]);
+  const optX = xS(optData.nomina);
+
+  // ─── Grid horizontal (%): líneas en 0,20,40,60,80,100
+  let grid = '';
+  [0, 20, 40, 60, 80, 100].forEach(pct => {
+    const gy = yS(pct);
+    const isDash = pct === 50;
+    grid += `<line x1="${ML}" y1="${gy.toFixed(0)}" x2="${ML+PW}" y2="${gy.toFixed(0)}"
+                   stroke="${pct % 40 === 0 ? '#e2e8f0' : '#f0f4f8'}" stroke-width="1"
+                   ${pct === 50 ? 'stroke-dasharray="6,4"' : ''}/>`;
+    grid += `<text x="${ML-4}" y="${(gy+3.5).toFixed(0)}" text-anchor="end" font-size="9" fill="#94a3b8">${pct}%</text>`;
+  });
+  // Grid vertical (nómina)
+  for (let i = 0; i <= 6; i++) {
+    const gx = ML + PW * i / 6;
+    const gn = p.BAIT * i / 6;
+    grid += `<line x1="${gx.toFixed(0)}" y1="${MT}" x2="${gx.toFixed(0)}" y2="${MT+PH}" stroke="#f0f4f8" stroke-width="1"/>`;
+    const xl = gn >= 1000 ? (gn/1000).toFixed(0)+'k' : gn.toFixed(0);
+    grid += `<text x="${gx.toFixed(0)}" y="${MT+PH+13}" text-anchor="middle" font-size="8.5" fill="#94a3b8">${xl}</text>`;
+  }
+
+  // Línea horizontal de referencia al 50%
+  const y50 = yS(50).toFixed(0);
+  grid += `<text x="${ML+6}" y="${+y50-4}" font-size="8" fill="#94a3b8" font-style="italic">50%</text>`;
+
+  // Labels en la posición actual (lado derecho de la línea vertical)
+  const lx = curX > ML + PW * 0.78 ? curX - 6 : curX + 6;
+  const lanch = curX > ML + PW * 0.78 ? 'end' : 'start';
+  const f1 = v => v.toFixed(1) + '%';
+
+  // Óptimo: marcamos la posición con sus valores
+  const optLx = optX > ML + PW * 0.78 ? optX - 6 : optX + 6;
+  const optAnch = optX > ML + PW * 0.78 ? 'end' : 'start';
+
+  // Puntos actuales en las tres curvas
+  const yCurNeto  = yS(curNeto);
+  const yCurCarga = yS(curCarga);
+  const yCurRes   = yS(curRes);
+  const yOptNeto  = yS(optData.netoPct);
+  const yOptCarga = yS(optData.cargaPct);
+
+  return `<svg viewBox="0 0 ${VW} ${VH}" class="lchart-svg">
+    ${grid}
+
+    <!-- Área neto -->
+    <path d="${areaNetoD}" fill="#22c55e" opacity="0.07"/>
+
+    <!-- Curva Reservas (gris discontinua, fina) -->
+    <polyline points="${ptsRes}"  fill="none" stroke="#94a3b8" stroke-width="1.4"
+              stroke-dasharray="5,4" stroke-linejoin="round" opacity="0.7"/>
+
+    <!-- Curva Carga fiscal -->
+    <polyline points="${ptsCarga}" fill="none" stroke="#ef4444" stroke-width="2.3"
+              stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Curva Neto -->
+    <polyline points="${ptsNeto}"  fill="none" stroke="#22c55e" stroke-width="2.3"
+              stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Guía vertical óptimo -->
+    <line x1="${optX.toFixed(1)}" y1="${MT}" x2="${optX.toFixed(1)}" y2="${MT+PH}"
+          stroke="#d97706" stroke-width="1.6" stroke-dasharray="4,3" opacity=".9"/>
+    <circle cx="${optX.toFixed(1)}" cy="${yOptNeto.toFixed(1)}"  r="4.5" fill="#d97706" stroke="white" stroke-width="1.5"/>
+    <circle cx="${optX.toFixed(1)}" cy="${yOptCarga.toFixed(1)}" r="4.5" fill="#d97706" stroke="white" stroke-width="1.5"/>
+    <text x="${optLx}" y="${(yOptNeto-10).toFixed(0)}" text-anchor="${optAnch}"
+          font-size="8.5" fill="#b45309" font-weight="700">Óptimo ${f1(optData.netoPct)} neto</text>
+
+    <!-- Guía vertical actual -->
+    <line x1="${curX.toFixed(1)}" y1="${MT}" x2="${curX.toFixed(1)}" y2="${MT+PH}"
+          stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5"/>
+
+    <!-- Dot neto actual -->
+    <circle cx="${curX.toFixed(1)}" cy="${yCurNeto.toFixed(1)}"  r="5.5" fill="#22c55e" stroke="white" stroke-width="2"/>
+    <text x="${lx}" y="${(yCurNeto-8).toFixed(0)}" text-anchor="${lanch}"
+          font-size="9" fill="#15803d" font-weight="700">${f1(curNeto)}</text>
+
+    <!-- Dot carga actual -->
+    <circle cx="${curX.toFixed(1)}" cy="${yCurCarga.toFixed(1)}" r="5.5" fill="#ef4444" stroke="white" stroke-width="2"/>
+    <text x="${lx}" y="${(yCurCarga+14).toFixed(0)}" text-anchor="${lanch}"
+          font-size="9" fill="#b91c1c" font-weight="700">${f1(curCarga)}</text>
+
+    <!-- Dot reservas actual (pequeño) -->
+    <circle cx="${curX.toFixed(1)}" cy="${yCurRes.toFixed(1)}"  r="3.5" fill="#94a3b8" stroke="white" stroke-width="1.5"/>
+
+    <!-- Etiqueta "Actual" bajo la guía vertical -->
+    <text x="${curX.toFixed(1)}" y="${MT+PH+24}" text-anchor="middle"
+          font-size="8.5" fill="#64748b" font-weight="700">▲ Actual</text>
+
+    <!-- Línea mínimo nómina -->
+    ${p.minNomina > 0 && p.minNomina <= p.BAIT ? (() => {
+      const mx = xS(p.minNomina).toFixed(1);
+      const lx = +mx > ML + PW * 0.78 ? +mx - 5 : +mx + 5;
+      const la = +mx > ML + PW * 0.78 ? 'end' : 'start';
+      return `<line x1="${mx}" y1="${MT}" x2="${mx}" y2="${MT+PH}" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="4,3" opacity=".8"/>
+    <text x="${lx}" y="${MT+14}" text-anchor="${la}" font-size="8.5" fill="#7c3aed" font-weight="700">Mín. ${(p.minNomina/1000).toFixed(0)}k€</text>`;
+    })() : ''}
+
+    <!-- Ejes -->
+    <line x1="${ML}" y1="${MT}"    x2="${ML}"    y2="${MT+PH}" stroke="#cbd5e1"/>
+    <line x1="${ML}" y1="${MT+PH}" x2="${ML+PW}" y2="${MT+PH}" stroke="#cbd5e1"/>
+
+    <!-- Título eje X -->
+    <text x="${(ML+PW/2).toFixed(0)}" y="${VH-2}" text-anchor="middle"
+          font-size="9" fill="#64748b">Nómina bruta del socio →</text>
+  </svg>`;
+}
+
+// ===================================================================
+//  DISTRIBUCIÓN ÓPTIMA
+// ===================================================================
+function findOptimalNomina(p) {
+  const steps    = 2000;
+  const minN     = Math.min(p.minNomina || 0, p.BAIT);   // respeta nómina mínima
+  const rangeN   = p.BAIT - minN;
+  let bestNomina = minN, bestNeto = -Infinity;
+  for (let i = 0; i <= steps; i++) {
+    const nomina = minN + rangeN * i / steps;
+    const r = calcEscenario({...p, nomina});
+    if (r.netoTotal > bestNeto) { bestNeto = r.netoTotal; bestNomina = nomina; }
+  }
+  return {nomina: bestNomina, neto: bestNeto};
+}
+
+function applyOptimal() {
+  const p = getParams();
+  if (p.BAIT <= 0) return;
+
+  const {nomina: rawNomina} = findOptimalNomina(p);
+  const endVal = Math.round(rawNomina / 500) * 500;
+
+  const sl = document.getElementById('nom_slider');
+  const startVal = +sl.value;
+  const dur = 1000, t0 = performance.now();
+
+  function tick(now) {
+    const t = Math.min(1, (now - t0) / dur);
+    const ease = t < .5 ? 2*t*t : -1+(4-2*t)*t;
+    sl.value = startVal + (endVal - startVal) * ease;
+    update();
+    if (t < 1) { requestAnimationFrame(tick); }
+    else {
+      sl.value = endVal;
+      update();
+      showOptResult(endVal, p);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function showOptResult(nomina, pOrig) {
+  const p = {...pOrig, nomina};
+  const r = calcEscenario(p);
+  const pctNom = p.BAIT > 0 ? (nomina / p.BAIT * 100).toFixed(1) : '0.0';
+  const box = document.getElementById('opt_result');
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:10px">
+      <span style="font-size:1.4rem;line-height:1">⭐</span>
+      <div>
+        <div style="font-weight:800;color:var(--primary);margin-bottom:5px;font-size:.92rem">Distribución óptima — Máximo neto del socio</div>
+        <div style="font-size:.83rem;line-height:1.75;color:var(--text)">
+          Nómina bruta: <strong>${EUR(nomina)}</strong> (${pctNom}% del beneficio)
+          &nbsp;·&nbsp; Dividendo: <strong>${EUR(r.div_bruto)}</strong><br>
+          IS: <strong>${EUR(r.IS)}</strong>
+          &nbsp;·&nbsp; SS: <strong>${EUR(r.SS)}</strong>
+          &nbsp;·&nbsp; IRPF total: <strong>${EUR(r.irpfNom + r.irpfDiv)}</strong>
+          &nbsp;·&nbsp; Carga total: <strong>${EUR(r.cargaTot)}</strong><br>
+          <span style="color:var(--success);font-weight:700">🏆 Neto máximo estimado: ${EUR(r.netoTotal)} &nbsp;·&nbsp; Eficiencia: ${PCT(r.eficiencia)}</span>
+        </div>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:5px;line-height:1.5">
+          ${pOrig.minNomina > 0 ? `🔒 Búsqueda restringida a nóminas ≥ <strong>${EUR(pOrig.minNomina)}</strong> (nómina mínima configurada). ` : ''}⚠️ Esta optimización es exclusivamente fiscal. Considere también: nómina de mercado para su rol real, cobertura social deseada (IT, jubilación) y solidez ante una posible inspección de la AEAT.
+        </div>
+      </div>
+    </div>`;
+}
+
+// ===================================================================
+//  HELPERS BOTONES
+// ===================================================================
+function setNomina(val) {
+  const BAIT = +document.getElementById('BAIT').value || 0;
+  document.getElementById('nom_slider').value = Math.min(val, BAIT);
+  update();
+}
+function setNominaRatio(r) {
+  const BAIT = +document.getElementById('BAIT').value || 0;
+  document.getElementById('nom_slider').value = Math.round(BAIT * r / 500) * 500;
+  update();
+}
+
+// ===================================================================
+//  EVENTOS
+// ===================================================================
+function syncSliderRange() {
+  const BAIT = +document.getElementById('BAIT').value || 0;
+  const sl = document.getElementById('nom_slider');
+  sl.max = BAIT;
+  if (+sl.value > BAIT) sl.value = BAIT;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Actualizar cuando cambia cualquier input
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', () => {
+      if (el.id === 'BAIT') syncSliderRange();
+      if (el.id === 'ratio_slider') {
+        document.getElementById('ratio_val').textContent = el.value + '%';
+      }
+      update();
+    });
+    el.addEventListener('change', () => {
+      if (el.id === 'BAIT') syncSliderRange();
+      update();
+    });
+  });
+
+  syncSliderRange();
+  update();
+  updateCalculadora();
+});
+
+// ===================================================================
+//  CALCULADORA DE NÓMINA IRPF
+// ===================================================================
+
+// Escala ESTATAL base general 2026
+const T_EST = [
+  {h:12450,   t:.095},
+  {h:20200,   t:.120},
+  {h:35200,   t:.150},
+  {h:60000,   t:.185},
+  {h:300000,  t:.225},
+  {h:Infinity,t:.245}
+];
+
+// Escalas AUTONÓMICAS por CCAA (2025/2026, orientativo)
+const CCAA_DATA = {
+  'and':{name:'Andalucía',         aut:[{h:12450,t:.095},{h:20200,t:.115},{h:35200,t:.140},{h:60000,t:.185},{h:Infinity,t:.225}]},
+  'ara':{name:'Aragón',            aut:[{h:12450,t:.100},{h:20200,t:.124},{h:35200,t:.180},{h:60000,t:.190},{h:120000,t:.235},{h:Infinity,t:.250}]},
+  'ast':{name:'Asturias',          aut:[{h:12450,t:.100},{h:17707,t:.120},{h:33007,t:.140},{h:53407,t:.185},{h:70000,t:.215},{h:90000,t:.235},{h:175000,t:.250},{h:Infinity,t:.260}]},
+  'bal':{name:'Baleares',          aut:[{h:10000,t:.090},{h:18000,t:.115},{h:30000,t:.145},{h:48000,t:.195},{h:70000,t:.210},{h:Infinity,t:.230}]},
+  'can':{name:'Canarias',          aut:[{h:12450,t:.090},{h:20200,t:.115},{h:35200,t:.130},{h:60000,t:.170},{h:Infinity,t:.210}]},
+  'ctb':{name:'Cantabria',         aut:[{h:12450,t:.095},{h:20200,t:.115},{h:35200,t:.140},{h:60000,t:.185},{h:90000,t:.225},{h:Infinity,t:.245}]},
+  'clm':{name:'Castilla-La Mancha',aut:[{h:12450,t:.095},{h:20200,t:.120},{h:35200,t:.150},{h:60000,t:.185},{h:Infinity,t:.225}]},
+  'cyl':{name:'Castilla y León',   aut:[{h:12450,t:.094},{h:20200,t:.119},{h:35200,t:.149},{h:60000,t:.185},{h:Infinity,t:.225}]},
+  'cat':{name:'Cataluña',          aut:[{h:12450,t:.105},{h:17707,t:.120},{h:21000,t:.140},{h:33007,t:.150},{h:53407,t:.185},{h:90000,t:.215},{h:120000,t:.235},{h:Infinity,t:.255}]},
+  'ext':{name:'Extremadura',       aut:[{h:12450,t:.090},{h:20200,t:.115},{h:35200,t:.150},{h:60000,t:.200},{h:120000,t:.235},{h:240000,t:.255},{h:Infinity,t:.260}]},
+  'gal':{name:'Galicia',           aut:[{h:12450,t:.095},{h:20200,t:.120},{h:35200,t:.145},{h:60000,t:.185},{h:Infinity,t:.225}]},
+  'mad':{name:'Madrid',            aut:[{h:12450,t:.0850},{h:17707,t:.1070},{h:33007,t:.1270},{h:53407,t:.1790},{h:Infinity,t:.2090}]},
+  'mur':{name:'Murcia',            aut:[{h:12450,t:.095},{h:20200,t:.115},{h:35200,t:.140},{h:60000,t:.185},{h:Infinity,t:.225}]},
+  'nav':{name:'Navarra ★',         aut:[{h:14450,t:.130},{h:22000,t:.200},{h:38000,t:.260},{h:60000,t:.340},{h:120000,t:.450},{h:Infinity,t:.470}], concierto:true},
+  'pvs':{name:'País Vasco ★',      aut:[{h:17000,t:.230},{h:33000,t:.280},{h:60000,t:.350},{h:Infinity,t:.490}], concierto:true},
+  'rio':{name:'La Rioja',          aut:[{h:12450,t:.095},{h:20200,t:.115},{h:35200,t:.145},{h:60000,t:.185},{h:Infinity,t:.225}]},
+  'val':{name:'C. Valenciana',     aut:[{h:12450,t:.100},{h:20200,t:.125},{h:35200,t:.170},{h:60000,t:.210},{h:120000,t:.240},{h:175000,t:.248},{h:Infinity,t:.250}]},
+  'ceu':{name:'Ceuta ★★',         aut:[{h:12450,t:.095},{h:20200,t:.120},{h:35200,t:.150},{h:60000,t:.185},{h:300000,t:.225},{h:Infinity,t:.245}], bonif:.60},
+  'mel':{name:'Melilla ★★',       aut:[{h:12450,t:.095},{h:20200,t:.120},{h:35200,t:.150},{h:60000,t:.185},{h:300000,t:.225},{h:Infinity,t:.245}], bonif:.60},
+};
+
+// Cuotas SS 2026
+const SS_EMP_RATES  = {cc:.0470, desempleo:.0155, fp:.0010, mei:.0012}; // total 6.47%
+const SS_COMP_RATES = {cc:.2360, desempleo:.0550, fogasa:.0020, fp:.0060, mei:.0058}; // total 30.48%
+const SS_BASE_MIN   = 1381;      // €/mes (aproximado 2026)
+const SS_BASE_MAX   = 4909.50;   // €/mes (tope máximo 2026)
+
+// Mínimo por hijos (acumulativo)
+function calcMinHijos(n) {
+  if (n <= 0) return 0;
+  const cuotas = [2400, 2700, 4000, 4500];
+  let total = 0;
+  for (let i = 0; i < n; i++) total += (i < 4 ? cuotas[i] : 4500);
+  return total;
+}
+
+// Cálculo principal nómina
+function calcNomina(p) {
+  const {bruto, ccaa, hijos, edadExtra, discapacidad, movilidad} = p;
+  const ccaaData = CCAA_DATA[ccaa] || CCAA_DATA['mad'];
+
+  // --- SS empleado ---
+  const baseSSMes    = Math.min(Math.max(bruto / 12, SS_BASE_MIN), SS_BASE_MAX);
+  const baseSSAnual  = baseSSMes * 12;
+  const totalSSEmpRate = SS_EMP_RATES.cc + SS_EMP_RATES.desempleo + SS_EMP_RATES.fp + SS_EMP_RATES.mei;
+  const ssEmpAnual   = baseSSAnual * totalSSEmpRate;
+
+  // --- SS empresa ---
+  const totalSSCompRate = SS_COMP_RATES.cc + SS_COMP_RATES.desempleo + SS_COMP_RATES.fogasa + SS_COMP_RATES.fp + SS_COMP_RATES.mei;
+  const ssCompAnual  = baseSSAnual * totalSSCompRate;
+  const costeEmpresa = bruto + ssCompAnual;
+
+  // --- Rendimiento del trabajo ---
+  const gastosDeducibles = 2000 + movilidad;
+  const rdtoNeto = Math.max(0, bruto - ssEmpAnual - gastosDeducibles);
+  const reduccion = reduccionTrabajo(rdtoNeto);
+  const baseImponible = Math.max(0, rdtoNeto - reduccion);
+
+  // --- Mínimo personal y familiar ---
+  const minimoContribuyente = 5550 + edadExtra;
+  const minimoHijos    = calcMinHijos(hijos);
+  const minimoDiscap   = discapacidad;
+  const minimoTotal    = minimoContribuyente + minimoHijos + minimoDiscap;
+
+  // --- Base liquidable ---
+  const baseLiquidable = Math.max(0, baseImponible - minimoTotal);
+
+  // --- IRPF ---
+  let cuotaEstatal, cuotaAutonomica, irpfTotal;
+  if (ccaaData.concierto) {
+    // Régimen foral: tarifa foral = totalidad del IRPF (no hay estatal)
+    cuotaEstatal    = 0;
+    cuotaAutonomica = calcImp(baseLiquidable, ccaaData.aut);
+    irpfTotal       = cuotaAutonomica;
+  } else {
+    cuotaEstatal    = calcImp(baseLiquidable, T_EST);
+    cuotaAutonomica = calcImp(baseLiquidable, ccaaData.aut);
+    irpfTotal       = cuotaEstatal + cuotaAutonomica;
+    if (ccaaData.bonif) irpfTotal *= (1 - ccaaData.bonif);
+  }
+
+  const tipoEfectivoIRPF = bruto > 0 ? irpfTotal / bruto * 100 : 0;
+  const neto = bruto - ssEmpAnual - irpfTotal;
+
+  return {
+    bruto, baseSSMes, baseSSAnual,
+    ssEmpAnual, ssEmpMes: ssEmpAnual / 12,
+    ssCompAnual, ssCompMes: ssCompAnual / 12,
+    costeEmpresa, costeEmpresaMes: costeEmpresa / 12,
+    gastosDeducibles, rdtoNeto, reduccion, baseImponible,
+    minimoContribuyente, minimoHijos, minimoDiscap, minimoTotal,
+    baseLiquidable,
+    cuotaEstatal, cuotaAutonomica, irpfTotal,
+    tipoEfectivoIRPF,
+    neto, netoMes: neto / 12,
+    ccaaName: ccaaData.name
+  };
+}
+
+function getParamsNom() {
+  return {
+    bruto:       +document.getElementById('nom_bruto').value || 0,
+    ccaa:         document.getElementById('nom_ccaa').value,
+    pagas:       +document.querySelector('input[name=nom_pagas]:checked').value || 14,
+    hijos:       +document.getElementById('nom_hijos').value || 0,
+    edadExtra:   +document.querySelector('input[name=nom_edad]:checked').value || 0,
+    discapacidad:+document.getElementById('nom_discap').value || 0,
+    movilidad:   +document.querySelector('input[name=nom_movil]:checked').value || 0,
+  };
+}
+
+function updateCalculadora() {
+  const p = getParamsNom();
+  const r = calcNomina(p);
+  const ccaaData = CCAA_DATA[p.ccaa] || CCAA_DATA['mad'];
+
+  // Concierto note
+  document.getElementById('nom_concierto_note').style.display = ccaaData.concierto ? 'block' : 'none';
+
+  // Summary metrics
+  const div = p.pagas; // 12 o 14: divisor para valor por paga
+  document.getElementById('nm_bruto_mes').textContent  = EUR(r.bruto / div);
+  document.getElementById('nm_bruto_sub').textContent  = `${div} pagas → ÷${div}`;
+  document.getElementById('nm_ss_mes').textContent     = EUR(r.ssEmpAnual / div);
+  document.getElementById('nm_ss_sub').textContent     = `6,47% base SS · ÷${div}`;
+  document.getElementById('nm_irpf_mes').textContent   = EUR(r.irpfTotal / div);
+  document.getElementById('nm_irpf_sub').textContent   = `Retención estimada · ÷${div}`;
+  document.getElementById('nm_neto_mes').textContent   = EUR(r.neto / div);
+  document.getElementById('nm_eff_sub').textContent    = 'Tipo efectivo: ' + PCT(r.tipoEfectivoIRPF);
+
+  // Resumen anual
+  document.getElementById('nom_resumen_anual').innerHTML = `
+    <tr><td>Salario bruto anual</td><td class="neu">${EUR(r.bruto)}</td></tr>
+    <tr><td>(−) SS cotización empleado</td><td class="neg">${EUR(r.ssEmpAnual)}</td></tr>
+    <tr><td>(−) IRPF retenido</td><td class="neg">${EUR(r.irpfTotal)}</td></tr>
+    <tr class="subtotal"><td>💰 Neto anual</td><td class="pos">${EUR(r.neto)}</td></tr>
+    <tr><td>&nbsp;</td><td></td></tr>
+    <tr class="section-hd"><td colspan="2">Coste para la empresa</td></tr>
+    <tr><td>SS empresa (30,48%)</td><td class="neg">${EUR(r.ssCompAnual)}</td></tr>
+    <tr class="subtotal"><td>Coste empresa total</td><td class="neg">${EUR(r.costeEmpresa)}</td></tr>
+  `;
+
+  // IRPF paso a paso
+  const boRow = ccaaData.bonif
+    ? `<tr><td>Bonificación Ceuta/Melilla (−${(ccaaData.bonif*100).toFixed(0)}%)</td>
+         <td class="pos">−${EUR((r.cuotaEstatal+r.cuotaAutonomica)*ccaaData.bonif)}</td></tr>` : '';
+  const irpfRows = ccaaData.concierto ? `
+    <tr class="section-hd"><td colspan="2">Rendimiento del trabajo</td></tr>
+    <tr><td>Salario bruto</td><td>${EUR(r.bruto)}</td></tr>
+    <tr><td>(−) SS cotización empleado</td><td class="neg">${EUR(r.ssEmpAnual)}</td></tr>
+    <tr><td>(−) Gastos deducibles trabajo</td><td class="neg">${EUR(r.gastosDeducibles)}</td></tr>
+    <tr><td>= Rendimiento neto del trabajo</td><td>${EUR(r.rdtoNeto)}</td></tr>
+    <tr><td>(−) Reducción rendimientos del trabajo</td><td class="neg">${EUR(r.reduccion)}</td></tr>
+    <tr class="subtotal"><td>Base imponible general</td><td>${EUR(r.baseImponible)}</td></tr>
+    <tr class="section-hd"><td colspan="2">Base liquidable</td></tr>
+    <tr><td>Mínimo del contribuyente (edad)</td><td class="neg">${EUR(r.minimoContribuyente)}</td></tr>
+    ${r.minimoHijos > 0 ? `<tr><td>Mínimo por descendientes</td><td class="neg">${EUR(r.minimoHijos)}</td></tr>` : ''}
+    ${r.minimoDiscap > 0 ? `<tr><td>Mínimo por discapacidad</td><td class="neg">${EUR(r.minimoDiscap)}</td></tr>` : ''}
+    <tr class="subtotal"><td>Base liquidable general</td><td>${EUR(r.baseLiquidable)}</td></tr>
+    <tr class="section-hd"><td colspan="2">Cuota (tarifa foral íntegra)</td></tr>
+    <tr><td>Cuota íntegra foral — ${ccaaData.name}</td><td class="neg">${EUR(r.cuotaAutonomica)}</td></tr>
+    <tr class="subtotal"><td>IRPF total (foral)</td><td class="neg">${EUR(r.irpfTotal)}</td></tr>
+    <tr><td>Tipo efectivo IRPF / bruto</td><td>${PCT(r.tipoEfectivoIRPF)}</td></tr>
+  ` : `
+    <tr class="section-hd"><td colspan="2">Rendimiento del trabajo</td></tr>
+    <tr><td>Salario bruto</td><td>${EUR(r.bruto)}</td></tr>
+    <tr><td>(−) SS cotización empleado</td><td class="neg">${EUR(r.ssEmpAnual)}</td></tr>
+    <tr><td>(−) Gastos deducibles trabajo</td><td class="neg">${EUR(r.gastosDeducibles)}</td></tr>
+    <tr><td>= Rendimiento neto del trabajo</td><td>${EUR(r.rdtoNeto)}</td></tr>
+    <tr><td>(−) Reducción rendimientos del trabajo</td><td class="neg">${EUR(r.reduccion)}</td></tr>
+    <tr class="subtotal"><td>Base imponible general</td><td>${EUR(r.baseImponible)}</td></tr>
+    <tr class="section-hd"><td colspan="2">Base liquidable</td></tr>
+    <tr><td>Mínimo del contribuyente (edad)</td><td class="neg">${EUR(r.minimoContribuyente)}</td></tr>
+    ${r.minimoHijos > 0 ? `<tr><td>Mínimo por descendientes</td><td class="neg">${EUR(r.minimoHijos)}</td></tr>` : ''}
+    ${r.minimoDiscap > 0 ? `<tr><td>Mínimo por discapacidad</td><td class="neg">${EUR(r.minimoDiscap)}</td></tr>` : ''}
+    <tr class="subtotal"><td>Base liquidable general</td><td>${EUR(r.baseLiquidable)}</td></tr>
+    <tr class="section-hd"><td colspan="2">Cuota íntegra (escala estatal + autonómica)</td></tr>
+    <tr><td>Cuota estatal</td><td>${EUR(r.cuotaEstatal)}</td></tr>
+    <tr><td>Cuota autonómica — ${ccaaData.name}</td><td>${EUR(r.cuotaAutonomica)}</td></tr>
+    ${boRow}
+    <tr class="subtotal"><td>IRPF total</td><td class="neg">${EUR(r.irpfTotal)}</td></tr>
+    <tr><td>Tipo efectivo IRPF / bruto</td><td>${PCT(r.tipoEfectivoIRPF)}</td></tr>
+  `;
+  document.getElementById('nom_irpf_detalle').innerHTML = irpfRows;
+
+  // SS empleado
+  document.getElementById('nom_ss_emp').innerHTML = `
+    <tr class="section-hd"><td colspan="2">Base SS: ${EUR(r.baseSSAnual)}/año (${EUR(r.baseSSMes)}/mes)</td></tr>
+    <tr><td>Contingencias comunes (4,70%)</td><td class="neg">${EUR(r.baseSSAnual * SS_EMP_RATES.cc)}</td></tr>
+    <tr><td>Desempleo (1,55%)</td><td class="neg">${EUR(r.baseSSAnual * SS_EMP_RATES.desempleo)}</td></tr>
+    <tr><td>Formación profesional (0,10%)</td><td class="neg">${EUR(r.baseSSAnual * SS_EMP_RATES.fp)}</td></tr>
+    <tr><td>MEI (0,12%)</td><td class="neg">${EUR(r.baseSSAnual * SS_EMP_RATES.mei)}</td></tr>
+    <tr class="subtotal"><td>Total SS empleado (6,47%)</td><td class="neg">${EUR(r.ssEmpAnual)}</td></tr>
+    <tr><td>Por mes (anual ÷12)</td><td class="neg">${EUR(r.ssEmpMes)}</td></tr>
+  `;
+
+  // SS empresa
+  document.getElementById('nom_ss_comp').innerHTML = `
+    <tr class="section-hd"><td colspan="2">Base SS: ${EUR(r.baseSSAnual)}/año (${EUR(r.baseSSMes)}/mes)</td></tr>
+    <tr><td>Contingencias comunes (23,60%)</td><td class="neg">${EUR(r.baseSSAnual * SS_COMP_RATES.cc)}</td></tr>
+    <tr><td>Desempleo contrato indef. (5,50%)</td><td class="neg">${EUR(r.baseSSAnual * SS_COMP_RATES.desempleo)}</td></tr>
+    <tr><td>FOGASA (0,20%)</td><td class="neg">${EUR(r.baseSSAnual * SS_COMP_RATES.fogasa)}</td></tr>
+    <tr><td>Formación profesional (0,60%)</td><td class="neg">${EUR(r.baseSSAnual * SS_COMP_RATES.fp)}</td></tr>
+    <tr><td>MEI (0,58%)</td><td class="neg">${EUR(r.baseSSAnual * SS_COMP_RATES.mei)}</td></tr>
+    <tr class="subtotal"><td>Total SS empresa (30,48%)</td><td class="neg">${EUR(r.ssCompAnual)}</td></tr>
+    <tr><td>Coste total empresa (bruto + SS)</td><td class="neg">${EUR(r.costeEmpresa)}</td></tr>
+  `;
+
+  // Donut + CCAA table
+  renderNominaDonut(r);
+  renderCCAATable(p, r);
+}
+
+// ─── Donut chart ───────────────────────────────────────────────────
+function donutArc(cx, cy, R, ri, a1, a2) {
+  const toR = a => (a - 90) * Math.PI / 180;
+  const cos1o = Math.cos(toR(a1)), sin1o = Math.sin(toR(a1));
+  const cos2o = Math.cos(toR(a2)), sin2o = Math.sin(toR(a2));
+  const x1o = cx + R*cos1o, y1o = cy + R*sin1o;
+  const x2o = cx + R*cos2o, y2o = cy + R*sin2o;
+  const x1i = cx + ri*cos2o, y1i = cy + ri*sin2o;
+  const x2i = cx + ri*cos1o, y2i = cy + ri*sin1o;
+  const large = ((a2 - a1) % 360 + 360) % 360 > 180 ? 1 : 0;
+  return `M${x1o.toFixed(2)},${y1o.toFixed(2)} A${R},${R},0,${large},1,${x2o.toFixed(2)},${y2o.toFixed(2)} L${x1i.toFixed(2)},${y1i.toFixed(2)} A${ri},${ri},0,${large},0,${x2i.toFixed(2)},${y2i.toFixed(2)} Z`;
+}
+
+function renderNominaDonut(r) {
+  const el = document.getElementById('nom_donut');
+  if (!r || !r.bruto) {
+    el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;font-size:.83rem">Introduce el salario bruto para ver el desglose.</div>';
+    return;
+  }
+  const segs = [
+    {label:'SS Empleado', val: r.ssEmpAnual,         color:'#8b5cf6'},
+    {label:'IRPF',        val: r.irpfTotal,           color:'#ef4444'},
+    {label:'Neto',        val: Math.max(0, r.neto),   color:'#22c55e'},
+  ];
+  const total = r.bruto || 1;
+  const cx = 82, cy = 82, R = 72, ri = 44;
+  let angle = 0;
+  let paths = '';
+  segs.forEach(seg => {
+    const sweep = (seg.val / total) * 360;
+    if (sweep < 0.2) return;
+    paths += `<path d="${donutArc(cx, cy, R, ri, angle, angle + sweep)}" fill="${seg.color}" stroke="white" stroke-width="1.8">
+      <title>${seg.label}: ${EUR(seg.val)} (${PCT(seg.val/total*100)})</title></path>`;
+    angle += sweep;
+  });
+
+  const svgHtml = `<svg viewBox="0 0 164 164" width="164" height="164" style="flex-shrink:0">
+    ${paths}
+    <text x="${cx}" y="${cy-8}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="600">NETO</text>
+    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="12" fill="#15803d" font-weight="800">${PCT(Math.max(0,r.neto)/total*100)}</text>
+  </svg>`;
+
+  const legHtml = segs.map(seg => `
+    <div class="donut-leg-item">
+      <div class="donut-leg-dot" style="background:${seg.color}"></div>
+      <span>${seg.label}</span>
+      <span class="donut-leg-pct">${PCT(seg.val/total*100)}</span>
+    </div>
+    <div class="donut-leg-sub">${EUR(seg.val)}/año · ${EUR(seg.val/12)}/mes</div>
+  `).join('');
+
+  el.innerHTML = `<div class="donut-wrap">${svgHtml}<div class="donut-legend">${legHtml}</div></div>`;
+}
+
+// ─── Comparativa CCAA ──────────────────────────────────────────────
+function renderCCAATable(p, rCurrent) {
+  const rows = Object.entries(CCAA_DATA).map(([key, data]) => {
+    const r = calcNomina({...p, ccaa: key});
+    return {key, name: data.name, neto: r.neto, irpf: r.irpfTotal, tipo: r.tipoEfectivoIRPF};
+  }).sort((a, b) => b.neto - a.neto);
+
+  const maxNeto = rows[0].neto;
+  const minNeto = rows[rows.length - 1].neto;
+
+  let html = `<thead><tr>
+    <th>#</th>
+    <th>Comunidad Autónoma</th>
+    <th>IRPF anual</th>
+    <th>Tipo efectivo</th>
+    <th>Neto anual</th>
+    <th>Neto / mes</th>
+    <th>Ahorro vs. mayor carga</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((row, i) => {
+    const isCurrent = row.key === p.ccaa;
+    const isMax = row.neto === maxNeto;
+    const isMin = row.neto === minNeto;
+    const diff  = row.neto - minNeto;
+    html += `<tr class="${isCurrent ? 'current-row' : ''}">
+      <td><strong>${i+1}</strong></td>
+      <td>${row.name}${isCurrent ? ' <span style="color:var(--secondary)">◀</span>' : ''}</td>
+      <td class="${isMin ? 'worst-ccaa' : ''}">${EUR(row.irpf)}</td>
+      <td>${PCT(row.tipo)}</td>
+      <td class="${isMax ? 'best-ccaa' : isMin ? 'worst-ccaa' : ''}">${EUR(row.neto)}</td>
+      <td>${EUR(row.neto/12)}</td>
+      <td class="${isMax ? 'best-ccaa' : ''}">${diff > 0.5 ? '+'+EUR(diff) : '—'}</td>
+    </tr>`;
+  });
+
+  document.getElementById('nom_ccaa_table').innerHTML = html + '</tbody>';
+}
+
+// ─── Tab switch ────────────────────────────────────────────────────
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+  if (tabId === 'tab-nom') updateCalculadora();
+  if (tabId === 'tab-as')  updateAS();
+}
+
+// ===================================================================
+//  AUTÓNOMO SOCIETARIO — CÁLCULO COMPARATIVO
+// ===================================================================
+
+// Helper IRPF sobre rendimientos del trabajo (escala estatal + autonómica)
+function calcIRPFTrabajoAS(rdtoNeto, otros, minPersonal, ccaaKey) {
+  const cd = CCAA_DATA[ccaaKey] || CCAA_DATA['mad'];
+  const rdto = Math.max(0, rdtoNeto);
+  const redT  = reduccionTrabajo(rdto);
+  const baseG = Math.max(0, rdto - redT);
+  const bLiqT = Math.max(0, otros + baseG - minPersonal);
+  const bLiqO = Math.max(0, otros - minPersonal);
+
+  let iTot, iOtros;
+  if (cd.concierto) {
+    iTot   = calcImp(bLiqT, cd.aut);
+    iOtros = calcImp(bLiqO, cd.aut);
+  } else {
+    const comb = b => calcImp(b, T_EST) + calcImp(b, cd.aut);
+    iTot   = comb(bLiqT);
+    iOtros = comb(bLiqO);
+    if (cd.bonif) { iTot *= (1 - cd.bonif); iOtros *= (1 - cd.bonif); }
+  }
+  return { irpf: Math.max(0, iTot - iOtros), bLiqT, redT, baseG };
+}
+
+function calcEscenarioAS({ BAIT, tipoIS, nomina, baseSS, ccaa, otros, minPersonal }) {
+  const SS = baseSS * 12 * SS_RATE;
+
+  // ── Opción A: SS cobrada en CUENTA DE LA EMPRESA ──────────────────
+  // Criterio DGT V0067-19: la cuota del RETA pagada por la sociedad se
+  // declara como RETRIBUCIÓN EN ESPECIE (o dineraria) en la nómina del socio
+  // y en el modelo 190. Para la sociedad es GASTO DE PERSONAL deducible en IS.
+  // Para el socio: el importe se integra en rendimiento del trabajo (+SS),
+  // y simultáneamente se deduce como cotización SS (-SS): EFECTO NEUTRO en IRPF.
+  // Resultado neto: rdtoNeto = nómina - 2.000 (igual que si nunca hubiera existido SS).
+  const baseIS_A   = Math.max(0, BAIT - nomina - SS);    // SS = gasto de personal en IS
+  const IS_A       = baseIS_A * tipoIS;
+  const bNeto_A    = baseIS_A - IS_A;
+  const rtgIntA    = nomina + SS;                         // retribución íntegra declarada
+  const rdtoA      = Math.max(0, nomina - 2000);          // efecto neutro SS (entrada=salida)
+  const { irpf: irpf_A, bLiqT: bLiqA, redT: redA } =
+        calcIRPFTrabajoAS(rdtoA, otros, minPersonal, ccaa);
+  const netoSocio_A = nomina - irpf_A;  // la SS la pagó la empresa, no sale del bolsillo del socio
+  const carga_A     = IS_A + SS + irpf_A;
+
+  // ── Opción B: SS cobrada en CUENTA PERSONAL DEL SOCIO ────────────
+  // La cuota sale del bolsillo del socio. NO aparece en contabilidad de la
+  // sociedad (salvo reembolso). La empresa NO tiene gasto deducible por este
+  // concepto. El socio deduce la SS como cotización en su IRPF (rendimiento
+  // del trabajo), reduciendo la base imponible. Opción más sencilla y limpia.
+  const baseIS_B   = Math.max(0, BAIT - nomina);          // SS no es gasto de empresa
+  const IS_B       = baseIS_B * tipoIS;
+  const bNeto_B    = baseIS_B - IS_B;
+  const rtgIntB    = nomina;                               // retribución íntegra = solo nómina
+  const rdtoB      = Math.max(0, nomina - SS - 2000);     // SS deducida como cotización
+  const { irpf: irpf_B, bLiqT: bLiqB, redT: redB } =
+        calcIRPFTrabajoAS(rdtoB, otros, minPersonal, ccaa);
+  const netoSocio_B = nomina - SS - irpf_B;  // el socio pagó SS de su bolsillo
+  const carga_B     = IS_B + SS + irpf_B;
+
+  return {
+    SS, nomina, BAIT, tipoIS,
+    empPaga: {
+      baseIS: baseIS_A, IS: IS_A, bNeto: bNeto_A,
+      rtgInt: rtgIntA, rdtoNeto: rdtoA, redT: redA, baseLiq: bLiqA,
+      irpf: irpf_A, netoSocio: netoSocio_A, carga: carga_A,
+      efBait: BAIT > 0 ? netoSocio_A / BAIT * 100 : 0,
+    },
+    socioPaga: {
+      baseIS: baseIS_B, IS: IS_B, bNeto: bNeto_B,
+      rtgInt: rtgIntB, rdtoNeto: rdtoB, redT: redB, baseLiq: bLiqB,
+      irpf: irpf_B, netoSocio: netoSocio_B, carga: carga_B,
+      efBait: BAIT > 0 ? netoSocio_B / BAIT * 100 : 0,
+    }
+  };
+}
+
+function getParamsAS() {
+  return {
+    BAIT:        +document.getElementById('as_bait').value        || 0,
+    tipoIS:      +document.querySelector('input[name=as_IS]:checked').value,
+    nomina:      +document.getElementById('as_nomina').value      || 0,
+    baseSS:      +document.getElementById('as_base_ss').value     || 1000,
+    ccaa:         document.getElementById('as_ccaa').value,
+    otros:       +document.getElementById('as_otros').value       || 0,
+    minPersonal: +document.getElementById('as_min_personal').value|| 5550,
+  };
+}
+
+function updateAS() {
+  const p = getParamsAS();
+  if (!p.BAIT || !p.nomina) return;
+  const r = calcEscenarioAS(p);
+  const A = r.empPaga, B = r.socioPaga;
+
+  // ── KPIs comunes ────────────────────────────────────────────────
+  document.getElementById('as_ss_anual').textContent  = EUR(r.SS);
+  document.getElementById('as_ss_mes_lbl').textContent= EUR(r.SS / 12) + ' /mes';
+  const deltaNeto  = A.netoSocio - B.netoSocio;
+  const deltaCarga = A.carga - B.carga;
+  document.getElementById('as_delta_neto').textContent =
+    (deltaNeto >= 0 ? '+ ' : '− ') + EUR(Math.abs(deltaNeto));
+  document.getElementById('as_delta_neto').style.color =
+    deltaNeto >= 0 ? '#1d4ed8' : '#15803d';
+  document.getElementById('as_delta_carga').textContent =
+    (deltaCarga >= 0 ? '+ ' : '− ') + EUR(Math.abs(deltaCarga));
+  document.getElementById('as_delta_carga').style.color =
+    deltaCarga <= 0 ? '#1d4ed8' : '#15803d';
+
+  // ── Columnas hero + tabla detallada ─────────────────────────────
+  // isEmpresa=true → Opción A (DGT V0067-19: SS como retrib. en especie, efecto neutro IRPF)
+  // isEmpresa=false → Opción B (socio paga SS de su bolsillo, lo deduce en IRPF)
+  function fillCol(sfx, sc, isEmpresa) {
+    document.getElementById(`as_neto_${sfx}`).textContent  = EUR(sc.netoSocio);
+    document.getElementById(`as_eff_${sfx}`).textContent   =
+      'Eficiencia BAIT: ' + PCT(sc.efBait) +
+      ' · Neto/mes: ' + EUR(sc.netoSocio / 12);
+
+    const ssEmpresaRow = isEmpresa
+      ? `<tr><td>(−) SS gasto de personal (especie · DGT V0067-19)</td><td class="neg">${EUR(r.SS)}</td></tr>`
+      : `<tr><td>SS (obligación personal socio — no gasto empresa)</td><td style="color:var(--muted)">—</td></tr>`;
+
+    // En opción A el efecto es neutro: SS en especie (+SS) y SS cotización (−SS) se cancelan
+    // → la base IRPF es idéntica a la nómina bruta sola, sin inflar el valor mostrado
+    const irpfRows = isEmpresa
+      ? `<tr><td>Nómina bruta (base IRPF)</td><td>${EUR(p.nomina)}</td></tr>
+      <tr style="font-size:.72rem;color:#1d4ed8;font-style:italic"><td colspan="2">⇄ SS en especie (+${EUR(r.SS)}) y SS cotiz. deducible (−${EUR(r.SS)}) se cancelan → efecto neutro ±0</td></tr>
+      <tr><td>(−) Gastos deducibles del trabajo</td><td class="neg">${EUR(2000)}</td></tr>
+      <tr><td>(−) Reducción rendimientos del trabajo</td><td class="neg">${EUR(sc.redT)}</td></tr>`
+      : `<tr><td>Nómina bruta (base IRPF)</td><td>${EUR(p.nomina)}</td></tr>
+      <tr><td>(−) SS cotización (gasto personal deducible)</td><td class="neg">${EUR(r.SS)}</td></tr>
+      <tr><td>(−) Gastos deducibles del trabajo</td><td class="neg">${EUR(2000)}</td></tr>
+      <tr><td>(−) Reducción rendimientos del trabajo</td><td class="neg">${EUR(sc.redT)}</td></tr>`;
+
+    document.getElementById(`as_t_${sfx}`).innerHTML = `
+      <tr class="as-sec"><td colspan="2">Sociedad</td></tr>
+      <tr><td>BAIT</td><td class="neu">${EUR(p.BAIT)}</td></tr>
+      <tr><td>(−) Nómina bruta</td><td class="neg">${EUR(p.nomina)}</td></tr>
+      ${ssEmpresaRow}
+      <tr><td>Base imponible IS</td><td>${EUR(sc.baseIS)}</td></tr>
+      <tr><td>(−) IS (${PCT(p.tipoIS * 100)})</td><td class="neg">${EUR(sc.IS)}</td></tr>
+      <tr class="as-tot"><td>Beneficio neto empresa</td><td class="pos">${EUR(sc.bNeto)}</td></tr>
+      <tr class="as-sec"><td colspan="2">Socio — IRPF</td></tr>
+      ${irpfRows}
+      <tr><td>Rendimiento neto del trabajo</td><td>${EUR(sc.rdtoNeto)}</td></tr>
+      <tr><td>Base liquidable IRPF</td><td>${EUR(sc.baseLiq)}</td></tr>
+      <tr><td>(−) IRPF estimado</td><td class="neg">${EUR(sc.irpf)}</td></tr>
+      <tr class="as-sec"><td colspan="2">Resultado</td></tr>
+      <tr><td>Carga total (IS+SS+IRPF)</td><td class="neg">${EUR(sc.carga)}</td></tr>
+      <tr><td>% carga / BAIT</td><td>${PCT(p.BAIT > 0 ? sc.carga / p.BAIT * 100 : 0)}</td></tr>
+      <tr class="as-tot"><td>💰 Neto socio (nómina)</td><td class="pos">${EUR(sc.netoSocio)}</td></tr>
+    `;
+  }
+  fillCol('emp', A, true);
+  fillCol('soc', B, false);
+
+  // ── Veredicto ───────────────────────────────────────────────────
+  const absDelta    = Math.abs(deltaNeto);
+  const el          = document.getElementById('as_verdict');
+  const isTie       = absDelta < 2;
+  const IS_ahorro   = B.IS - A.IS;               // ahorro IS al deducir SS como gasto (opción A)
+  const IRPF_extra  = A.irpf - B.irpf;           // IRPF extra en A (base más alta sin deducir SS)
+  const margEfectivo = r.SS > 0 ? IRPF_extra / r.SS * 100 : 0;
+
+  if (isTie) {
+    el.className = 'as-verdict as-verdict-tie';
+    el.innerHTML = `<h3>⚖️ Resultado prácticamente equivalente</h3>
+      <p>Con estos parámetros, ambas opciones producen un neto del socio casi idéntico. Puede elegir la opción más sencilla administrativamente o en función de la liquidez de la empresa.</p>`;
+  } else if (deltaNeto > 0) {
+    // A gana en neto socio (habitual: marginal IRPF siempre < 100 %)
+    el.className = 'as-verdict as-verdict-emp';
+    el.innerHTML = `<h3>💼 Mayor neto del socio: <u>Empresa paga la SS (bien declarada)</u></h3>
+      <p>Con el tratamiento correcto (DGT V0067-19), la empresa declara la SS como <strong>retribución en especie</strong> en nómina y <strong>Modelo 190</strong>.
+      Efecto en el IRPF del socio: la SS entra como rendimiento (+${EUR(r.SS)}) y sale como cotización deducible (−${EUR(r.SS)}) → <strong>efecto neutro</strong>. La base IRPF es idéntica a si solo existiese la nómina.</p>
+      <p>El socio obtiene <strong>${EUR(absDelta)}/año más</strong> (${EUR(absDelta/12)}/mes). El ahorro IS de la empresa (<strong>${EUR(IS_ahorro)}</strong>) supera el sobre-coste IRPF (<strong>${EUR(IRPF_extra)}</strong>, tipo marginal efectivo ${PCT(margEfectivo)}) porque el marginal IRPF es siempre inferior al 100%.</p>
+      <p style="margin-top:6px">⚠️ <strong>Carga fiscal total (IS+SS+IRPF):</strong> ${deltaCarga < 0
+        ? `El Escenario A también tiene <strong>${EUR(Math.abs(deltaCarga))}</strong> menos de carga global (tipo IS ${PCT(p.tipoIS*100)} › marginal IRPF ${PCT(margEfectivo)}).`
+        : `La carga global es <strong>${EUR(Math.abs(deltaCarga))}</strong> mayor en A (marginal IRPF ${PCT(margEfectivo)} › tipo IS ${PCT(p.tipoIS*100)}). La diferencia queda como reservas adicionales en la empresa (${EUR(B.bNeto - A.bNeto)} más en B), tributando solo al distribuirse como dividendos.`
+      }</p>
+      <p style="margin-top:6px">📋 <strong>Requisito clave:</strong> Sin declaración en nómina y Modelo 190, Hacienda puede reclasificar el pago como <em>liberalidad</em> no deducible en IS.</p>`;
+  } else {
+    // B gana en neto socio (teóricamente imposible con tipos < 100 %, pero se mantiene por seguridad)
+    el.className = 'as-verdict as-verdict-soc';
+    el.innerHTML = `<h3>👤 Mayor neto del socio: <u>Socio paga la SS personalmente</u></h3>
+      <p>El socio retiene <strong>${EUR(absDelta)}/año más</strong> (${EUR(absDelta/12)}/mes) pagando la SS de su cuenta personal.
+      La cuota SS (<strong>${EUR(r.SS)}</strong>) se deduce directamente del rendimiento del trabajo en IRPF, reduciendo la base imponible.</p>
+      <p style="margin-top:6px">⚠️ La empresa paga <strong>${EUR(B.IS - A.IS)} más de IS</strong> al no poder deducir la cuota SS.</p>`;
+  }
+
+  // ── Tabla comparativa completa ───────────────────────────────────
+  const diffCell = (vA, vB, invertSign = false) => {
+    const d = vA - vB;
+    const fav = invertSign ? d < 0 : d > 0;
+    const cls = Math.abs(d) < 1 ? '' : fav ? 'best-val' : 'neg';
+    const sign = d >= 0 ? '+' : '−';
+    return `<td style="text-align:center" class="${cls}">${Math.abs(d) < 1 ? '—' : sign + EUR(Math.abs(d))}</td>`;
+  };
+  const rows = [
+    { label:'Nómina bruta', a: p.nomina, b: p.nomina, inv:false },
+    { label:'Cuota SS RETA', a: r.SS, b: r.SS, inv:false },
+    { label:'Base imponible IS', a: A.baseIS, b: B.baseIS, inv:false },
+    { label:'Impuesto de Sociedades (IS)', a: A.IS, b: B.IS, inv:true },
+    { label:'Beneficio neto empresa (reservas)', a: A.bNeto, b: B.bNeto, inv:false },
+    { sep: 'Socio — IRPF  (A: efecto neutro SS ⇄±0 · B: deduce SS)' },
+    { label:'Nómina bruta (base IRPF inicial — igual en ambas)', a: p.nomina, b: p.nomina, inv:false },
+    { label:'Rendimiento neto del trabajo', a: A.rdtoNeto, b: B.rdtoNeto, inv:false },
+    { label:'Base liquidable IRPF', a: A.baseLiq, b: B.baseLiq, inv:false },
+    { label:'IRPF estimado', a: A.irpf, b: B.irpf, inv:true },
+    { sep: 'Resumen' },
+    { label:'Carga fiscal total (IS+SS+IRPF)', a: A.carga, b: B.carga, inv:true },
+    { label:'🏆 Neto socio (nómina)', a: A.netoSocio, b: B.netoSocio, inv:false, bold:true },
+    { label:'Neto socio / mes', a: A.netoSocio/12, b: B.netoSocio/12, inv:false },
+    { label:'Eficiencia neto/BAIT', a: A.efBait, b: B.efBait, isPC:true, inv:false },
+  ];
+  let html = '';
+  for (const row of rows) {
+    if (row.sep) {
+      html += `<tr class="section-row"><td colspan="4">${row.sep}</td></tr>`;
+      continue;
+    }
+    const fmt = v => row.isPC ? PCT(v) : EUR(v);
+    const bCls = row.bold ? 'style="font-weight:800"' : '';
+    const bestA = row.inv ? (row.a < row.b) : (row.a > row.b);
+    const bestB = row.inv ? (row.b < row.a) : (row.b > row.a);
+    const cls = v => Math.abs(row.a - row.b) < 1 ? '' : (v === row.a ? (bestA ? 'best-val' : '') : (bestB ? 'best-val' : ''));
+    html += `<tr>
+      <td ${bCls}>${row.label}</td>
+      <td style="text-align:center" class="${cls(row.a)}">${fmt(row.a)}</td>
+      <td style="text-align:center" class="${cls(row.b)}">${fmt(row.b)}</td>
+      ${diffCell(row.a, row.b, row.inv)}
+    </tr>`;
+  }
+  document.getElementById('as_tabla_body').innerHTML = html;
+
+  // ── Gráfico de barras ────────────────────────────────────────────
+  renderASChart(p, r);
+}
+
+function renderASChart(p, r) {
+  const A = r.empPaga, B = r.socioPaga;
+  if (!p.BAIT) return;
+  const chartH = 165;
+  const scale  = chartH / (p.BAIT || 1);
+
+  const makeStack = (sc) => {
+    const segs = [
+      { v: sc.IS,                      c: 'var(--IS-color)'  },
+      { v: r.SS,                        c: 'var(--SS-color)'  },
+      { v: sc.irpf,                     c: 'var(--IRPF-color)'},
+      { v: Math.max(0, sc.netoSocio),   c: 'var(--NET-color)' },
+      { v: Math.max(0, sc.bNeto),       c: 'var(--RES-color)' },
+    ];
+    return segs.map(s => {
+      const h = Math.max(0, s.v * scale);
+      return `<div class="bar-seg" style="height:${h.toFixed(1)}px;background:${s.c}" title="${EUR(s.v)}"></div>`;
+    }).join('');
+  };
+
+  document.getElementById('as_chart').innerHTML = `
+    <div class="chart-col">
+      <div class="chart-bars">
+        <div class="bar-stack" style="height:${chartH}px">${makeStack(A)}</div>
+      </div>
+      <div class="bar-lbl${A.netoSocio >= B.netoSocio ? ' current' : ''}">
+        💼 Empresa paga SS<br><small style="font-size:.68rem">Neto ${PCT(A.efBait)}</small>
+      </div>
+    </div>
+    <div class="chart-col">
+      <div class="chart-bars">
+        <div class="bar-stack" style="height:${chartH}px">${makeStack(B)}</div>
+      </div>
+      <div class="bar-lbl${B.netoSocio > A.netoSocio ? ' current' : ''}">
+        👤 Socio paga SS<br><small style="font-size:.68rem">Neto ${PCT(B.efBait)}</small>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
