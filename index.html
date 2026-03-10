@@ -621,10 +621,6 @@
                         <input type="radio" name="configTab" value="raw" onchange="switchTab('raw')">
                         ⚙️ Editar JSON
                     </label>
-                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">
-                        <input type="radio" name="configTab" value="github" onchange="switchTab('github')">
-                        🔐 Token GitHub
-                    </label>
                 </div>
             </div>
 
@@ -695,49 +691,13 @@
                 </form>
             </div>
 
-            <!-- TAB: GITHUB TOKEN -->
-            <div id="tabGithub" class="tab-content" style="display: none;">
-                <form onsubmit="saveGitHubToken(event)">
-                    <div class="form-group">
-                        <label>🔐 Token Personal de GitHub</label>
-                        <p style="font-size: 12px; color: #7f8c8d; margin-bottom: 10px;">
-                            Necesario para guardar herramientas automáticamente en GitHub. Tu token se guardará localmente en el navegador.
-                        </p>
-                        <input type="password" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="font-family: monospace;">
-                    </div>
-                    <div class="form-group">
-                        <p style="font-size: 12px; color: #7f8c8d;">
-                            <strong>¿Cómo obtener un token?</strong><br>
-                            1. Ve a <a href="https://github.com/settings/tokens" target="_blank" style="color: #667eea;">GitHub Settings → Tokens</a><br>
-                            2. Click "Generate new token"<br>
-                            3. Selecciona permiso "repo"<br>
-                            4. Copia el token y pégalo aquí
-                        </p>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">✓ Guardar Token</button>
-                        <button type="button" class="btn-secondary" onclick="closeConfigModal()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
     <script>
-        // GITHUB API CONFIGURATION
-        const GITHUB_OWNER = 'actionbdmgalicia-lgtm';
-        const GITHUB_REPO = 'HerramientasForesvi';
-        const GITHUB_FILE = 'config.json';
-
-        // El token se obtiene desde localStorage (el usuario lo ingresa en la interfaz)
-        function getGitHubToken() {
-            return localStorage.getItem('github_token') || null;
-        }
-
-        // CONFIGURACIÓN LOCAL (localStorage)
+        // CONFIGURACIÓN - Se guarda automáticamente en GitHub via Vercel Function (/api/saveConfig)
 
         let currentCategory = null;
-        let gitHubFileSha = null; // Para guardar cambios en GitHub
         let config = {
             "herramientas": {
                 "dinero": [
@@ -778,75 +738,35 @@
             populateCategorySelect();
 
             // Cargar el SHA del archivo en GitHub para futuros cambios
-            loadGitHubFileSha();
         }
 
-        // CARGAR SHA DEL ARCHIVO EN GITHUB
-        async function loadGitHubFileSha() {
-            const token = getGitHubToken();
-            if (!token) {
-                console.log("⚠️ Token de GitHub no configurado");
-                return;
-            }
+        // GUARDAR CONFIGURACIÓN EN GITHUB (via Vercel Function)
+        async function saveToGitHub(commitMessage = 'Actualizar herramientas') {
             try {
-                const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
-                const response = await fetch(url, {
+                const response = await fetch('/api/saveConfig', {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    gitHubFileSha = data.sha;
-                    console.log("✅ SHA de GitHub obtenido");
-                }
-            } catch (error) {
-                console.warn("⚠️ Error al obtener SHA de GitHub:", error);
-            }
-        }
-
-        // GUARDAR CONFIGURACIÓN EN GITHUB
-        async function saveToGitHub(commitMessage = 'Agregar herramienta') {
-            const token = getGitHubToken();
-            if (!token) {
-                alert('⚠️ Token de GitHub no configurado. Ve a ⚙️ Configuración para ingresarlo.');
-                return false;
-            }
-
-            try {
-                // Codificar el contenido en base64
-                const content = btoa(JSON.stringify(config, null, 2));
-
-                const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: commitMessage,
-                        content: content,
-                        sha: gitHubFileSha
+                        config: config,
+                        commitMessage: commitMessage
                     })
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    gitHubFileSha = data.content.sha;
                     console.log("✅ Guardado en GitHub correctamente");
                     return true;
                 } else {
                     const error = await response.json();
-                    console.error("❌ Error en GitHub:", error);
-                    alert('❌ Error al guardar en GitHub: ' + (error.message || 'Error desconocido'));
+                    console.error("❌ Error:", error);
+                    alert('❌ Error al guardar: ' + (error.error || 'Error desconocido'));
                     return false;
                 }
             } catch (error) {
-                console.error("❌ Error al guardar en GitHub:", error);
-                alert('❌ Error de conexión con GitHub: ' + error.message);
+                console.error("❌ Error de conexión:", error);
+                alert('❌ Error de conexión: ' + error.message);
                 return false;
             }
         }
@@ -1107,46 +1027,10 @@
             document.getElementById('tabAdd').style.display = tab === 'add' ? 'block' : 'none';
             document.getElementById('tabManage').style.display = tab === 'manage' ? 'block' : 'none';
             document.getElementById('tabRaw').style.display = tab === 'raw' ? 'block' : 'none';
-            document.getElementById('tabGithub').style.display = tab === 'github' ? 'block' : 'none';
 
             if (tab === 'manage') {
                 renderManageTools();
             }
-            if (tab === 'github') {
-                // Cargar token guardado si existe
-                const savedToken = getGitHubToken();
-                if (savedToken) {
-                    document.getElementById('githubTokenInput').value = '●●●●●●●● (ya configurado)';
-                } else {
-                    document.getElementById('githubTokenInput').value = '';
-                }
-            }
-        }
-
-        // GUARDAR TOKEN DE GITHUB
-        function saveGitHubToken(event) {
-            event.preventDefault();
-            const token = document.getElementById('githubTokenInput').value.trim();
-
-            if (!token || token.includes('●●●')) {
-                alert('⚠️ Por favor ingresa un token válido');
-                return;
-            }
-
-            if (!token.startsWith('ghp_')) {
-                alert('⚠️ El token debe empezar con ghp_');
-                return;
-            }
-
-            // Guardar en localStorage
-            localStorage.setItem('github_token', token);
-            console.log("✅ Token de GitHub guardado");
-
-            // Cargar SHA para futuras actualizaciones
-            loadGitHubFileSha();
-
-            alert('✓ Token guardado correctamente!\n\nAhora las herramientas se guardarán automáticamente en GitHub.');
-            closeConfigModal();
         }
 
         function renderManageTools() {
