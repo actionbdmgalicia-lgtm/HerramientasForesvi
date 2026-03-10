@@ -551,9 +551,6 @@
         }
     </style>
 
-    <!-- FIREBASE SDK (compat - compatible con navegadores) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-compat/app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-compat/firestore.js"></script>
 </head>
 <body>
     <button class="menu-toggle" id="menuToggle">☰</button>
@@ -697,19 +694,7 @@
     </div>
 
     <script>
-        // FIREBASE CONFIGURATION
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSUc8hIF_ZwnIejm6ZO62-uwT7e73fbvI",
-            authDomain: "foresvi-hub.firebaseapp.com",
-            projectId: "foresvi-hub",
-            storageBucket: "foresvi-hub.firebasestorage.app",
-            messagingSenderId: "857081328033",
-            appId: "1:857081328033:web:af19dbc6661196caa19be0"
-        };
-
-        // INICIALIZAR FIREBASE
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // CONFIGURACIÓN LOCAL (localStorage)
 
         let currentCategory = null;
         let config = {
@@ -729,57 +714,27 @@
         };
         let currentTool = null;
 
-        // CARGAR CONFIGURACIÓN DESDE FIRESTORE
-        async function loadConfig() {
-            try {
-                const docRef = db.collection("app").doc("config");
-                const docSnap = await docRef.get();
-
-                if (docSnap.exists && docSnap.data() && docSnap.data().herramientas) {
-                    config = docSnap.data();
-                    console.log("✅ Configuración cargada desde Firestore");
-                } else {
-                    console.log("ℹ️ Primera carga: usando configuración por defecto y guardando en Firestore");
-                    // Asegurar que config tiene la estructura correcta
-                    if (!config.herramientas) {
-                        config = {
-                            "herramientas": {
-                                "dinero": [
-                                    {"id": "simulador-descuentos", "nombre": "Simulador Descuentos & Aumentos", "descripcion": "Simula el impacto de descuentos y aumentos en tus proyecciones financieras.", "tipo": "html", "ruta": "simulador aumentos y descuentos.html"},
-                                    {"id": "simulador-holding", "nombre": "Simulador Holding", "descripcion": "Analiza estructuras de holding y su impacto fiscal y financiero.", "tipo": "html", "ruta": "simulador-holding .html"},
-                                    {"id": "simulador-nominas", "nombre": "Simulador Nóminas", "descripcion": "Calcula nóminas, cotizaciones y análisis de costes laborales.", "tipo": "html", "ruta": "simulador_nomina_dividendos .html"}
-                                ],
-                                "especificos": [
-                                    {"id": "comisiones", "nombre": "Comisiones", "descripcion": "Gestiona y calcula estructuras de comisiones complejas.", "tipo": "html", "ruta": "comisiones .html"},
-                                    {"id": "calculadora-roi", "nombre": "Calculadora ROI", "descripcion": "Calcula el retorno sobre inversión de tus proyectos.", "tipo": "html", "ruta": "calculadora-roi .html"},
-                                    {"id": "comparador-mieles", "nombre": "Comparador Mieles", "descripcion": "Compara productos con análisis detallado de características.", "tipo": "html", "ruta": "comparador-mieles .html"}
-                                ],
-                                "destino": [], "tiempo": [], "servicio": [], "marketing": [], "ventas": [], "sistema": [], "equipo": [], "sinergia": [], "general": []
-                            }
-                        };
-                    }
-                    // Guardar configuración inicial en Firestore
-                    await docRef.set(config);
+        // CARGAR CONFIGURACIÓN (localStorage)
+        function loadConfig() {
+            // Intentar cargar desde localStorage primero
+            const savedConfig = localStorage.getItem('foresvi_config');
+            if (savedConfig) {
+                try {
+                    config = JSON.parse(savedConfig);
+                    console.log("✅ Configuración cargada desde localStorage");
+                } catch (error) {
+                    console.warn("⚠️ Error al parsear localStorage, usando config por defecto");
                 }
-            } catch (error) {
-                console.error("Error al cargar desde Firestore:", error);
-                console.log("⚠️ Usando configuración local por error");
+            } else {
+                console.log("ℹ️ Primera carga: usando configuración por defecto");
+                // Guardar config inicial en localStorage
+                localStorage.setItem('foresvi_config', JSON.stringify(config));
             }
 
             // Renderizar con los datos actuales
             renderCategories();
             renderTools();
             populateCategorySelect();
-
-            // LISTENER EN TIEMPO REAL para cambios desde otros dispositivos
-            db.collection("app").doc("config").onSnapshot((docSnap) => {
-                if (docSnap.exists && docSnap.data() && docSnap.data().herramientas) {
-                    config = docSnap.data();
-                    console.log("🔄 Configuración actualizada desde otro dispositivo");
-                    renderCategories();
-                    renderTools();
-                }
-            });
         }
 
         // RENDERIZAR CATEGORÍAS EN SIDEBAR
@@ -1183,15 +1138,12 @@
 
             config.herramientas[category].push(nuevaHerramienta);
 
-            // Guardar en Firestore
-            db.collection("app").doc("config").set(config).then(() => {
-                renderCategories();
-                renderTools();
-                closeConfigModal();
-                alert('✓ Herramienta agregada correctamente!\n\nID: ' + id + '\nTipo: ' + tipo + '\nRuta: ' + ruta);
-            }).catch(error => {
-                alert('❌ Error al guardar: ' + error.message);
-            });
+            // Guardar en localStorage
+            localStorage.setItem('foresvi_config', JSON.stringify(config));
+            renderCategories();
+            renderTools();
+            closeConfigModal();
+            alert('✓ Herramienta agregada correctamente!\n\nID: ' + id + '\nTipo: ' + tipo + '\nRuta: ' + ruta);
         }
 
         function saveJsonConfig(event) {
@@ -1200,15 +1152,12 @@
                 const json = document.getElementById('jsonEditor').value;
                 config = JSON.parse(json);
 
-                // Guardar en Firestore
-                db.collection("app").doc("config").set(config).then(() => {
-                    renderCategories();
-                    renderTools();
-                    closeConfigModal();
-                    alert('✓ Configuración guardada correctamente!');
-                }).catch(error => {
-                    alert('❌ Error al guardar: ' + error.message);
-                });
+                // Guardar en localStorage
+                localStorage.setItem('foresvi_config', JSON.stringify(config));
+                renderCategories();
+                renderTools();
+                closeConfigModal();
+                alert('✓ Configuración guardada correctamente!');
             } catch (error) {
                 alert('Error en JSON: ' + error.message);
             }
