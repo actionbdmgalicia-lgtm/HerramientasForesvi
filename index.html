@@ -736,24 +736,45 @@
                 const docRef = db.collection("app").doc("config");
                 const docSnap = await docRef.get();
 
-                if (docSnap.exists) {
+                if (docSnap.exists && docSnap.data() && docSnap.data().herramientas) {
                     config = docSnap.data();
                     console.log("✅ Configuración cargada desde Firestore");
                 } else {
-                    console.log("ℹ️ Primera carga: usando configuración por defecto");
+                    console.log("ℹ️ Primera carga: usando configuración por defecto y guardando en Firestore");
+                    // Asegurar que config tiene la estructura correcta
+                    if (!config.herramientas) {
+                        config = {
+                            "herramientas": {
+                                "dinero": [
+                                    {"id": "simulador-descuentos", "nombre": "Simulador Descuentos & Aumentos", "descripcion": "Simula el impacto de descuentos y aumentos en tus proyecciones financieras.", "tipo": "html", "ruta": "simulador aumentos y descuentos.html"},
+                                    {"id": "simulador-holding", "nombre": "Simulador Holding", "descripcion": "Analiza estructuras de holding y su impacto fiscal y financiero.", "tipo": "html", "ruta": "simulador-holding .html"},
+                                    {"id": "simulador-nominas", "nombre": "Simulador Nóminas", "descripcion": "Calcula nóminas, cotizaciones y análisis de costes laborales.", "tipo": "html", "ruta": "simulador_nomina_dividendos .html"}
+                                ],
+                                "especificos": [
+                                    {"id": "comisiones", "nombre": "Comisiones", "descripcion": "Gestiona y calcula estructuras de comisiones complejas.", "tipo": "html", "ruta": "comisiones .html"},
+                                    {"id": "calculadora-roi", "nombre": "Calculadora ROI", "descripcion": "Calcula el retorno sobre inversión de tus proyectos.", "tipo": "html", "ruta": "calculadora-roi .html"},
+                                    {"id": "comparador-mieles", "nombre": "Comparador Mieles", "descripcion": "Compara productos con análisis detallado de características.", "tipo": "html", "ruta": "comparador-mieles .html"}
+                                ],
+                                "destino": [], "tiempo": [], "servicio": [], "marketing": [], "ventas": [], "sistema": [], "equipo": [], "sinergia": [], "general": []
+                            }
+                        };
+                    }
                     // Guardar configuración inicial en Firestore
                     await docRef.set(config);
                 }
             } catch (error) {
                 console.error("Error al cargar desde Firestore:", error);
+                console.log("⚠️ Usando configuración local por error");
             }
+
+            // Renderizar con los datos actuales
             renderCategories();
             renderTools();
             populateCategorySelect();
 
             // LISTENER EN TIEMPO REAL para cambios desde otros dispositivos
             db.collection("app").doc("config").onSnapshot((docSnap) => {
-                if (docSnap.exists) {
+                if (docSnap.exists && docSnap.data() && docSnap.data().herramientas) {
                     config = docSnap.data();
                     console.log("🔄 Configuración actualizada desde otro dispositivo");
                     renderCategories();
