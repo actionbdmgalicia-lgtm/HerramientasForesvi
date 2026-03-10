@@ -550,6 +550,11 @@
             }
         }
     </style>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 </head>
 <body>
     <button class="menu-toggle" id="menuToggle">☰</button>
@@ -693,6 +698,20 @@
     </div>
 
     <script>
+        // FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSUc8hIF_ZwnIejm6ZO62-uwT7e73fbvI",
+            authDomain: "foresvi-hub.firebaseapp.com",
+            projectId: "foresvi-hub",
+            storageBucket: "foresvi-hub.firebasestorage.app",
+            messagingSenderId: "857081328033",
+            appId: "1:857081328033:web:af19dbc6661196caa19be0"
+        };
+
+        // INICIALIZAR FIREBASE
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let currentCategory = null;
         let config = {
             "herramientas": {
@@ -711,19 +730,36 @@
         };
         let currentTool = null;
 
-        // CARGAR CONFIGURACIÓN (intenta desde config.json, si falla usa inline)
+        // CARGAR CONFIGURACIÓN DESDE FIRESTORE
         async function loadConfig() {
             try {
-                const response = await fetch('config.json');
-                if (response.ok) {
-                    config = await response.json();
+                const docRef = db.collection("app").doc("config");
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    config = docSnap.data();
+                    console.log("✅ Configuración cargada desde Firestore");
+                } else {
+                    console.log("ℹ️ Primera carga: usando configuración por defecto");
+                    // Guardar configuración inicial en Firestore
+                    await docRef.set(config);
                 }
             } catch (error) {
-                console.warn('No se pudo cargar config.json (normal en file://), usando configuración inline');
+                console.error("Error al cargar desde Firestore:", error);
             }
             renderCategories();
             renderTools();
             populateCategorySelect();
+
+            // LISTENER EN TIEMPO REAL para cambios desde otros dispositivos
+            db.collection("app").doc("config").onSnapshot((docSnap) => {
+                if (docSnap.exists) {
+                    config = docSnap.data();
+                    console.log("🔄 Configuración actualizada desde otro dispositivo");
+                    renderCategories();
+                    renderTools();
+                }
+            });
         }
 
         // RENDERIZAR CATEGORÍAS EN SIDEBAR
@@ -970,9 +1006,8 @@
         // MODAL CONFIGURACIÓN
         function openConfigModal() {
             document.getElementById('configModal').classList.add('active');
-            // Mostrar la configuración actual (inline o desde localStorage)
-            const currentConfig = localStorage.getItem('foresvi_config') || JSON.stringify(config, null, 2);
-            document.getElementById('jsonEditor').value = currentConfig;
+            // Mostrar la configuración actual desde Firestore
+            document.getElementById('jsonEditor').value = JSON.stringify(config, null, 2);
         }
 
         function closeConfigModal() {
@@ -1128,13 +1163,15 @@
 
             config.herramientas[category].push(nuevaHerramienta);
 
-            // Guardar en localStorage
-            localStorage.setItem('foresvi_config', JSON.stringify(config));
-
-            renderCategories();
-            renderTools();
-            closeConfigModal();
-            alert('✓ Herramienta agregada correctamente!\n\nID: ' + id + '\nTipo: ' + tipo + '\nRuta: ' + ruta);
+            // Guardar en Firestore
+            db.collection("app").doc("config").set(config).then(() => {
+                renderCategories();
+                renderTools();
+                closeConfigModal();
+                alert('✓ Herramienta agregada correctamente!\n\nID: ' + id + '\nTipo: ' + tipo + '\nRuta: ' + ruta);
+            }).catch(error => {
+                alert('❌ Error al guardar: ' + error.message);
+            });
         }
 
         function saveJsonConfig(event) {
@@ -1142,11 +1179,16 @@
             try {
                 const json = document.getElementById('jsonEditor').value;
                 config = JSON.parse(json);
-                localStorage.setItem('foresvi_config', JSON.stringify(config));
-                renderCategories();
-                renderTools();
-                closeConfigModal();
-                alert('✓ Configuración guardada correctamente!');
+
+                // Guardar en Firestore
+                db.collection("app").doc("config").set(config).then(() => {
+                    renderCategories();
+                    renderTools();
+                    closeConfigModal();
+                    alert('✓ Configuración guardada correctamente!');
+                }).catch(error => {
+                    alert('❌ Error al guardar: ' + error.message);
+                });
             } catch (error) {
                 alert('Error en JSON: ' + error.message);
             }
@@ -1185,21 +1227,8 @@
 
         // INICIAR
         window.addEventListener('DOMContentLoaded', () => {
-            // Verificar si hay config en localStorage (cambios dinámicos)
-            const savedConfig = localStorage.getItem('foresvi_config');
-            if (savedConfig) {
-                try {
-                    config = JSON.parse(savedConfig);
-                } catch (e) {
-                    console.warn('Error en localStorage, usando configuración por defecto');
-                }
-            }
-
-            // Renderizar con config actual (inline o localStorage)
-            currentCategory = null; // Vacío al cargar
-            renderCategories();
-            renderTools(); // Mostrará mensaje de seleccionar categoría
-            populateCategorySelect();
+            // Cargar configuración desde Firestore
+            loadConfig();
 
             if (window.innerWidth <= 768) {
                 document.getElementById('menuToggle').style.display = 'block';
