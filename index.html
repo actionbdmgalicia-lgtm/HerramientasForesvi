@@ -1248,8 +1248,16 @@
 
         // INICIAR
         window.addEventListener('DOMContentLoaded', () => {
+            console.log("🔄 Iniciando Hub FORESVI...");
+            console.log("✅ Firebase inicializado:", firebase.app() ? "SÍ" : "NO");
+            console.log("📦 Config inicial:", config.herramientas ? "OK" : "ERROR");
+
             // Cargar configuración desde Firestore
-            loadConfig();
+            loadConfig().then(() => {
+                console.log("✅ Configuración cargada exitosamente");
+            }).catch(error => {
+                console.error("❌ Error al cargar config:", error);
+            });
 
             if (window.innerWidth <= 768) {
                 document.getElementById('menuToggle').style.display = 'block';
