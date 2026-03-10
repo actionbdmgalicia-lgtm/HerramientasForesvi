@@ -46,7 +46,16 @@
         "ruta": "comparador-mieles .html"
       }
     ],
-    "destino": [],
+    "destino": [
+      {
+        "id": "circulopasion",
+        "nombre": "Circulo de l pasion",
+        "descripcion": "No-DESEO-HAYQUE-QUIERO",
+        "tipo": "url",
+        "ruta": "https://gemini.google.com/share/4fb4d5088711",
+        "url": "https://gemini.google.com/share/4fb4d5088711"
+      }
+    ],
     "tiempo": [],
     "servicio": [],
     "marketing": [],
@@ -55,13 +64,5 @@
     "equipo": [],
     "sinergia": [],
     "general": []
-  },
-  "enlaces_externos": {
-    "ejemplo": {
-      "nombre": "Google",
-      "url": "https://google.com",
-      "icono": "🔗"
-    }
-  },
-  "notas": "Edita esta archivo para agregar/modificar herramientas. Tipos: 'html' (local) o 'url' (externa)"
+  }
 }
