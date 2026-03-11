@@ -576,8 +576,13 @@
             <!-- GRID VIEW -->
             <div id="gridView" class="grid-view">
                 <div class="header">
-                    <h2 id="gridTitle">🛠️ Herramientas FORESVI</h2>
-                    <p id="gridSubtitle">Selecciona una categoría en el menú lateral</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h2 id="gridTitle">🛠️ Herramientas FORESVI</h2>
+                            <p id="gridSubtitle">Selecciona una categoría en el menú lateral</p>
+                        </div>
+                        <button onclick="syncFromGitHub()" style="padding: 10px 20px; background: #E25454; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;" title="Sincronizar con GitHub">🔄 Sincronizar</button>
+                    </div>
                 </div>
                 <div id="toolsGrid" class="tools-grid"></div>
             </div>
@@ -768,6 +773,34 @@
                 console.error("❌ Error de conexión:", error);
                 alert('❌ Error de conexión: ' + error.message);
                 return false;
+            }
+        }
+
+        // SINCRONIZAR DESDE GITHUB
+        async function syncFromGitHub() {
+            try {
+                console.log("🔄 Sincronizando desde GitHub...");
+                const response = await fetch('config.json');
+
+                if (response.ok) {
+                    const remoteConfig = await response.json();
+                    config = remoteConfig;
+
+                    // Guardar en localStorage
+                    localStorage.setItem('foresvi_config', JSON.stringify(config));
+
+                    // Recargar la interfaz
+                    renderCategories();
+                    renderTools();
+
+                    console.log("✅ Sincronizado con GitHub correctamente");
+                    alert('✅ Sincronizado con GitHub!\n\nTodas las herramientas están actualizadas.');
+                } else {
+                    alert('❌ Error al sincronizar: No se pudo cargar config.json');
+                }
+            } catch (error) {
+                console.error("❌ Error:", error);
+                alert('❌ Error al sincronizar: ' + error.message);
             }
         }
 
