@@ -61,7 +61,16 @@
     "marketing": [],
     "ventas": [],
     "sistema": [],
-    "equipo": [],
+    "equipo": [
+      {
+        "id": "oneminutemanager",
+        "nombre": "Ejecutivo al minuto",
+        "descripcion": "Ejecutivo al minuto",
+        "tipo": "url",
+        "ruta": "https://g.co/gemini/share/1b7165a22c5b",
+        "url": "https://g.co/gemini/share/1b7165a22c5b"
+      }
+    ],
     "sinergia": [],
     "general": []
   }
