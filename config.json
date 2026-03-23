@@ -72,6 +72,15 @@
       }
     ],
     "sinergia": [],
-    "general": []
+    "general": [
+      {
+        "id": "foresvi_honorarios",
+        "nombre": "FORESVI HONORARIOS",
+        "descripcion": "Calculo Fijos_Variable FORESVI",
+        "tipo": "url",
+        "ruta": "https://gemini.google.com/share/dae6bed127ff",
+        "url": "https://gemini.google.com/share/dae6bed127ff"
+      }
+    ]
   }
 }
