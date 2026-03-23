@@ -58,7 +58,16 @@
     ],
     "tiempo": [],
     "servicio": [],
-    "marketing": [],
+    "marketing": [
+      {
+        "id": "foresvi_honorarios",
+        "nombre": "AIDA",
+        "descripcion": "AIDA",
+        "tipo": "url",
+        "ruta": "https://gemini.google.com/share/1e240904e36d",
+        "url": "https://gemini.google.com/share/1e240904e36d"
+      }
+    ],
     "ventas": [],
     "sistema": [],
     "equipo": [
