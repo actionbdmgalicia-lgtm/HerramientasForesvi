@@ -78,6 +78,14 @@
         "tipo": "url",
         "ruta": "https://g.co/gemini/share/1b7165a22c5b",
         "url": "https://g.co/gemini/share/1b7165a22c5b"
+      },
+      {
+        "id": "5disfunciones",
+        "nombre": "5 DISFUNCIONES",
+        "descripcion": "5 DISFUNCIONES PATRICK LENCIONI",
+        "tipo": "url",
+        "ruta": "https://gemini.google.com/share/4cae43d6e552",
+        "url": "https://gemini.google.com/share/4cae43d6e552"
       }
     ],
     "sinergia": [],
