@@ -68,7 +68,16 @@
         "url": "https://gemini.google.com/share/1e240904e36d"
       }
     ],
-    "ventas": [],
+    "ventas": [
+      {
+        "id": "técnicasventas",
+        "nombre": "TecnicasVentas",
+        "descripcion": "TecnicasVenta Intersut",
+        "tipo": "url",
+        "ruta": "https://gemini.google.com/share/45388caad92e",
+        "url": "https://gemini.google.com/share/45388caad92e"
+      }
+    ],
     "sistema": [],
     "equipo": [
       {
